@@ -132,6 +132,7 @@ android {
     }
 
     defaultConfig {
+        multiDexEnabled true
         applicationId 'com.acostahenry7.testnative'
         minSdkVersion rootProject.ext.minSdkVersion
 	missingDimensionStrategy 'react-native-camera', 'mlkit'
@@ -190,6 +191,7 @@ dependencies {
     //noinspection GradleDynamicVersion
     implementation "com.facebook.react:react-native:+"  // From node_modules
     //implementation 'androidx.work:work-runtime-ktx:2.7.0'
+    implementation 'com.android.support:multidex:1.0.3'
 
     def isGifEnabled = (findProperty('expo.gif.enabled') ?: "") == "true";
     def isWebpEnabled = (findProperty('expo.webp.enabled') ?: "") == "true";

@@ -125,9 +125,9 @@ export default function PaymentsFormScreen(props) {
                                     // //console.log(quotas[loanNumber][x]);
                                     if (amount >=  quotas[loanNumber][x].current_fee) { 
                                         statusType = 'PAID'
-
+                                        console.log("NO ME DIGAS", quotas[loanNumber][x]);
                                         amortization.push({
-                                            //quota_number: quotas[loanNumber][i],
+                                            quota_number: quotas[loanNumber][x].quota_number,
                                             date: ( () => {
                                                 //Date
                                                 const date = new Date().getDate()
@@ -158,9 +158,9 @@ export default function PaymentsFormScreen(props) {
 
                                     }else {
                                         statusType = 'COMPOST' 
-
+                                        console.log("NO ME DIGAS", quotas[loanNumber][x]);
                                         amortization.push({
-                                            //quota_number: quotas[loanNumber][i],
+                                            quota_number: quotas[loanNumber][x].quota_number,
                                             date: ( () => {
                                                 //Date
                                                 const date = new Date().getDate()
@@ -178,7 +178,7 @@ export default function PaymentsFormScreen(props) {
                                             })(),
                                             amount: parseInt(quotas[loanNumber][x].current_fee),
                                             quotaId: quotas[loanNumber][x].amortization_id,
-                                            totalPaid: amount + ".00",
+                                            totalPaid: amount,
                                             statusType,
                                             mora: quotas[loanNumber][x].mora,
                                             paid: statusType == 'PAID' ? true: false,
@@ -311,11 +311,14 @@ export default function PaymentsFormScreen(props) {
 
             
             const response = await createPaymentaApi(data)
+            
              //console.log("Receipt", response);
             if (response){
                 setReceiptDetails({
                     loanNumber,
                     login: auth.login,
+                    outlet: auth.name,
+                    rnc: auth.rnc,
                     section: response.loanDetails?.section,
                     receiptNumber: response.receipt?.receipt_number,
                     paymentMethod: data.payment.paymentMethod,

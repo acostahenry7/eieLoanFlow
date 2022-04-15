@@ -5,6 +5,7 @@ import  AcountScreen  from '../screens/AcountScreen'
 import QRScreen from '../screens/QRScreen'
 import QRImageScreen from '../screens/QRImageScreen'
 import PrinterScreen from '../screens/PrinterScreen'
+import ReportsScreen from '../screens/ReportsScreen'
 
 const Stack = createStackNavigator()
 
@@ -37,6 +38,14 @@ export default function AcountNavigation() {
             <Stack.Screen
              name='Printers'
              component={PrinterScreen}
+            />
+
+            <Stack.Screen
+             name='Reports'
+             component={ReportsScreen}
+             options={{
+                 title: 'Reportes'
+             }}
             />
         </Stack.Navigator>
     )

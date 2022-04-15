@@ -30,8 +30,8 @@ export default function Receipt(props) {
                 paddingHorizontal: 15
                 }}>
                     <View style={{alignItems: 'center'}}>
-                        <Text style={{fontWeight: 'bold'}}>PRINCIPAL</Text>
-                        <Text style={{fontWeight:'bold'}}>RNC: 101889776</Text>
+                        <Text style={{fontWeight: 'bold'}}>{receiptDetails.outlet}</Text>
+                        <Text style={{fontWeight:'bold'}}>RNC: {receiptDetails.rnc}</Text>
                         <Text style={{ marginTop: 10, backgroundColor: 'black', width: "100%", color: 'white', textAlign: 'center', fontWeight: 'bold'}}>RECIBO</Text>
                     </View>
                     <View>

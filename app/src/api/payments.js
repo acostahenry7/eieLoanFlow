@@ -72,6 +72,7 @@ export async function createPaymentaApi(data){
 }
 
 export async function createVisitCommentaryApi(data){
+        console.log(data);
     const options = {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
@@ -82,7 +83,10 @@ export async function createVisitCommentaryApi(data){
 
         const url = `${await getSavedConnectionUrlApi()}/visit/commentary`
         const response = await fetch(url, options)
+        console.log(response);
         const result = await response.json()
+
+        console.log(result);
         return result
 
     } catch (error) {

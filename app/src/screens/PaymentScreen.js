@@ -107,7 +107,8 @@ export default function PaymentScreen(props) {
           
          const response = await getRegisterStatusApi(auth?.user_id)
          if(response?.status == false){
-            const register = await createRegisterApi(data)
+            //const register = await createRegisterApi(data)
+            const register =  true
             setOpenedCashier(true)
             setRegisterInfo(register)
          }else {
@@ -209,7 +210,7 @@ export default function PaymentScreen(props) {
                         <View style={{flexDirection: 'row', paddingHorizontal: 15}}>
                             <TextInput 
                             style={{...styles.searchInput, marginRight: 10}}
-                            placeholder='#préstamo, cédula'  
+                            placeholder='#préstamo'  
                             value={formik.values.searchKey}
                             onChangeText={text => formik.setFieldValue('searchKey', text)}
                             />

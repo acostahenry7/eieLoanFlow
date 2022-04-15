@@ -3,10 +3,12 @@ import React, { useEffect, useState } from 'react'
 import { getReceiptsByLoanApi, getAmortizationByPaymentApi } from '../api/receipts'
 import CardTemplate from '../components/CardTemplate'
 import Receipt from '../components/Receipt'
+import useAuth from '../hooks/useAuth'
 
 export default function ReceiptScreen(props) {
 
     const { navigation , route : {params}} = props
+    const { auth } = useAuth()
     const {customer, loans, loan} = params
     console.log('CUSTOMER', customer);
     const [payments, setPayments] = useState([])
@@ -35,9 +37,14 @@ export default function ReceiptScreen(props) {
           action: async (payment) => {
               const response = await getAmortizationByPaymentApi({paymentId: payment.payment_id})
               setQuotas(response)
+
+              console.log(auth);
+
               //  console.log(quotas);
               setReceiptDetails({
                 loanNumber: loan,
+                outlet: auth.name,
+                rnc: auth.rnc,
                 receiptNumber: payment.receipt.receipt_number,
                 amortization: quotas,
                 date: payment.created_date,

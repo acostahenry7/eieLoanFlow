@@ -20,3 +20,5 @@ export async function createVisitApi(data){
         console.log(error);        
     }
 }
+
+
