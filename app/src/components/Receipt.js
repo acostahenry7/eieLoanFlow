@@ -2,11 +2,12 @@ import React from 'react'
 import { View, Text, Modal, Button } from 'react-native'
 import { printByBluetooth } from '../api/bluetooth/Print';
 import {Alert} from "react-native"
+import Icon from 'react-native-vector-icons/MaterialIcons'
 
 
 export default function Receipt(props) {
 
-    const { receiptDetails, receiptVisibility, quotas, navigation } = props
+    const { receiptDetails, receiptVisibility, setReceiptVisibility, quotas, navigation } = props
 
     receiptDetails.amortization = [...quotas]
 
@@ -15,9 +16,11 @@ export default function Receipt(props) {
   return (
     <Modal 
         transparent={true}
+        animationType="fade"
         visible={receiptVisibility}
-        style={{height: 50}}
+        style={{height: 50, backgroundColor: 'rgba(255, 255, 255, 0)'}}
         >
+            <View style={{height: '100%', backgroundColor: 'rgba(0,0,0, 0.3)'}}>
             <View style={{backgroundColor: 'white', marginTop: 'auto', marginBottom: 'auto', marginHorizontal: 20, shadowColor: "#000",
                 shadowOffset: {
                 width: 0,
@@ -29,6 +32,9 @@ export default function Receipt(props) {
                 paddingVertical: 20,
                 paddingHorizontal: 15
                 }}>
+                    <View>
+                        <Icon name="close" size={25} onPress={() => setReceiptVisibility(false)} style={{textAlign: 'right'}}/>
+                    </View>
                     <View style={{alignItems: 'center'}}>
                         <Text style={{fontWeight: 'bold'}}>{receiptDetails.outlet}</Text>
                         <Text style={{fontWeight:'bold'}}>RNC: {receiptDetails.rnc}</Text>
@@ -109,6 +115,7 @@ export default function Receipt(props) {
                                 }}/>
                         </View>
                     </View>
+            </View>
             </View>
     </Modal>
   )

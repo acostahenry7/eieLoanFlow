@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
 import {
   Menu,
   MenuOptions,
@@ -23,6 +23,7 @@ export default function CardTemplate(props) {
     menuOptions,
     actionParam,
     actionParam2,
+    screen
   } = props;
 
   console.log(data);
@@ -48,99 +49,151 @@ export default function CardTemplate(props) {
   const navigation = useNavigation();
 
   return (
-    <View style={styles.cardContainer}>
-      <View style={styles.cardRow}>
-        <View
-          style={{
-            marginRight: 10,
-            justifyContent: "center",
-          }}
-        >
-          <CustomerIcon size={95} imageSize={95} data={data} />
-        </View>
-        <View>
+    <View>
+      {
+        screen != 'Recibo' ?
+        <View style={styles.cardContainer}>
+        <View style={styles.cardRow}>
           <View
             style={{
-              ...styles.section,
-              marginLeft: 0,
-              justifyContent: "flex-start",
-              paddingTop: 12,
+              marginRight: 10,
+              justifyContent: "center",
             }}
           >
-            <Text style={styles.title}>{mainTitle}</Text>
-            <Text style={styles.mainText}>{formatText(mainText)}</Text>
+            <CustomerIcon size={95} imageSize={95} data={data} />
           </View>
-          <View style={{ marginTop: 7 }}>
-            <Text style={styles.title}>{secondaryTitle}</Text>
-            <Text style={styles.secondaryText}>
-              {formatText(secondaryText)}
-            </Text>
+          <View>
+            <View
+              style={{
+                ...styles.section,
+                marginLeft: 0,
+                justifyContent: "flex-start",
+                paddingTop: 12,
+              }}
+            >
+              <Text style={styles.title}>{mainTitle}</Text>
+              <Text style={styles.mainText}>{formatText(mainText)}</Text>
+            </View>
+            <View style={{ marginTop: 7 }}>
+              <Text style={styles.title}>{secondaryTitle}</Text>
+              <Text style={styles.secondaryText}>
+                {formatText(secondaryText)}
+              </Text>
+            </View>
           </View>
         </View>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          paddingHorizontal: 10,
-          paddingTop: 10,
-          justifyContent: "space-around",
-        }}
-      >
-        <Icon
-          name="location"
-          size={20}
-          color={"crimson"}
-          onPress={() => {
-            navigation.navigate("GpsRoot", { screen: "Gps" });
+        <View
+          style={{
+            flexDirection: "row",
+            paddingHorizontal: 10,
+            paddingTop: 10,
+            justifyContent: "space-around",
           }}
-        />
-        <Icon
-          name="user"
-          size={20}
-          color={"#5f9ea0"}
-          onPress={() => {
-            navigation.navigate("Customers", {
-              screen: "Customer",
-              params: { id: uid },
-            });
-          }}
-        />
-        <IonIcon name="qr-code" size={20} />
-      </View>
-      {/*<View>
-        <Menu>
-          <MenuTrigger>
-            <Icon
-              name="more-vert"
-              style={{
-                top: 0,
-                fontSize: 24,
-                color: "black",
-                paddingHorizontal: 13,
-                paddingVertical: 6,
-                borderRadius: 50,
-              }}
-            />
-          </MenuTrigger>
-          <MenuOptions
-            customStyles={{ optionText: { fontSize: 15 } }}
-            optionsContainerStyle={{ marginLeft: 6 }}
-          >
-            {menuOptions?.map((option, index) => (
-              <MenuOption
-                key={index}
-                text={option.name}
-                style={styles.menuOption}
-                onSelect={async () => {
-                  console.log(option);
-                  option.action(actionParam);
+        >
+          <Icon
+            name="location"
+            size={20}
+            color={"crimson"}
+            onPress={() => {
+              navigation.navigate("GpsRoot", { screen: "Gps" });
+            }}
+          />
+          <Icon
+            name="user"
+            size={20}
+            color={"#5f9ea0"}
+            onPress={() => {
+              navigation.navigate("Customers", {
+                screen: "Customer",
+                params: { id: uid },
+              });
+            }}
+          />
+          <IonIcon name="qr-code" size={20} />
+        </View>
+        {/*<View>
+          <Menu>
+            <MenuTrigger>
+              <Icon
+                name="more-vert"
+                style={{
+                  top: 0,
+                  fontSize: 24,
+                  color: "black",
+                  paddingHorizontal: 13,
+                  paddingVertical: 6,
+                  borderRadius: 50,
                 }}
               />
-            ))}
-          </MenuOptions>
-        </Menu>
-      </View> */}
+            </MenuTrigger>
+            <MenuOptions
+              customStyles={{ optionText: { fontSize: 15 } }}
+              optionsContainerStyle={{ marginLeft: 6 }}
+            >
+              {menuOptions?.map((option, index) => (
+                <MenuOption
+                  key={index}
+                  text={option.name}
+                  style={styles.menuOption}
+                  onSelect={async () => {
+                    console.log(option);
+                    option.action(actionParam);
+                  }}
+                />
+              ))}
+            </MenuOptions>
+          </Menu>
+        </View> */}
+      </View>
+        :
+        <TouchableWithoutFeedback>
+             <View style={{...styles.rCardContainer, flexDirection: 'row', justifyContent: 'space-around'}}> 
+          <View>
+            <Text style={styles.title}>{mainTitle}</Text>
+            <Text>{mainText}</Text>
+          </View>
+          <View>
+            <Text style={styles.title}>{secondaryTitle}</Text>
+            <Text>{secondaryText}</Text>
+          </View>
+          <View>
+          <Menu>
+            <MenuTrigger>
+              <Icon
+                name="dots-three-vertical"
+                style={{
+                  top: 0,
+                  fontSize: 18,
+                  color: "black",
+                  paddingHorizontal: 13,
+                  paddingVertical: 6,
+                  borderRadius: 50,
+                }}
+              />
+            </MenuTrigger>
+            <MenuOptions
+              customStyles={{ optionText: { fontSize: 15 } }}
+              optionsContainerStyle={{ marginLeft: 6 }}
+            >
+              {menuOptions?.map((option, index) => (
+                <MenuOption
+                  key={index}
+                  text={option.name}
+                  style={styles.menuOption}
+                  onSelect={async () => {
+                    console.log(option);
+                    option.action(actionParam);
+                  }}
+                />
+              ))}
+            </MenuOptions>
+          </Menu>
+        </View>
+        </View>
+        </TouchableWithoutFeedback>
+      }
     </View>
+    
   );
 }
 
@@ -157,6 +210,19 @@ const styles = StyleSheet.create({
     marginHorizontal: 1,
     marginBottom: 4,
     height: 180,
+  },
+
+  rCardContainer: {
+    elevation: 3,
+    //marginTop: 10,
+    backgroundColor: "white",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+    borderRadius: 10,
+    borderLeftColor: "#4682b4",
+    borderLeftWidth: 7,
+    marginHorizontal: 1,
+    marginBottom: 4,
   },
 
   section: {},

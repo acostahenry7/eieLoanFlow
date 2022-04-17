@@ -15,7 +15,7 @@ export default function Map(props) {
 
   return (
       <MapView
-      style={tw`flex-1`}
+      style={{flex: 1}}
       mapType={'standard'}
       initialRegion={{
           latitude: origin && origin.latitude || 0,

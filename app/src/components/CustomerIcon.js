@@ -21,7 +21,7 @@ export default function CustomerIcon(props) {
 
   return (
     <View style={{ ...styles.customIcon, width: size, height: size }}>
-      {data.image_url ? (
+      {data?.image_url ? (
         <Image
           style={{ width: imageSize, height: imageSize, borderRadius: 100 }}
           source={{

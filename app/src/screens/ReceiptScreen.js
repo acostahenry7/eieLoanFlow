@@ -93,6 +93,7 @@ export default function ReceiptScreen(props) {
           payments?.map((payment, index) => (
 
               <CardTemplate
+                screen='Recibo'
                 key={index}
                 actionParam={payment}
                 searchKey={payment?.payment_id}
@@ -110,6 +111,7 @@ export default function ReceiptScreen(props) {
         }
       </ScrollView>
       <Receipt
+        setReceiptVisibility={setReceiptVisibility}
         receiptDetails={receiptDetails} 
         receiptVisibility={receiptVisibility}
         quotas={quotas}

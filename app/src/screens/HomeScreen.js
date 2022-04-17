@@ -109,6 +109,7 @@ export default function HomeScreen(props) {
       const response = await getPayementRoutes(auth?.employee_id);
       setIsLoading(false);
       setRoutes(response);
+      console.log(response);
     })();
   }, [auth]);
 
@@ -258,6 +259,75 @@ export default function HomeScreen(props) {
           </View>
         </Modal>
       }
+    {/*Qr Scanner*/}
+   <Modal animationType="slide" visible={modalVisibility}>
+       <View>
+         <Icon
+          name="times"
+          style={{
+            right: 25,
+            top: 25,
+            zIndex: 2,
+            fontSize: 25,
+            position: "absolute",
+            color: "white",
+          }}
+          onPress={() => setmodalVisibility(false)}
+        />
+        <Text
+          style={{
+            marginTop: 180,
+            marginLeft: 67,
+            color: "white",
+            fontSize: 18,
+            zIndex: 2,
+            position: "absolute",
+            fontWeight: "bold",
+          }}
+        >
+          Escanee el código QR del Cliente
+        </Text>
+      </View>
+      <View style={{}}>
+        <RNCamera
+          ref={cameraRef.current}
+          style={{
+            //flex: 1,
+            zIndex: 0,
+            //height: '100%',
+            width: "100%",
+          }}
+          onBarCodeRead={onBarcodeRead}
+        >
+          <View style={{ height: "100%" }}>
+            <View
+              style={{ height: 260, backgroundColor: "#00000040" }}
+            ></View>
+            <View
+              style={{
+                height: 292,
+                width: 292,
+                borderWidth: 6,
+                borderRadius: 5,
+                borderColor: "white",
+                marginLeft: "auto",
+                marginRight: "auto",
+                marginTop: "auto",
+              }}
+            ></View>
+            <View
+              style={{
+                height: 260,
+                backgroundColor: "#00000040",
+                marginTop: "auto",
+              }}
+            ></View>
+          </View>
+        </RNCamera>
+      </View>
+    </Modal>
+    
+      {/*Top Navbar*/ }
       <View
         style={{
           height: 80,
@@ -274,13 +344,15 @@ export default function HomeScreen(props) {
           style={{
             marginLeft: 20,
             fontSize: 27,
-            fontFamily: "robotic",
+            fontFamily: 'Helvetica Neue',
             fontWeight: "bold",
           }}
         >
           EIE Loanflow
         </Text>
       </View>
+
+      {/*Payment Route*/}
       <View style={{}}>
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -320,6 +392,34 @@ export default function HomeScreen(props) {
             ))
           )}
         </ScrollView>
+      </View>
+
+      {/*QR Scanner trigger Icon*/}
+      <View style={{height: "100%"}}>
+      <Icon
+        onPress={() => {
+          console.log("hi");
+          setmodalVisibility(true);
+        }}
+        name="qrcode"
+        color={"black"}
+        style={{
+          position: "absolute",
+          bottom: 200,
+          right: 25,
+          zIndex: 999,
+          backgroundColor: "#4682b4",
+          color: "white",
+          fontSize: 40,
+          width: 67,
+          height: 67,
+          elevation: 5,
+          paddingTop: 12,
+          paddingBottom: 10,
+          paddingLeft: 15.5,
+          borderRadius: 50,
+        }}
+      />
       </View>
     </SafeAreaView>
   );

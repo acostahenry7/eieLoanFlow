@@ -91,7 +91,7 @@ export default function CustomerCard(props) {
               style={{
                 paddingVertical: 1,
                 paddingLeft: 15,
-                width: WINDOW_DIMENSION.width <= 360 ? 180 : 230,
+                width: WINDOW_DIMENSION.width <= 360 ? 180 : 200,
                 //backgroundColor: 'green'
               }}
             >
@@ -100,7 +100,7 @@ export default function CustomerCard(props) {
                 style={{
                   fontWeight: "bold",
                   fontSize: 15,
-                  width: WINDOW_DIMENSION.width <= 360 ? 180 : 200,
+                  width: WINDOW_DIMENSION.width <= 360 ? 180 : WINDOW_DIMENSION.width - 200,
                   //backgroundColor : 'green'
                 }}
               >

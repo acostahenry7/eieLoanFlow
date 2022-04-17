@@ -8,19 +8,26 @@ const MapScreen = (props) => {
   //console.log(props);
   const [test, setTest] = useState(null);
 
-  Geolocation.getCurrentPosition(
-    (position) => {
-      console.log(position);
-      setTest(position.coords);
-    },
-    (error) => {
-      // Alert.alert(
-      //   "Error de GPS",
-      //   "Error accediendo a su ubicación, habilite la ubicación por gps en su dispositivo."
-      // );
-    },
-    { enableHighAccuracy: false, timeout: 20000 }
-  );
+
+  useEffect( () => {
+    (async => {
+      Geolocation.getCurrentPosition(
+        (position) => {
+          console.log('POSITION', position);
+          setTest(position.coords);
+          
+        },
+        (error) => {
+          Alert.alert(
+            "Error de GPS",
+            "Error accediendo a su ubicación, habilite la ubicación por gps en su dispositivo."
+          );
+        },
+        { enableHighAccuracy: false, timeout: 20000 }
+      );
+    })()
+  },[])
+ 
 
   return (
     <View>
