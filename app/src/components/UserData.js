@@ -75,7 +75,7 @@ export default function UserData(props) {
           nextScreen={"Reports"}
           icon={"money"}
         />
-        <UserDataMenuItem
+        {/* <UserDataMenuItem
           field={"Prestamos recientes"}
           navigation={navigation}
           nextScreen={"Reports"}
@@ -85,7 +85,7 @@ export default function UserData(props) {
             bodyKey: "",
           }}
           icon={"update"}
-        />
+        /> */}
         {/* 
                 <UserDataMenuItem
                 field={'Atrasos'}

@@ -152,13 +152,13 @@ export default function ReportsScreen(props) {
           />
           <Text>Atraso</Text>
         </View>
-        <View style={styles.filter}>
+        {/* <View style={styles.filter}>
           <CheckBox value={false} />
           <Text>Clientes Nuevos</Text>
         </View>
         <View style={styles.filter}>
           <Text>Refresh</Text>
-        </View>
+        </View> */}
       </View>
       <View style={styles.headerContainer}>
         {header.map((item, index) => (
@@ -170,7 +170,7 @@ export default function ReportsScreen(props) {
       <FlatList
         style={{ paddingTop: 20, paddingHorizontal: 5 }}
         data={reports}
-        keyExtractor={(item) => item.amortization_id}
+        keyExtractor={(item) => item.receipt_number}
         renderItem={({ item }) => (
           <View style={{ width: "100%" }}>
             {bodyKey == "daypayments" ? (

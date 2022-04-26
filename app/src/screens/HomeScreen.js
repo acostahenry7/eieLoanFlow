@@ -105,10 +105,15 @@ export default function HomeScreen(props) {
   useEffect(async () => {
     (async () => {
       setIsLoading(true);
-      setRoutes([]);
+
       const response = await getPayementRoutes(auth?.employee_id);
       setIsLoading(false);
-      setRoutes(response);
+      if (response.length > 0) {
+        setRoutes([]);
+        setRoutes(response);
+      } else {
+        setRoutes(routes);
+      }
       console.log(response);
     })();
   }, [auth]);
@@ -117,90 +122,97 @@ export default function HomeScreen(props) {
     <SafeAreaView style={{}}>
       {
         //Visit Form
-        <Modal visible={commentaryVisibility} transparent={true} style={{}}>
-          <View style={styles.modalContainer}>
-            <View style={tw`flex-row`}>
-              <Text style={{ ...styles.commentaryTitle, marginLeft: 15 }}>
-                Visita registrada exitosamente!
-              </Text>
-              <Icon
-                name="times"
-                size={24}
-                style={{
-                  textAlignVertical: "center",
-                  marginLeft: 15,
-                }}
-                onPress={() => {
-                  Alert.alert(
-                    "Eliminando Visita",
-                    "Usted ha eliminado todo registro de esta visita."
-                  );
-                  setIsBarcodeRead(false);
-                  setBarcodeType("");
-                  setBarcodeValue("");
-                  setCommentaryVisibility(false);
-                  setIsCommentaryFormVisible(false);
-                }}
-              />
-            </View>
-            <View style={styles.commentaryBody}>
-              <Text style={styles.commentaryBodyTitle}>
-                Qué desea realizar?
-              </Text>
-              <View style={styles.commentaryBodyIcons}>
-                <View style={{}}>
-                  <Icon
-                    name="comment-alt"
-                    style={styles.commentaryBodyIcon}
-                    onPress={() => {
-                      setIsBarcodeRead(false);
-                      setBarcodeType("");
-                      setBarcodeValue("");
+        <Modal
+          visible={commentaryVisibility}
+          transparent={true}
+          style={{}}
+          animationType="fade"
+        >
+          <View style={{ height: "100%", backgroundColor: "rgba(0,0,0,0.3)" }}>
+            <View style={styles.modalContainer}>
+              <View style={tw`flex-row`}>
+                <Text style={{ ...styles.commentaryTitle, marginLeft: 15 }}>
+                  Visita registrada exitosamente!
+                </Text>
+                <Icon
+                  name="times"
+                  size={24}
+                  style={{
+                    textAlignVertical: "center",
+                    marginLeft: 15,
+                  }}
+                  onPress={() => {
+                    Alert.alert(
+                      "Eliminando Visita",
+                      "Usted ha eliminado todo registro de esta visita."
+                    );
+                    setIsBarcodeRead(false);
+                    setBarcodeType("");
+                    setBarcodeValue("");
+                    setCommentaryVisibility(false);
+                    setIsCommentaryFormVisible(false);
+                  }}
+                />
+              </View>
+              <View style={styles.commentaryBody}>
+                <Text style={styles.commentaryBodyTitle}>
+                  Qué desea realizar?
+                </Text>
+                <View style={styles.commentaryBodyIcons}>
+                  <View style={{}}>
+                    <Icon
+                      name="comment-alt"
+                      style={styles.commentaryBodyIcon}
+                      onPress={() => {
+                        setIsBarcodeRead(false);
+                        setBarcodeType("");
+                        setBarcodeValue("");
 
-                      setCommentaryVisibility(false);
-                      setIsCommentaryFormVisible(true);
-                    }}
-                  />
-                  <Text
-                    style={{
-                      textAlignVertical: "center",
-                      fontWeight: "bold",
-                      maxWidth: 120,
-                      textAlign: "center",
-                    }}
-                  >
-                    Crear Comentario de Visita
-                  </Text>
-                </View>
-                <View style={{ marginLeft: 40 }}>
-                  <Icon
-                    name="file-invoice-dollar"
-                    style={{
-                      ...styles.commentaryBodyIcon,
-                      paddingLeft: 32,
-                      paddingVertical: 20,
-                    }}
-                    onPress={() => {
-                      setIsBarcodeRead(false);
-                      setBarcodeType("");
-                      setBarcodeValue("");
-                      setCommentaryVisibility(false);
-                      navigation.navigate("Customers", {
-                        screen: "Customer",
-                        params: { id: JSON.parse(barcodeValue)?.id },
-                      });
-                    }}
-                  />
-                  <Text
-                    style={{
-                      textAlignVertical: "center",
-                      fontWeight: "bold",
-                      maxWidth: 120,
-                      textAlign: "center",
-                    }}
-                  >
-                    Pago a préstamo Cliente
-                  </Text>
+                        setCommentaryVisibility(false);
+                        setIsCommentaryFormVisible(true);
+                      }}
+                    />
+                    <Text
+                      style={{
+                        textAlignVertical: "center",
+                        fontWeight: "bold",
+                        maxWidth: 120,
+                        textAlign: "center",
+                      }}
+                    >
+                      Crear Comentario de Visita
+                    </Text>
+                  </View>
+                  <View style={{ marginLeft: 40 }}>
+                    <Icon
+                      name="file-invoice-dollar"
+                      style={{
+                        ...styles.commentaryBodyIcon,
+                        paddingLeft: 32,
+                        paddingVertical: 20,
+                      }}
+                      onPress={() => {
+                        setIsBarcodeRead(false);
+                        setBarcodeType("");
+                        setBarcodeValue("");
+                        setCommentaryVisibility(false);
+                        navigation.navigate("Customers", {
+                          screen: "Customer",
+                          params: { id: JSON.parse(barcodeValue)?.id },
+                        });
+                      }}
+                    />
+                    <Text
+                      style={{
+                        textAlignVertical: "center",
+                        fontWeight: "bold",
+                        maxWidth: 120,
+                        textAlign: "center",
+                      }}
+                    >
+                      Pago a préstamo Cliente
+                    </Text>
+                  </View>
                 </View>
               </View>
             </View>
@@ -259,75 +271,75 @@ export default function HomeScreen(props) {
           </View>
         </Modal>
       }
-    {/*Qr Scanner*/}
-   <Modal animationType="slide" visible={modalVisibility}>
-       <View>
-         <Icon
-          name="times"
-          style={{
-            right: 25,
-            top: 25,
-            zIndex: 2,
-            fontSize: 25,
-            position: "absolute",
-            color: "white",
-          }}
-          onPress={() => setmodalVisibility(false)}
-        />
-        <Text
-          style={{
-            marginTop: 180,
-            marginLeft: 67,
-            color: "white",
-            fontSize: 18,
-            zIndex: 2,
-            position: "absolute",
-            fontWeight: "bold",
-          }}
-        >
-          Escanee el código QR del Cliente
-        </Text>
-      </View>
-      <View style={{}}>
-        <RNCamera
-          ref={cameraRef.current}
-          style={{
-            //flex: 1,
-            zIndex: 0,
-            //height: '100%',
-            width: "100%",
-          }}
-          onBarCodeRead={onBarcodeRead}
-        >
-          <View style={{ height: "100%" }}>
-            <View
-              style={{ height: 260, backgroundColor: "#00000040" }}
-            ></View>
-            <View
-              style={{
-                height: 292,
-                width: 292,
-                borderWidth: 6,
-                borderRadius: 5,
-                borderColor: "white",
-                marginLeft: "auto",
-                marginRight: "auto",
-                marginTop: "auto",
-              }}
-            ></View>
-            <View
-              style={{
-                height: 260,
-                backgroundColor: "#00000040",
-                marginTop: "auto",
-              }}
-            ></View>
-          </View>
-        </RNCamera>
-      </View>
-    </Modal>
-    
-      {/*Top Navbar*/ }
+      {/*Qr Scanner*/}
+      <Modal animationType="slide" visible={modalVisibility}>
+        <View>
+          <Icon
+            name="times"
+            style={{
+              right: 25,
+              top: 25,
+              zIndex: 2,
+              fontSize: 25,
+              position: "absolute",
+              color: "white",
+            }}
+            onPress={() => setmodalVisibility(false)}
+          />
+          <Text
+            style={{
+              marginTop: 180,
+              marginLeft: 67,
+              color: "white",
+              fontSize: 18,
+              zIndex: 2,
+              position: "absolute",
+              fontWeight: "bold",
+            }}
+          >
+            Escanee el código QR del Cliente
+          </Text>
+        </View>
+        <View style={{}}>
+          <RNCamera
+            ref={cameraRef.current}
+            style={{
+              //flex: 1,
+              zIndex: 0,
+              //height: '100%',
+              width: "100%",
+            }}
+            onBarCodeRead={onBarcodeRead}
+          >
+            <View style={{ height: "100%" }}>
+              <View
+                style={{ height: 260, backgroundColor: "#00000040" }}
+              ></View>
+              <View
+                style={{
+                  height: 292,
+                  width: 292,
+                  borderWidth: 6,
+                  borderRadius: 5,
+                  borderColor: "white",
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                  marginTop: "auto",
+                }}
+              ></View>
+              <View
+                style={{
+                  height: 260,
+                  backgroundColor: "#00000040",
+                  marginTop: "auto",
+                }}
+              ></View>
+            </View>
+          </RNCamera>
+        </View>
+      </Modal>
+
+      {/*Top Navbar*/}
       <View
         style={{
           height: 80,
@@ -337,6 +349,8 @@ export default function HomeScreen(props) {
           flexDirection: "row",
           justifyContent: "center",
           alignItems: "center",
+          borderBottomColor: "#4682b4",
+          borderBottomWidth: 2,
         }}
       >
         <Icon name="handshake" style={{ fontSize: 35, color: "#4682b4" }} />
@@ -344,7 +358,7 @@ export default function HomeScreen(props) {
           style={{
             marginLeft: 20,
             fontSize: 27,
-            fontFamily: 'Helvetica Neue',
+            fontFamily: "Helvetica Neue",
             fontWeight: "bold",
           }}
         >
@@ -354,12 +368,49 @@ export default function HomeScreen(props) {
 
       {/*Payment Route*/}
       <View style={{}}>
+        <View
+          style={{
+            height: 150,
+            paddingHorizontal: 6,
+            paddingVertical: 10,
+            backgroundColor: "rgba(153,190,226, 0.2)",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "#4682b4",
+              height: "100%",
+              height: "100%",
+              borderRadius: 10,
+              elevation: 15,
+              flexDirection: "row",
+              justifyContent: "center",
+              alignItems: "center",
+            }}
+          >
+            <Icon name="route" color={"white"} size={28} />
+            <Text
+              style={{
+                marginLeft: 8,
+                color: "white",
+                fontWeight: "bold",
+                fontSize: 20,
+                textAlign: "center",
+                textAlignVertical: "center",
+              }}
+            >
+              Ruta de Cobros
+            </Text>
+          </View>
+        </View>
         <ScrollView
           showsVerticalScrollIndicator={false}
           style={{
-            //marginTop: 5,
-            maxHeight: "94%",
-            paddingTop: 2,
+            height: 570,
+            backgroundColor: "rgba(153,190,226, 0.2)",
+            //paddingTop: 10,
+            paddingHorizontal: 3,
+            //paddingBottom: 10,
           }}
         >
           {isLoading == true ? (
@@ -395,7 +446,7 @@ export default function HomeScreen(props) {
       </View>
 
       {/*QR Scanner trigger Icon*/}
-      <View style={{height: "100%"}}>
+      {/* <View style={{ height: "100%" }}> */}
       <Icon
         onPress={() => {
           console.log("hi");
@@ -405,8 +456,8 @@ export default function HomeScreen(props) {
         color={"black"}
         style={{
           position: "absolute",
-          bottom: 200,
-          right: 25,
+          bottom: 30,
+          right: 30,
           zIndex: 999,
           backgroundColor: "#4682b4",
           color: "white",
@@ -420,7 +471,7 @@ export default function HomeScreen(props) {
           borderRadius: 50,
         }}
       />
-      </View>
+      {/* </View> */}
     </SafeAreaView>
   );
 

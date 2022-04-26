@@ -100,7 +100,10 @@ export default function CustomerCard(props) {
                 style={{
                   fontWeight: "bold",
                   fontSize: 15,
-                  width: WINDOW_DIMENSION.width <= 360 ? 180 : WINDOW_DIMENSION.width - 200,
+                  width:
+                    WINDOW_DIMENSION.width <= 360
+                      ? 180
+                      : WINDOW_DIMENSION.width * 0.4,
                   //backgroundColor : 'green'
                 }}
               >

@@ -8,14 +8,12 @@ const MapScreen = (props) => {
   //console.log(props);
   const [test, setTest] = useState(null);
 
-
-  useEffect( () => {
-    (async => {
+  useEffect(() => {
+    ((async) => {
       Geolocation.getCurrentPosition(
         (position) => {
-          console.log('POSITION', position);
+          console.log("POSITION", position);
           setTest(position.coords);
-          
         },
         (error) => {
           Alert.alert(
@@ -25,15 +23,12 @@ const MapScreen = (props) => {
         },
         { enableHighAccuracy: false, timeout: 20000 }
       );
-    })()
-  },[])
- 
+    })();
+  }, []);
 
   return (
     <View>
-      <View style={tw`h-1/2`}>
-        <Map origin={test} />
-      </View>
+      <View style={tw`h-1/2`}>{test && <Map origin={test} />}</View>
       <View style={tw`h-1/2`}>
         <Text>{test?.latitude}</Text>
       </View>

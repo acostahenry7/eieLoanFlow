@@ -11,60 +11,59 @@ export default function GpsScreen() {
   const dispatch = useDispatch();
   const navigation = useNavigation();
 
+  console.log(process.env);
+
   return (
-    // <View style={{ flex: 1, paddingHorizontal: 5 }}>
-    //   {/* <GooglePlacesAutocomplete
-    //     placeholder="Search"
-    //     debounce={400}
-    //     enablePoweredByContainer={false}
-    //     returnKeyType={"search"}
-    //     onPress={(data, details = null) => {
-    //       dispatch(
-    //         setOrigin({
-    //           location: details.geometry.location,
-    //           description: data.description,
-    //         })
-    //       );
+    <View style={{ flex: 1, paddingHorizontal: 5 }}>
+      <GooglePlacesAutocomplete
+        placeholder="Search"
+        debounce={400}
+        enablePoweredByContainer={false}
+        returnKeyType={"search"}
+        onPress={(data, details = null) => {
+          dispatch(
+            setOrigin({
+              location: details.geometry.location,
+              description: data.description,
+            })
+          );
 
-    //       dispatch(setDestination(null));
-    //       console.log(data, details);
-    //     }}
-    //     fetchDetails={true}
-    //     styles={{
-    //       container: {
-    //         flex: 0,
-    //       },
-    //       textInput: {
-    //         fontSize: 18,
-    //       },
-    //     }}
-    //     nearbyPlacesAPI="GooglePlacesSearch"
-    //     query={{
-    //       key: "AIzaSyBo4DIGnZdB__TMfDnxrLtNB-Xe7Yl1hDY",
-    //       language: "es",
-    //     }}
-    //   /> */}
+          dispatch(setDestination(null));
+          console.log(data, details);
+        }}
+        fetchDetails={true}
+        styles={{
+          container: {
+            flex: 0,
+          },
+          textInput: {
+            fontSize: 18,
+          },
+        }}
+        nearbyPlacesAPI="GooglePlacesSearch"
+        query={{
+          key: "AIzaSyCV2wvw5V8c1hjTjaKyuCXppDjs81uk-n4",
+          language: "es",
+        }}
+      />
 
-    //   <Text
-    //     onPress={async () => {
-    //       const permissions =
-    //         await RNAndroidLocationEnabler.promptForEnableLocationIfNeeded({
-    //           interval: 10000,
-    //           fastInterval: 5000,
-    //         });
-    //       console.log(permissions);
-    //       if (permissions == "already-enabled") {
-    //         navigation.navigate("GpsRoot", { screen: "Maps" });
-    //       } else if (permissions == "enabled") {
-    //         Alert.alert("Ubicación activada!", "Acceda a la navegación.");
-    //       }
-    //     }}
-    //   >
-    //     Go to Map Screen
-    //   </Text>
-    // </View>
-    <View style={{alignSelf: "center", justifyContent: "center", flex: 1}}>
-      <Text style={{fontSize: 22}}>Working on...</Text>
+      <Text
+        onPress={async () => {
+          const permissions =
+            await RNAndroidLocationEnabler.promptForEnableLocationIfNeeded({
+              interval: 10000,
+              fastInterval: 5000,
+            });
+          console.log(permissions);
+          if (permissions == "already-enabled") {
+            navigation.navigate("GpsRoot", { screen: "Maps" });
+          } else if (permissions == "enabled") {
+            Alert.alert("Ubicación activada!", "Acceda a la navegación.");
+          }
+        }}
+      >
+        Go to Map Screen
+      </Text>
     </View>
   );
 }

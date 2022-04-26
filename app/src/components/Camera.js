@@ -29,8 +29,9 @@ export default function EIECamera(props) {
       const data = await takePicture();
       const currentLocation = data.uri;
       console.log(data);
-      const filename = `${customer.key}.jpg`;
-      const newLocation = RNFS.ExternalDirectoryPath + filename + Date.now();
+      const filename = `${customer.key}${Date.now()}.jpg`;
+      const newLocation = RNFS.ExternalDirectoryPath + filename;
+      console.log("CURRENT URI", newLocation);
       setImage({ ...data, currentUri: `file://${newLocation}`, filename });
       RNFS.moveFile(currentLocation, newLocation)
         .then(() => {
@@ -73,7 +74,7 @@ export default function EIECamera(props) {
                 height: 370,
                 backgroundColor: "rgba(255,255,255,0.1)",
                 borderWidth: 4,
-                borderColor: 'white',
+                borderColor: "white",
                 borderRadius: 320,
               }}
             ></View>

@@ -184,14 +184,14 @@ export default function CustomerInfoScreen(props) {
                 </Text>
               </View>
               <View>
-                <Text
+                {/* <Text
                   onPress={() => {
                     setTestTrigger(!testTrigger);
                   }}
                 >
                   {" "}
                   hi
-                </Text>
+                </Text> */}
               </View>
             </View>
             <Text style={styles.customIconBottomText}>

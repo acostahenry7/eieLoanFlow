@@ -1,6 +1,7 @@
 import { View, Text, Button, TouchableWithoutFeedback } from "react-native";
 import React from "react";
 import { customPrintData } from "../api/bluetooth/Print";
+import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function PrintBtn(props) {
   const { data, header } = props;
@@ -16,10 +17,12 @@ export default function PrintBtn(props) {
             backgroundColor: "skyblue",
             bottom: 0,
             right: 0,
+            paddingVertical: 10,
             paddingHorizontal: 10,
             marginHorizontal: 10,
-            borderRadius: 30,
-            height: 50,
+            borderRadius: 50,
+            elevation: 5,
+            //height: 50,
           }}
         >
           <Text
@@ -36,7 +39,7 @@ export default function PrintBtn(props) {
               console.log("hi");
             }}
           >
-            Imprimir
+            <Icon name="print" size={50} />
           </Text>
         </View>
       </TouchableWithoutFeedback>
