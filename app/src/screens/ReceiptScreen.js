@@ -67,6 +67,19 @@ export default function ReceiptScreen(props) {
             //console.log("DISCOUNT", result);
             return result;
           })(),
+          discount: (() => {
+            let result = 0;
+            let discount = 0;
+            response.map((item) => {
+              discount +=
+                parseFloat(item.discountInterest) +
+                parseFloat(item.discountMora);
+              result = discount;
+            });
+            //console.log("DISCOUNT", result);
+            return result;
+          })(),
+          cashBack: 0,
           date: payment.created_date,
           time: payment.created_time,
           firstName: customer.first_name,
@@ -117,7 +130,7 @@ export default function ReceiptScreen(props) {
             actionParam={payment}
             searchKey={payment?.payment_id}
             mainTitle="No. Recibo"
-            mainText={payment?.receipt.receipt_number}
+            mainText={payment?.receipt?.receipt_number}
             secondaryTitle="Fecha"
             secondaryText={payment?.created_date}
             menuOptions={options}

@@ -11,6 +11,7 @@ import React from "react";
 import CustomerIcon from "../components/CustomerIcon";
 import { useNavigation } from "@react-navigation/native";
 import { capitalize } from "../utils/stringFuctions";
+import { WINDOW_DIMENSION as windowsDimenssion } from "../utils/constants";
 
 export default function CardTemplate(props) {
   const {
@@ -61,6 +62,7 @@ export default function CardTemplate(props) {
             >
               <CustomerIcon size={80} imageSize={80} data={data} />
             </View>
+
             <View>
               <View
                 style={{
@@ -80,69 +82,68 @@ export default function CardTemplate(props) {
                 </Text>
               </View>
             </View>
+            <View style={{}}>
+              <Menu>
+                <MenuTrigger>
+                  <IonIcon
+                    name={"menu"}
+                    size={25}
+                    style={{
+                      zIndex: 99,
+                    }}
+                  />
+                </MenuTrigger>
+                <MenuOptions
+                  customStyles={{ optionText: { fontSize: 15 } }}
+                  optionsContainerStyle={{ marginLeft: 6 }}
+                >
+                  {menuOptions?.map((option, index) => (
+                    <MenuOption
+                      key={index}
+                      text={option.name}
+                      style={styles.menuOption}
+                      onSelect={async () => {
+                        //console.log(option);
+                        option.action(actionParam);
+                      }}
+                    />
+                  ))}
+                </MenuOptions>
+              </Menu>
+            </View>
           </View>
-          <View
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              paddingTop: 12,
-              justifyContent: "space-around",
-            }}
-          >
-            <Icon
-              name="location"
-              size={20}
-              color={"crimson"}
-              onPress={() => {
-                navigation.navigate("GpsRoot", { screen: "Gps" });
+          {screen != "collectors" && (
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                paddingTop: 12,
+                justifyContent: "space-around",
               }}
-            />
-            <Icon
-              name="user"
-              size={20}
-              color={"#5f9ea0"}
-              onPress={() => {
-                navigation.navigate("Customers", {
-                  screen: "Customer",
-                  params: { id: uid },
-                });
-              }}
-            />
-            <IonIcon name="qr-code" size={18} />
-          </View>
-          {/*<View>
-          <Menu>
-            <MenuTrigger>
+            >
               <Icon
-                name="more-vert"
-                style={{
-                  top: 0,
-                  fontSize: 24,
-                  color: "black",
-                  paddingHorizontal: 13,
-                  paddingVertical: 6,
-                  borderRadius: 50,
+                name="location"
+                size={20}
+                color={"crimson"}
+                onPress={() => {
+                  navigation.navigate("GpsRoot", { screen: "Gps" });
                 }}
               />
-            </MenuTrigger>
-            <MenuOptions
-              customStyles={{ optionText: { fontSize: 15 } }}
-              optionsContainerStyle={{ marginLeft: 6 }}
-            >
-              {menuOptions?.map((option, index) => (
-                <MenuOption
-                  key={index}
-                  text={option.name}
-                  style={styles.menuOption}
-                  onSelect={async () => {
-                    console.log(option);
-                    option.action(actionParam);
-                  }}
-                />
-              ))}
-            </MenuOptions>
-          </Menu>
-        </View> */}
+
+              <Icon
+                name="user"
+                size={20}
+                color={"#5f9ea0"}
+                onPress={() => {
+                  navigation.navigate("Customers", {
+                    screen: "Customer",
+                    params: { id: uid },
+                  });
+                }}
+              />
+              <IonIcon name="qr-code" size={18} />
+            </View>
+          )}
         </View>
       ) : (
         <TouchableWithoutFeedback>
@@ -186,7 +187,7 @@ export default function CardTemplate(props) {
                       text={option.name}
                       style={styles.menuOption}
                       onSelect={async () => {
-                        console.log(option);
+                        //console.log(option);
                         option.action(actionParam);
                       }}
                     />
@@ -213,7 +214,6 @@ const styles = StyleSheet.create({
     borderLeftWidth: 7,
     marginHorizontal: 1,
     marginBottom: 10,
-    height: 180,
   },
 
   rCardContainer: {
@@ -240,6 +240,7 @@ const styles = StyleSheet.create({
 
   title: {
     fontSize: 13,
+    minWidth: windowsDimenssion.width - 180,
   },
 
   mainText: {

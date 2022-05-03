@@ -8,6 +8,7 @@ import {
   StyleSheet,
   TextInput,
   Alert,
+  Image,
   ScrollView,
   ActivityIndicator,
 } from "react-native";
@@ -22,6 +23,7 @@ import { createVisitCommentaryApi, getPayementRoutes } from "../api/payments";
 import { WINDOW_DIMENSION as windowDimensions } from "../utils/constants";
 import * as Yup from "yup";
 import CardTemplate from "../components/CardTemplate";
+import { getCollectorsApi, updateCollectorParams } from "../api/collectors";
 import tw from "twrnc";
 
 export default function HomeScreen(props) {
@@ -37,7 +39,10 @@ export default function HomeScreen(props) {
   const [scanedStatus, setScanedStatus] = useState(true);
   const [visitId, setVisitId] = useState("");
   const [routes, setRoutes] = useState([]);
+  const [collectors, setCollectors] = useState([]);
+  const [currentCollector, setCurrentCollector] = useState({});
   const [isLoading, setIsLoading] = useState(true);
+  const [paramFormVisible, setParamFormVisible] = useState(false);
 
   const goToPage = (page) => {
     navigation.navigate(page);
@@ -65,6 +70,33 @@ export default function HomeScreen(props) {
       }
 
       formik.setFieldValue("commentary", "");
+    },
+  });
+
+  const paramForm = useFormik({
+    initialValues: { routeParam: "" },
+    validateOnChange: false,
+    onSubmit: async (values) => {
+      let data = {
+        routerRestriction: values.routeParam,
+        userId: currentCollector.jhi_user?.user_id,
+      };
+      console.log(
+        "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
+        currentCollector
+      );
+
+      console.log(data);
+      const response = await updateCollectorParams(data);
+
+      if (response)
+        Alert.alert(
+          "Listo!",
+          "El Parámetro CANTIDAD DE CLIENTES POR RUTA fué actualizado exitosamente para el cliente " +
+            currentCollector.first_name
+        );
+
+      setParamFormVisible(false);
     },
   });
 
@@ -108,18 +140,86 @@ export default function HomeScreen(props) {
 
       const response = await getPayementRoutes(auth?.employee_id);
       setIsLoading(false);
-      if (response.length > 0) {
+      if (response?.length > 0) {
         setRoutes([]);
         setRoutes(response);
       } else {
         setRoutes(routes);
       }
-      console.log(response);
+
+      //console.log(response);
+    })();
+  }, [auth]);
+
+  useEffect(async () => {
+    (async () => {
+      if (auth.login == "admin") {
+        const response = await getCollectorsApi();
+        //setCollectors([]);
+        setCollectors(response);
+      }
     })();
   }, [auth]);
 
   return (
     <SafeAreaView style={{}}>
+      {
+        <Modal
+          visible={paramFormVisible}
+          animationType={"fade"}
+          transparent={true}
+        >
+          <View style={{ height: "100%", backgroundColor: "rgba(0,0,0,0.3)" }}>
+            <View
+              style={{
+                ...styles.modalContainer,
+                paddingHorizontal: 30,
+                height: "auto",
+              }}
+            >
+              <Icon
+                name="times"
+                style={{ textAlign: "right", fontSize: 18 }}
+                onPress={() => setParamFormVisible(false)}
+              />
+              <Text
+                style={{
+                  ...styles.commentaryTitle,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+              >
+                Parámetros Definidos
+              </Text>
+              <View style={{ marginTop: 30 }}>
+                <View>
+                  <Text>Cantidad de Clientes en ruta / por día:</Text>
+                  <TextInput
+                    value={paramForm.values.routeParam}
+                    onChangeText={(text) =>
+                      paramForm.setFieldValue("routeParam", text)
+                    }
+                    style={{
+                      borderColor: "gray",
+                      borderWidth: 0.7,
+                      marginTop: 5,
+                      borderRadius: 5,
+                      paddingHorizontal: 3,
+                    }}
+                  />
+                </View>
+              </View>
+              <View style={{ marginTop: 20 }}>
+                <Button
+                  title="Actualizar Parámetros"
+                  onPress={paramForm.handleSubmit}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+      }
+
       {
         //Visit Form
         <Modal
@@ -271,6 +371,9 @@ export default function HomeScreen(props) {
           </View>
         </Modal>
       }
+
+      {/*Modal collectors config params*/}
+
       {/*Qr Scanner*/}
       <Modal animationType="slide" visible={modalVisibility}>
         <View>
@@ -367,110 +470,198 @@ export default function HomeScreen(props) {
       </View>
 
       {/*Payment Route*/}
-      <View style={{}}>
-        <View
-          style={{
-            height: 150,
-            paddingHorizontal: 6,
-            paddingVertical: 10,
-            backgroundColor: "rgba(153,190,226, 0.2)",
-          }}
-        >
+      {auth.login != "admin" ? (
+        <View style={{}}>
           <View
             style={{
-              backgroundColor: "#4682b4",
-              height: "100%",
-              height: "100%",
-              borderRadius: 10,
-              elevation: 15,
-              flexDirection: "row",
-              justifyContent: "center",
-              alignItems: "center",
+              height: 150,
+              paddingHorizontal: 6,
+              paddingVertical: 10,
+              backgroundColor: "rgba(153,190,226, 0.2)",
             }}
           >
-            <Icon name="route" color={"white"} size={28} />
-            <Text
+            <View
               style={{
-                marginLeft: 8,
-                color: "white",
-                fontWeight: "bold",
-                fontSize: 20,
-                textAlign: "center",
-                textAlignVertical: "center",
+                backgroundColor: "#4682b4",
+                height: "100%",
+                height: "100%",
+                borderRadius: 10,
+                elevation: 15,
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
               }}
             >
-              Ruta de Cobros
-            </Text>
+              <Icon name="route" color={"white"} size={28} />
+              <Text
+                style={{
+                  marginLeft: 8,
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: 20,
+                  textAlign: "center",
+                  textAlignVertical: "center",
+                }}
+              >
+                Ruta de Cobros
+              </Text>
+            </View>
           </View>
-        </View>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
-          style={{
-            height: 570,
-            backgroundColor: "rgba(153,190,226, 0.2)",
-            //paddingTop: 10,
-            paddingHorizontal: 3,
-            //paddingBottom: 10,
-          }}
-        >
-          {isLoading == true ? (
-            <ActivityIndicator
-              style={{
-                marginTop: 100,
-              }}
-              color={"blue"}
-              size={"large"}
-            />
-          ) : (
-            routes?.map((item, index) => (
-              <CardTemplate
-                key={index}
-                data={item}
-                uid={item.customer_id}
-                mainTitle="Cliente"
-                mainText={item.name}
-                secondaryTitle="Dirección"
-                secondaryText={item.location}
-                menuOptions={[
-                  {
-                    name: "Localizar",
-                    action: () => {
-                      navigation.navigate("Gps");
-                    },
-                  },
-                ]}
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{
+              height: 570,
+              backgroundColor: "rgba(153,190,226, 0.2)",
+              //paddingTop: 10,
+              paddingHorizontal: 3,
+              //paddingBottom: 10,
+            }}
+          >
+            {isLoading == true ? (
+              <ActivityIndicator
+                style={{
+                  marginTop: 100,
+                }}
+                color={"blue"}
+                size={"large"}
               />
-            ))
-          )}
-        </ScrollView>
-      </View>
+            ) : (
+              routes?.map((item, index) => (
+                <CardTemplate
+                  key={index}
+                  data={item}
+                  uid={item.customer_id}
+                  mainTitle="Cliente"
+                  mainText={item.name}
+                  secondaryTitle="Dirección"
+                  secondaryText={item.location}
+                  menuOptions={[
+                    {
+                      name: "Localizar",
+                      action: () => {
+                        navigation.navigate("Gps");
+                      },
+                    },
+                  ]}
+                />
+              ))
+            )}
+          </ScrollView>
+        </View>
+      ) : (
+        <View style={{}}>
+          <View
+            style={{
+              height: 150,
+              paddingHorizontal: 6,
+              paddingVertical: 10,
+              backgroundColor: "rgba(153,190,226, 0.2)",
+            }}
+          >
+            <View
+              style={{
+                backgroundColor: "#4682b4",
+                height: "100%",
+                height: "100%",
+                borderRadius: 10,
+                elevation: 15,
+                flexDirection: "row",
+                justifyContent: "center",
+                alignItems: "center",
+              }}
+            >
+              <Icon name="user" color={"white"} size={28} />
+              <Text
+                style={{
+                  marginLeft: 8,
+                  color: "white",
+                  fontWeight: "bold",
+                  fontSize: 20,
+                  textAlign: "center",
+                  textAlignVertical: "center",
+                }}
+              >
+                Cobradores
+              </Text>
+            </View>
+          </View>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            style={{
+              height:
+                windowDimensions.height > 805
+                  ? windowDimensions.height * 0.671
+                  : windowDimensions.height * 0.624,
+              backgroundColor: "rgba(153,190,226, 0.2)",
+              //paddingTop: 10,
+              paddingHorizontal: 3,
+              marginBottom: 300,
+            }}
+          >
+            {isLoading == true ? (
+              <ActivityIndicator
+                style={{
+                  marginTop: 100,
+                }}
+                color={"blue"}
+                size={"large"}
+              />
+            ) : (
+              collectors?.map((item, index) => (
+                <CardTemplate
+                  key={index}
+                  data={item}
+                  uid={item.customer_id}
+                  mainTitle="Cobrador"
+                  mainText={`${item.first_name} ${item.last_name}`}
+                  secondaryTitle="Dirección"
+                  secondaryText={`${item.street} ${item.street2}`}
+                  menuOptions={[
+                    {
+                      name: "Cantidad de Clientes",
+                      action: async () => {
+                        setParamFormVisible(true);
+                        await setCurrentCollector(item);
+                      },
+                    },
+                  ]}
+                  screen={"collectors"}
+                />
+              ))
+            )}
+          </ScrollView>
+        </View>
+      )}
 
       {/*QR Scanner trigger Icon*/}
       {/* <View style={{ height: "100%" }}> */}
-      <Icon
-        onPress={() => {
-          console.log("hi");
-          setmodalVisibility(true);
-        }}
-        name="qrcode"
-        color={"black"}
-        style={{
-          position: "absolute",
-          bottom: 30,
-          right: 30,
-          zIndex: 999,
-          backgroundColor: "#4682b4",
-          color: "white",
-          fontSize: 40,
-          width: 67,
-          height: 67,
-          elevation: 5,
-          paddingTop: 12,
-          paddingBottom: 10,
-          paddingLeft: 15.5,
-          borderRadius: 50,
-        }}
-      />
+      <View style={{ height: "100%" }}>
+        <Icon
+          onPress={() => {
+            console.log("hi");
+            setmodalVisibility(true);
+          }}
+          name="qrcode"
+          color={"black"}
+          style={{
+            position: "absolute",
+            bottom: "22%",
+            right: 30,
+            zIndex: 999,
+            backgroundColor: "#4682b4",
+            color: "white",
+            fontSize: 40,
+            width: 67,
+            height: 67,
+            elevation: 5,
+            paddingTop: 12,
+            paddingBottom: 10,
+            paddingLeft: 15.5,
+            borderRadius: 50,
+          }}
+        />
+      </View>
+
       {/* </View> */}
     </SafeAreaView>
   );

@@ -5,6 +5,7 @@ import {capitalize, extractIconText, formatFullName} from '../utils/stringFuctio
 import {Menu, MenuOptions, MenuOption, MenuTrigger} from 'react-native-popup-menu'
 import Icon from 'react-native-vector-icons/FontAwesome5'
 import QRPreview from './QRPreview'
+import { WINDOW_DIMENSION } from '../utils/constants'
 
 export default function QRCustomerCard(props) {
 
@@ -55,7 +56,7 @@ export default function QRCustomerCard(props) {
                 style={{
                   justifyContent: 'center',
                   paddingLeft: 15,
-                  width: 250,
+                  //width: 250,
                   //backgroundColor: 'green'
                   }}> 
                     <Text 
@@ -194,7 +195,8 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         paddingLeft: 15,
         marginRight: 15,
-        width: 240,
+        width: 100
+        //width: WINDOW_DIMENSION.width *0.2,
      },
 
      customerInfoName: {

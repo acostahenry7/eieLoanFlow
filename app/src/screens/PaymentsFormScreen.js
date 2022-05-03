@@ -273,6 +273,7 @@ export default function PaymentsFormScreen(props) {
           return paymentMethod;
         })(),
         createdBy: auth.login,
+        cashBack,
         lastModifiedBy: auth.login,
         employeeId: auth.employee_id,
         outletId: auth.outlet_id,
