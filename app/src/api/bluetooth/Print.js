@@ -33,6 +33,18 @@ async function generateReceipt(object) {
   console.log("ASAAAAAAAAAAAAAAAAAAAAAAAA", object.amortization);
   console.log(object.cashBack);
 
+  let receiptAmortization = [];
+
+  object.amortization.map((item) => {
+    receiptAmortization.push({
+      quota_number: item.quota_number,
+      date: item.date,
+      fixedAmount: item.fixedAmount,
+      mora: item.mora,
+      totalPaid: item.totalPaid,
+    });
+  });
+
   const response = await getSavedPrintersApi();
   const printerSerial = response[0].address;
 
@@ -66,7 +78,7 @@ async function generateReceipt(object) {
   var c = 1;
   var x = 40;
   let suffix;
-  object.amortization.map((entry, index) => {
+  receiptAmortization.map((entry, index) => {
     noteHeight = 0;
     // receiptDetail.push(
     //   `^FO${width},${top},^ADN,26,12^FD${entry.quota_number}     ${date}    ${
@@ -83,7 +95,7 @@ async function generateReceipt(object) {
         ? (suffix = ".00")
         : (suffix = "");
 
-      receiptDetail.push(`^FO${x},${top},^ADN,26,12^FD${value}${suffix}^FS`);
+      receiptDetail.push(`^FO${x}23,${top},^ADN,26,12^FD${value}${suffix}^FS`);
       x += value.length * 7 + 80;
 
       if (c == Object.keys(entry).length) {
