@@ -6,6 +6,7 @@ import {
 import RNZebraBluetoothPrinter from "react-native-zebra-bluetooth-printer";
 import { Alert } from "react-native";
 import { getSavedPrintersApi } from "./Printers";
+import { getTotalDiscount } from "../../utils/math";
 
 // Bluetooth Printing API
 export async function printByBluetooth(object) {
@@ -30,7 +31,7 @@ export async function printByBluetooth(object) {
 
 //This function generate the Receipt
 async function generateReceipt(object) {
-  console.log("ASAAAAAAAAAAAAAAAAAAAAAAAA", object.amortization);
+  console.log("ASAAAAAAAAAAAAAAAAAAAAAAAA", object);
   console.log(object.cashBack);
 
   let receiptAmortization = [];
@@ -49,7 +50,7 @@ async function generateReceipt(object) {
   const printerSerial = response[0].address;
 
   let printedStatus = false;
-  let labelLength = object.amortization.length * 40 + 900;
+  let labelLength = object.amortization.length * 40 + 1000;
 
   //console.log(labelLength);
 
@@ -89,18 +90,19 @@ async function generateReceipt(object) {
     for (const [key, value] of Object.entries(entry)) {
       console.log("EJE Y", key, value);
 
-      key.toString() == "amount" ||
-      key.toString() == "mora" ||
-      key.toString() == "totalPaid"
-        ? (suffix = ".00")
-        : (suffix = "");
+      // key.toString() == "amount" ||
+      // key.toString() == "mora" ||
+      key.toString() == "totalPaid" ? (suffix = ".00") : (suffix = "");
 
-      receiptDetail.push(`^FO${x}23,${top},^ADN,26,12^FD${value}${suffix}^FS`);
-      x += value.length * 7 + 80;
+      if (c == 4 || c == 5) x = x - 20;
+      receiptDetail.push(`^FO${x},${top},^ADN,26,12^FD${value}${suffix}^FS`);
 
+      x += parseFloat(value.toString().length) * 7 + 80;
+
+      console.log("CURRENT LENGTH", value.toString().length);
       if (c == Object.keys(entry).length) {
         console.log("HEY DONE ALREADY");
-        top += 20;
+        top += 10;
         x = 40;
         c = 0;
       }
@@ -108,7 +110,7 @@ async function generateReceipt(object) {
       c++;
     }
 
-    // top += 20;
+    top += 20;
 
     if (index + 1 == quotasQuantity) {
       console.log("from valitadion quantity");
@@ -138,26 +140,46 @@ async function generateReceipt(object) {
               ${zSection("Transacciones", 200, 620)}
               ${receiptHeader}
               ${receiptDetail}
-              ${zTitle("SubTotal:", 300, top + 30)}
+              ${zTitle("SubTotal:", 270, top + 30)}
               ${zTitle(
-                "RD$" + totalPaid(object.amortization) + ".00",
+                "RD$ " + getSubTotal(object.amortization) + ".00",
                 435,
                 top + 30
               )}
-              ${zTitle("Descuento:", 300, top + 60)}
-              ${zTitle("RD$: 0", 435, top + 60)}
-              ${zTitle("Total Pagado:", 300, top + 90)}
-              ${zTitle("RD$: 0", 435, top + 90)}
-              ${zTitle("Cambio:", 300, top + 120)}
-              ${zTitle("RD$: 0", 435, top + 120)}
+              ${zTitle("Descuento:", 270, top + 60)}
+              ${zTitle(
+                "RD$ " + getTotalDiscount(object.amortization) + ".00",
+                435,
+                top + 60
+              )}
+              ${zTitle("Total:", 270, top + 90)}
+              ${zTitle(
+                "RD$ " + getTotal(object.amortization) + ".00",
+                435,
+                top + 90
+              )}
+              ${zTitle("Monto Recibido:", 270, top + 120)}
+              ${zTitle(
+                "RD$ " + getReceivedAmount(object.amortization) + ".00",
+                435,
+                top + 120
+              )}
+              ${zTitle("Saldo Pendiente:", 270, top + 150)}
+              ${zTitle(
+                "RD$ " + getPendingAmount(object.amortization) + ".00",
+                435,
+                top + 150
+              )}
+              ${zTitle("Cambio:", 270, top + 180)}
+              ${zTitle("RD$ " + object.cashBack + ".00", 435, top + 180)}
               ${zTitle(
                 "Nota: No somos responsables de dinero entregado sin recibo",
                 40,
-                top + 160,
+                top + 240,
                 18,
                 20
               )}
-              ${zTitle("--COPIA DE RECIBO--", 140, top + 190, 25, 30)}
+              ${zTitle("--COPIA DE RECIBO--", 140, top + 280, 25, 30)}
               ^XZ`;
 
   //   let zpl = `! 0 200 200 210 1\r\n
@@ -266,14 +288,55 @@ function zText(text, x, y) {
   return `^FO${x},${y},^ADN,26,12^FD${text}^FS`;
 }
 
-const totalPaid = (arr) => {
+const getSubTotal = (arr) => {
   var sum = 0;
 
   arr.map((item) => {
     console.log(item);
-    sum += parseFloat(item.totalPaid);
+    sum += parseFloat(item.fixedAmount) + parseInt(item.mora);
   });
 
   console.log(sum);
   return sum.toString();
+};
+
+const getTotal = (arr) => {
+  var sum = 0;
+
+  arr.map((item) => {
+    console.log(item);
+    sum +=
+      parseFloat(item.fixedAmount) +
+      parseInt(item.mora) -
+      parseFloat(item.discountMora) -
+      parseFloat(item.discountInterest);
+  });
+
+  console.log(sum);
+  return sum.toString();
+};
+
+const getReceivedAmount = (arr) => {
+  var sum = 0;
+
+  arr.map((item) => {
+    console.log(item);
+    sum +=
+      parseFloat(item.totalPaid) +
+      parseInt(item.mora) -
+      parseFloat(item.discountMora) -
+      parseFloat(item.discountInterest);
+  });
+
+  console.log(sum);
+  return sum.toString();
+};
+
+const getPendingAmount = (object) => {
+  let total = parseInt(getTotal(object));
+  let rAmount = parseInt(getReceivedAmount(object));
+
+  let result = total - rAmount;
+
+  return result;
 };

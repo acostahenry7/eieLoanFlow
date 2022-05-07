@@ -25,6 +25,7 @@ import * as Yup from "yup";
 import CardTemplate from "../components/CardTemplate";
 import { getCollectorsApi, updateCollectorParams } from "../api/collectors";
 import tw from "twrnc";
+import FadeInOut from "react-native-fade-in-out";
 
 export default function HomeScreen(props) {
   const { navigation } = props;
@@ -43,6 +44,8 @@ export default function HomeScreen(props) {
   const [currentCollector, setCurrentCollector] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [paramFormVisible, setParamFormVisible] = useState(false);
+  const [searchCollector, setSearchCollector] = useState(false);
+  const [searchedStatus, setSearchedStatus] = useState("");
 
   const goToPage = (page) => {
     navigation.navigate(page);
@@ -151,15 +154,32 @@ export default function HomeScreen(props) {
     })();
   }, [auth]);
 
+  let searchedCollectors = [];
   useEffect(async () => {
     (async () => {
       if (auth.login == "admin") {
         const response = await getCollectorsApi();
-        //setCollectors([]);
+        if (searchedStatus.length >= 1) {
+        }
+        searchedCollectors = response?.filter((collector) => {
+          var collectorName = (
+            collector.first_name +
+            " " +
+            collector.last_name +
+            " " +
+            collector.identification
+          ).toLowerCase();
+
+          var searchedText = searchedStatus.toLowerCase();
+
+          return collectorName.includes(searchedText);
+        });
+        setCollectors(searchedCollectors);
+      } else {
         setCollectors(response);
       }
     })();
-  }, [auth]);
+  }, [auth, searchedStatus]);
 
   return (
     <SafeAreaView style={{}}>
@@ -530,6 +550,7 @@ export default function HomeScreen(props) {
                 <CardTemplate
                   key={index}
                   data={item}
+                  admin={false}
                   uid={item.customer_id}
                   mainTitle="Cliente"
                   mainText={item.name}
@@ -585,12 +606,69 @@ export default function HomeScreen(props) {
               </Text>
             </View>
           </View>
+          <View
+            style={{
+              alignItems: "flex-end",
+              backgroundColor: "rgba(153,190,226, 0.2)",
+              paddingVertical: 10,
+              paddingHorizontal: 15,
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <FadeInOut visible={searchCollector} duration={300}>
+                <TextInput
+                  style={{
+                    ...styles.textInput,
+                    backgroundColor: "rgba(255,255,255,0.5)",
+                  }}
+                  onChangeText={(text) => {
+                    setSearchedStatus(text);
+                  }}
+                  value={searchedStatus}
+                  placeholder="Buscar cobrador..."
+                />
+              </FadeInOut>
+
+              <View
+                style={{
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Icon
+                  name={searchCollector == false ? "search" : "times"}
+                  size={20}
+                  onPress={() => {
+                    setSearchCollector(!searchCollector);
+                    if (searchCollector == true) {
+                      setSearchedStatus("");
+                    }
+                  }}
+                  style={{
+                    marginLeft: 15,
+                    marginTop: 5,
+                    borderWidth: 0.5,
+                    borderRadius: 2,
+                    width: 36,
+                    height: 36,
+                    textAlignVertical: "center",
+                    textAlign: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 8,
+                    paddingVertical: 5,
+                    backgroundColor: "rgba(255, 255, 255,0.4)",
+                    borderColor: "rgba(0,0,0,0.4)",
+                  }}
+                />
+              </View>
+            </View>
+          </View>
           <ScrollView
             showsVerticalScrollIndicator={false}
             style={{
               height:
                 windowDimensions.height > 805
-                  ? windowDimensions.height * 0.671
+                  ? windowDimensions.height * 0.6 //0.6
                   : windowDimensions.height * 0.624,
               backgroundColor: "rgba(153,190,226, 0.2)",
               //paddingTop: 10,
@@ -612,6 +690,7 @@ export default function HomeScreen(props) {
                   key={index}
                   data={item}
                   uid={item.customer_id}
+                  admin={true}
                   mainTitle="Cobrador"
                   mainText={`${item.first_name} ${item.last_name}`}
                   secondaryTitle="Dirección"

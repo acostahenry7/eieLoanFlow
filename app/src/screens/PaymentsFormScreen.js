@@ -18,6 +18,7 @@ import { isEmpty } from "lodash";
 import useAuth from "../hooks/useAuth";
 import { createPaymentaApi } from "../api/payments";
 import Receipt from "../components/Receipt";
+import { getTotalDiscount } from "../utils/math";
 
 export default function PaymentsFormScreen(props) {
   const {
@@ -504,7 +505,7 @@ function SelectItem(props) {
             if (value == "si") {
               formik.setFieldValue(
                 "quotasNumber",
-                getQuotaNumber(formik.values.loanNumber, quotas).length - 1
+                getQuotaNumber(formik.values.loanNumber, quotas).length
               );
               formik.setFieldValue(
                 "amount",

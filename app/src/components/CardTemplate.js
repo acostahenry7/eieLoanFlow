@@ -25,6 +25,7 @@ export default function CardTemplate(props) {
     actionParam,
     actionParam2,
     screen,
+    admin,
   } = props;
 
   console.log(data);
@@ -83,33 +84,35 @@ export default function CardTemplate(props) {
               </View>
             </View>
             <View style={{}}>
-              <Menu>
-                <MenuTrigger>
-                  <IonIcon
-                    name={"menu"}
-                    size={25}
-                    style={{
-                      zIndex: 99,
-                    }}
-                  />
-                </MenuTrigger>
-                <MenuOptions
-                  customStyles={{ optionText: { fontSize: 15 } }}
-                  optionsContainerStyle={{ marginLeft: 6 }}
-                >
-                  {menuOptions?.map((option, index) => (
-                    <MenuOption
-                      key={index}
-                      text={option.name}
-                      style={styles.menuOption}
-                      onSelect={async () => {
-                        //console.log(option);
-                        option.action(actionParam);
+              {admin == true && (
+                <Menu>
+                  <MenuTrigger>
+                    <IonIcon
+                      name={"menu"}
+                      size={25}
+                      style={{
+                        zIndex: 99,
                       }}
                     />
-                  ))}
-                </MenuOptions>
-              </Menu>
+                  </MenuTrigger>
+                  <MenuOptions
+                    customStyles={{ optionText: { fontSize: 15 } }}
+                    optionsContainerStyle={{ marginLeft: 6 }}
+                  >
+                    {menuOptions?.map((option, index) => (
+                      <MenuOption
+                        key={index}
+                        text={option.name}
+                        style={styles.menuOption}
+                        onSelect={async () => {
+                          //console.log(option);
+                          option.action(actionParam);
+                        }}
+                      />
+                    ))}
+                  </MenuOptions>
+                </Menu>
+              )}
             </View>
           </View>
           {screen != "collectors" && (

@@ -40,6 +40,7 @@
     "react-native-datatable-component": "^2.0.0",
     "react-native-dotenv": "^3.3.1",
     "react-native-elements": "^3.4.2",
+    "react-native-fade-in-out": "^1.0.6",
     "react-native-fs": "^2.19.0",
     "react-native-gesture-handler": "^2.1.1",
     "react-native-google-places-autocomplete": "^2.4.1",
