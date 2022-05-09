@@ -26,6 +26,8 @@ import CardTemplate from "../components/CardTemplate";
 import { getCollectorsApi, updateCollectorParams } from "../api/collectors";
 import tw from "twrnc";
 import FadeInOut from "react-native-fade-in-out";
+import RenderHtml from "react-native-render-html";
+import ModalDropdown from "react-native-modal-dropdown";
 
 export default function HomeScreen(props) {
   const { navigation } = props;
@@ -39,13 +41,14 @@ export default function HomeScreen(props) {
   const { auth } = useAuth();
   const [scanedStatus, setScanedStatus] = useState(true);
   const [visitId, setVisitId] = useState("");
-  const [routes, setRoutes] = useState([]);
+  const [routes, setRoutes] = useState({});
   const [collectors, setCollectors] = useState([]);
   const [currentCollector, setCurrentCollector] = useState({});
   const [isLoading, setIsLoading] = useState(true);
   const [paramFormVisible, setParamFormVisible] = useState(false);
   const [searchCollector, setSearchCollector] = useState(false);
   const [searchedStatus, setSearchedStatus] = useState("");
+  const html = require(`../utils/templates/Receipt.html`);
 
   const goToPage = (page) => {
     navigation.navigate(page);
@@ -142,9 +145,11 @@ export default function HomeScreen(props) {
       setIsLoading(true);
 
       const response = await getPayementRoutes(auth?.employee_id);
+
       setIsLoading(false);
-      if (response?.length > 0) {
-        setRoutes([]);
+      if (response) {
+        setRoutes({});
+        console.log("hi");
         setRoutes(response);
       } else {
         setRoutes(routes);
@@ -158,31 +163,43 @@ export default function HomeScreen(props) {
   useEffect(async () => {
     (async () => {
       if (auth.login == "admin") {
+        console.log("MODULE ADMIN");
         const response = await getCollectorsApi();
         if (searchedStatus.length >= 1) {
+          searchedCollectors = response?.filter((collector) => {
+            var collectorName = (
+              collector.first_name +
+              " " +
+              collector.last_name +
+              " " +
+              collector.identification
+            ).toLowerCase();
+
+            var searchedText = searchedStatus.toLowerCase();
+
+            return collectorName.includes(searchedText);
+          });
+          setCollectors(searchedCollectors);
+        } else {
+          setCollectors(response);
         }
-        searchedCollectors = response?.filter((collector) => {
-          var collectorName = (
-            collector.first_name +
-            " " +
-            collector.last_name +
-            " " +
-            collector.identification
-          ).toLowerCase();
-
-          var searchedText = searchedStatus.toLowerCase();
-
-          return collectorName.includes(searchedText);
-        });
-        setCollectors(searchedCollectors);
-      } else {
-        setCollectors(response);
       }
     })();
   }, [auth, searchedStatus]);
 
+  let source = {
+    html: `
+    <p style='text-align:center;'>
+      Hello World!
+    </p>`,
+  };
+
   return (
     <SafeAreaView style={{}}>
+      <Modal visible={false}>
+        <RenderHtml contentWidth={100} source={source} />
+      </Modal>
+
       {
         <Modal
           visible={paramFormVisible}
@@ -546,26 +563,50 @@ export default function HomeScreen(props) {
                 size={"large"}
               />
             ) : (
-              routes?.map((item, index) => (
-                <CardTemplate
-                  key={index}
-                  data={item}
-                  admin={false}
-                  uid={item.customer_id}
-                  mainTitle="Cliente"
-                  mainText={item.name}
-                  secondaryTitle="Dirección"
-                  secondaryText={item.location}
-                  menuOptions={[
-                    {
-                      name: "Localizar",
-                      action: () => {
-                        navigation.navigate("Gps");
-                      },
-                    },
-                  ]}
-                />
-              ))
+              <View>
+                <View>
+                  <ModalDropdown
+                    style={{ ...styles.selectItem }}
+                    dropdownStyle={{
+                      ...styles.selectItemOptions,
+                      width: "100%",
+                    }}
+                    dropdownTextStyle={styles.selectItemOptionsText}
+                    disabled={false}
+                    onSelect={(index, value) => {}}
+                    options={["hola"]}
+                  />
+                </View>
+                {Object.keys(routes).map(function (key) {
+                  return (
+                    <View>
+                      <View style={{ paddingVertical: 10 }}>
+                        <Text style={{ textAlign: "center" }}>{key}</Text>
+                      </View>
+                      {routes[key]?.map((item, index) => (
+                        <CardTemplate
+                          key={index}
+                          data={item}
+                          admin={false}
+                          uid={item.customer_id}
+                          mainTitle="Cliente"
+                          mainText={item.name}
+                          secondaryTitle="Dirección"
+                          secondaryText={item.location}
+                          menuOptions={[
+                            {
+                              name: "Localizar",
+                              action: () => {
+                                navigation.navigate("Gps");
+                              },
+                            },
+                          ]}
+                        />
+                      ))}
+                    </View>
+                  );
+                })}
+              </View>
             )}
           </ScrollView>
         </View>
@@ -1073,5 +1114,32 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     color: "white",
     marginBottom: 10,
+  },
+
+  selectItem: {
+    //alignSelf: 'center',
+    marginTop: 5,
+    height: 20,
+    borderWidth: 1,
+    borderColor: "#D1D7DB",
+    height: 30,
+    width: 140,
+    paddingHorizontal: 15,
+    borderRadius: 5,
+    flexDirection: "row",
+    backgroundColor: "white",
+    paddingBottom: 0,
+  },
+
+  selectItemOptions: {
+    width: "75%",
+    paddingTop: 0,
+    borderWidth: 1,
+  },
+
+  selectItemOptionsText: {
+    width: "100%",
+    fontSize: 16,
+    textAlign: "center",
   },
 });
