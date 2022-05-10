@@ -54,6 +54,8 @@ export default function ReportsScreen(props) {
           }
 
           break;
+        case "":
+          break;
 
         default:
           formatedRespose = formatedRespose;

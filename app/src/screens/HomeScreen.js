@@ -48,6 +48,7 @@ export default function HomeScreen(props) {
   const [paramFormVisible, setParamFormVisible] = useState(false);
   const [searchCollector, setSearchCollector] = useState(false);
   const [searchedStatus, setSearchedStatus] = useState("");
+  const [sectionFilter, setSectionFilter] = useState("Todos");
   const html = require(`../utils/templates/Receipt.html`);
 
   const goToPage = (page) => {
@@ -547,7 +548,10 @@ export default function HomeScreen(props) {
           <ScrollView
             showsVerticalScrollIndicator={false}
             style={{
-              height: 570,
+              height:
+                windowDimensions.height > 805
+                  ? windowDimensions.height * 0.6 //0.6
+                  : windowDimensions.height * 0.624,
               backgroundColor: "rgba(153,190,226, 0.2)",
               //paddingTop: 10,
               paddingHorizontal: 3,
@@ -564,7 +568,7 @@ export default function HomeScreen(props) {
               />
             ) : (
               <View>
-                <View>
+                <View style={{ paddingHorizontal: 15 }}>
                   <ModalDropdown
                     style={{ ...styles.selectItem }}
                     dropdownStyle={{
@@ -573,17 +577,35 @@ export default function HomeScreen(props) {
                     }}
                     dropdownTextStyle={styles.selectItemOptionsText}
                     disabled={false}
-                    onSelect={(index, value) => {}}
-                    options={["hola"]}
+                    onSelect={(index, value) => {
+                      setSectionFilter(value);
+                    }}
+                    options={["Todos", ...Object.keys(routes)]}
+                    defaultValue="Todos"
+                    textStyle={styles.selectItemText}
                   />
                 </View>
                 {Object.keys(routes).map(function (key) {
+                  let searchKey = key;
+                  console.log(sectionFilter);
+                  if (sectionFilter.length > 1) {
+                    if (sectionFilter == "Todos") {
+                      searchKey = key;
+                    } else {
+                      if (key == sectionFilter) {
+                        searchKey = key;
+                      } else {
+                        searchKey = "";
+                      }
+                    }
+                  }
+
                   return (
                     <View>
                       <View style={{ paddingVertical: 10 }}>
-                        <Text style={{ textAlign: "center" }}>{key}</Text>
+                        <Text style={{ textAlign: "center" }}>{searchKey}</Text>
                       </View>
-                      {routes[key]?.map((item, index) => (
+                      {routes[searchKey]?.map((item, index) => (
                         <CardTemplate
                           key={index}
                           data={item}
@@ -1118,28 +1140,37 @@ const styles = StyleSheet.create({
 
   selectItem: {
     //alignSelf: 'center',
-    marginTop: 5,
-    height: 20,
+    backgroundColor: "#4682b4",
     borderWidth: 1,
     borderColor: "#D1D7DB",
-    height: 30,
-    width: 140,
+    paddingVertical: 10,
+    alignItems: "center",
     paddingHorizontal: 15,
     borderRadius: 5,
     flexDirection: "row",
-    backgroundColor: "white",
-    paddingBottom: 0,
+  },
+
+  selectItemText: {
+    fontSize: 16,
+    color: "white",
+    width: "100%",
+    textAlign: "center",
   },
 
   selectItemOptions: {
-    width: "75%",
     paddingTop: 0,
     borderWidth: 1,
+    maxWidth: 300,
+    marginTop: 10,
+    marginLeft: 20,
+    backgroundColor: "#4682b4",
   },
 
   selectItemOptionsText: {
     width: "100%",
     fontSize: 16,
     textAlign: "center",
+    backgroundColor: "transparent",
+    color: "white",
   },
 });
