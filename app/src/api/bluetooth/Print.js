@@ -92,10 +92,10 @@ async function generateReceipt(object) {
 
       // key.toString() == "amount" ||
       // key.toString() == "mora" ||
-      key.toString() == "totalPaid" ? (suffix = ".00") : (suffix = "");
+      //key.toString() == "totalPaid" ? (suffix = ".00") : (suffix = "");
 
       if (c == 4 || c == 5) x = x - 20;
-      receiptDetail.push(`^FO${x},${top},^ADN,26,12^FD${value}${suffix}^FS`);
+      receiptDetail.push(`^FO${x},${top},^ADN,26,12^FD${value}^FS`);
 
       x += parseFloat(value.toString().length) * 7 + 80;
 

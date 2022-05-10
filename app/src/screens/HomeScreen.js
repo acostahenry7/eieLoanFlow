@@ -550,7 +550,7 @@ export default function HomeScreen(props) {
             style={{
               height:
                 windowDimensions.height > 805
-                  ? windowDimensions.height * 0.6 //0.6
+                  ? windowDimensions.height * 0.67 //0.6
                   : windowDimensions.height * 0.624,
               backgroundColor: "rgba(153,190,226, 0.2)",
               //paddingTop: 10,

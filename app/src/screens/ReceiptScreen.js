@@ -79,7 +79,7 @@ export default function ReceiptScreen(props) {
             //console.log("DISCOUNT", result);
             return result;
           })(),
-          cashBack: 0,
+          cashBack: parseFloat(response[0].cashBack || 0),
           date: payment.created_date,
           time: payment.created_time,
           firstName: customer.first_name,

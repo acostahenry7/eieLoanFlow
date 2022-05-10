@@ -82,11 +82,11 @@ export default function Receipt(props) {
             />
           </View>
           <Image
-          style={{ width: "100%", height: 90 }}
-          source={{
-            uri: 'http://10.0.0.177:3000/assets/profile/banner1.png',
-          }}
-        />
+            style={{ width: "100%", height: 90 }}
+            source={{
+              uri: "http://op.grupoavant.com.do:26015/assets/profile/banner1.png",
+            }}
+          />
           <View style={{ alignItems: "center" }}>
             <Text style={{ fontWeight: "bold" }}>{receiptDetails.outlet}</Text>
             <Text style={{ fontWeight: "bold" }}>
@@ -148,7 +148,9 @@ export default function Receipt(props) {
             </Text>
             <ScrollView style={{ marginTop: 20, maxHeight: 250 }}>
               <View style={{ flexDirection: "row" }}>
-                <Text style={{ width: "17%", fontWeight: "bold" }}>No. Cuota:</Text>
+                <Text style={{ width: "17%", fontWeight: "bold" }}>
+                  No. Cuota:
+                </Text>
                 <Text style={{ width: "30%", fontWeight: "bold" }}>
                   Fecha cuota:
                 </Text>
@@ -177,7 +179,7 @@ export default function Receipt(props) {
                     </View>
                     <View style={{ width: "20%" }}>
                       <Text style={{ fontWeight: "bold" }}>
-                        {quota.totalPaid}.00
+                        {quota.totalPaid}
                       </Text>
                     </View>
                   </View>
@@ -250,7 +252,7 @@ export default function Receipt(props) {
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>Monto Recibido:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD${totalPaid(quotas)+receiptDetails.cashBack}.00
+                  RD${totalPaid(quotas) + receiptDetails.cashBack}.00
                 </Text>
               </View>
               <View style={styles.totalSection}>
