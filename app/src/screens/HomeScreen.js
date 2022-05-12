@@ -777,32 +777,31 @@ export default function HomeScreen(props) {
 
       {/*QR Scanner trigger Icon*/}
       {/* <View style={{ height: "100%" }}> */}
-      <View style={{ height: "100%" }}>
-        <Icon
-          onPress={() => {
-            console.log("hi");
-            setmodalVisibility(true);
-          }}
-          name="qrcode"
-          color={"black"}
-          style={{
-            position: "absolute",
-            bottom: "22%",
-            right: 30,
-            zIndex: 999,
-            backgroundColor: "#4682b4",
-            color: "white",
-            fontSize: 40,
-            width: 67,
-            height: 67,
-            elevation: 5,
-            paddingTop: 12,
-            paddingBottom: 10,
-            paddingLeft: 15.5,
-            borderRadius: 50,
-          }}
-        />
-      </View>
+
+      <Icon
+        onPress={() => {
+          console.log("hi");
+          setmodalVisibility(true);
+        }}
+        name="qrcode"
+        color={"black"}
+        style={{
+          position: "absolute",
+          bottom: 20,
+          right: 30,
+          zIndex: 999,
+          backgroundColor: "#4682b4",
+          color: "white",
+          fontSize: 40,
+          width: 67,
+          height: 67,
+          elevation: 5,
+          paddingTop: 12,
+          paddingBottom: 10,
+          paddingLeft: 15.5,
+          borderRadius: 50,
+        }}
+      />
 
       {/* </View> */}
     </SafeAreaView>
