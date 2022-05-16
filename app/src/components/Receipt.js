@@ -134,6 +134,10 @@ export default function Receipt(props) {
                     {receiptDetails?.firstName + " " + receiptDetails?.lastName}
                   </Text>
                 </View>
+                <View style={{ marginTop: 10 }}>
+                  <Text style={{ fontWeight: "bold" }}>Zona:</Text>
+                  <Text>{receiptDetails?.section}</Text>
+                </View>
               </View>
             </View>
             <Text
