@@ -1,5 +1,12 @@
 import React from "react";
-import { View, Text, ScrollView, Button, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  ScrollView,
+  Button,
+  StyleSheet,
+  Alert,
+} from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import useAuth from "../hooks/useAuth";
@@ -121,7 +128,14 @@ function UserDataMenuItem({ icon, field, nextScreen, navigation, options }) {
       <Icon name={icon} size={30} style={{ marginRight: 10, marginTop: -4 }} />
       <Text
         style={{ width: "100%" }}
-        onPress={() => navigation.navigate(nextScreen, { params: options })}
+        onPress={() => {
+          icon != "lock"
+            ? navigation.navigate(nextScreen, { params: options })
+            : Alert.alert(
+                "Modulo no Disponible",
+                "Actualmente se ecuentra en mantenimiento"
+              );
+        }}
       >
         {field}
       </Text>

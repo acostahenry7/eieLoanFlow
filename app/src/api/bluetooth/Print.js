@@ -7,6 +7,7 @@ import RNZebraBluetoothPrinter from "react-native-zebra-bluetooth-printer";
 import { Alert } from "react-native";
 import { getSavedPrintersApi } from "./Printers";
 import { getTotalDiscount } from "../../utils/math";
+import { extractIconText } from "../../utils/stringFuctions";
 
 // Bluetooth Printing API
 export async function printByBluetooth(object) {
@@ -243,7 +244,7 @@ function buildBody(arr, x, y) {
     body += `${zText(
       item.loan_number_id +
         " " +
-        item.name +
+        extractSimplifiedName(item.name) +
         " " +
         item.receipt_number +
         " " +
@@ -340,3 +341,39 @@ const getPendingAmount = (object) => {
 
   return result;
 };
+
+function extractSimplifiedName(str) {
+  const strArr = str.split(" " || "  ");
+
+  if (strArr[strArr.length - 1] == "") {
+    strArr.pop("");
+  }
+
+  var result = "";
+  switch (strArr.length) {
+    case 2:
+      for (var i = 0; i < strArr.length; i++) {
+        result += strArr[i] + " ";
+      }
+      break;
+    case 3:
+      for (var i = 0; i < strArr.length; i++) {
+        if (i == 0 || i == 1) {
+          result += strArr[i] + " ";
+        }
+      }
+      break;
+    case 4:
+      for (var i = 0; i < strArr.length; i++) {
+        if (i == 0 || i == 2) {
+          result += strArr[i] + " ";
+        }
+      }
+      break;
+    default:
+      result = strArr[0];
+      break;
+  }
+
+  return result;
+}
