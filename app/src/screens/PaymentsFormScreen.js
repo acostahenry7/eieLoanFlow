@@ -277,6 +277,7 @@ export default function PaymentsFormScreen(props) {
         cashBack,
         lastModifiedBy: auth.login,
         employeeId: auth.employee_id,
+        customer,
         outletId: auth.outlet_id,
         comment: comment,
         registerId: register.register_id,
@@ -565,7 +566,7 @@ function getQuotaNumber(loan, quotas) {
   var i = 1;
   var result = [];
 
-  quotas[loan].map((item) => {
+  quotas[loan]?.map((item) => {
     result.push(i.toString());
     i++;
   });

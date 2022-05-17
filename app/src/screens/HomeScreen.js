@@ -585,7 +585,7 @@ export default function HomeScreen(props) {
                     textStyle={styles.selectItemText}
                   />
                 </View>
-                {Object.keys(routes).map(function (key) {
+                {Object.keys(routes).map(function (key, item) {
                   let searchKey = key;
                   console.log(sectionFilter);
                   if (sectionFilter.length > 1) {
@@ -601,7 +601,7 @@ export default function HomeScreen(props) {
                   }
 
                   return (
-                    <View>
+                    <View key={item}>
                       <View style={{ paddingVertical: 10 }}>
                         <Text style={{ textAlign: "center" }}>{searchKey}</Text>
                       </View>
