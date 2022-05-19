@@ -66,7 +66,7 @@ async function generateReceipt(object) {
   })();
 
   let receiptHeader =
-    "^FO40,655,^ADN,26,12^FDCuota  Fecha Cuota  Monto   Mora    Pagado^FS";
+    "^FO40,655,^ADN,26,12^FDNo.Cuota  Fecha Cuota  Monto   Mora   Pagado^FS";
   let receiptDetail = [];
   let bodyItem = [];
   let receiptBody = [];
@@ -130,57 +130,65 @@ async function generateReceipt(object) {
               ${zSection("Recibo", 245, 320)}
               ${zTitle("Numero Recibo", 40, 375)}
               ${zTitle(object.receiptNumber, 40, 400, 25, 30)}
-              ${zTitle("Fecha: ", 300, 375)}
+              ${zTitle("Fecha de Pago: ", 300, 375)}
               ${zTitle(object.date, 300, 400)}
-              ${zTitle("Zona: ", 40, 460)}
-              ${zTitle("Villa Mella", 40, 485)}
-              ${zTitle("No. Prestamo: ", 300, 460)}
-              ${zTitle(object.loanNumber, 300, 485)}
-              ${zTitle("Nombre Cliente: ", 40, 545)}
-              ${zTitle(object.firstName + " " + object.lastName, 40, 570)}
+              ${zTitle("Prestamo: ", 40, 460)}
+              ${zTitle(object.loanNumber, 40, 485)}
+              ${zTitle("Cliente: ", 300, 460)}
+              ${zTitle(object.firstName + " " + object.lastName, 300, 485)}
+              ${zTitle("Tipo de Pago: ", 40, 545)}
+              ${zTitle(object.paymentMethod, 40, 570)}
+              ${zTitle("Zona: ", 300, 545)}
+              ${zTitle("Villa Mella", 300, 570)}
               ${zSection("Transacciones", 200, 620)}
               ${receiptHeader}
               ${receiptDetail}
-              ${zTitle("SubTotal:", 270, top + 30)}
+              ${zTitle("Total Mora:", 270, top + 30)}
               ${zTitle(
-                "RD$ " + getSubTotal(object.amortization) + ".00",
+                "RD$ " + getTotalMora(object.amortization) + ".00",
                 435,
                 top + 30
               )}
-              ${zTitle("Descuento:", 270, top + 60)}
+              ${zTitle("SubTotal:", 270, top + 60)}
               ${zTitle(
-                "RD$ " + getTotalDiscount(object.amortization) + ".00",
+                "RD$ " + getSubTotal(object.amortization) + ".00",
                 435,
                 top + 60
               )}
-              ${zTitle("Total:", 270, top + 90)}
+              ${zTitle("Descuento:", 270, top + 90)}
               ${zTitle(
-                "RD$ " + getTotal(object.amortization) + ".00",
+                "RD$ " + getTotalDiscount(object.amortization) + ".00",
                 435,
                 top + 90
               )}
-              ${zTitle("Monto Recibido:", 270, top + 120)}
+              ${zTitle("Total:", 270, top + 120)}
               ${zTitle(
-                "RD$ " + getReceivedAmount(object.amortization) + ".00",
+                "RD$ " + getTotal(object.amortization) + ".00",
                 435,
                 top + 120
               )}
-              ${zTitle("Saldo Pendiente:", 270, top + 150)}
+              ${zTitle("Monto Recibido:", 270, top + 150)}
               ${zTitle(
-                "RD$ " + getPendingAmount(object.amortization) + ".00",
+                "RD$ " + getReceivedAmount(object.amortization) + ".00",
                 435,
                 top + 150
               )}
-              ${zTitle("Cambio:", 270, top + 180)}
-              ${zTitle("RD$ " + object.cashBack + ".00", 435, top + 180)}
+              ${zTitle("Saldo Pendiente:", 270, top + 180)}
+              ${zTitle(
+                "RD$ " + getPendingAmount(object.amortization) + ".00",
+                435,
+                top + 180
+              )}
+              ${zTitle("Cambio:", 270, top + 210)}
+              ${zTitle("RD$ " + object.cashBack + ".00", 435, top + 210)}
               ${zTitle(
                 "Nota: No somos responsables de dinero entregado sin recibo",
                 40,
-                top + 240,
+                top + 270,
                 18,
                 20
               )}
-              ${zTitle("--COPIA DE RECIBO--", 140, top + 280, 25, 30)}
+              ${zTitle("--COPIA DE RECIBO--", 140, top + 290, 25, 30)}
               ^XZ`;
 
   //   let zpl = `! 0 200 200 210 1\r\n
@@ -322,11 +330,11 @@ const getReceivedAmount = (arr) => {
 
   arr.map((item) => {
     console.log(item);
-    sum +=
-      parseFloat(item.totalPaid) +
-      parseInt(item.mora) -
-      parseFloat(item.discountMora) -
-      parseFloat(item.discountInterest);
+    sum += parseFloat(item.totalPaid);
+    // parseFloat(item.totalPaid) +
+    // parseInt(item.mora) -
+    // parseFloat(item.discountMora) -
+    // parseFloat(item.discountInterest);
   });
 
   console.log(sum);
@@ -376,4 +384,14 @@ function extractSimplifiedName(str) {
   }
 
   return result;
+}
+
+function getTotalMora(arr) {
+  var sum = 0;
+
+  arr.map((item) => {
+    sum += parseInt(item.mora);
+  });
+
+  return sum.toString();
 }

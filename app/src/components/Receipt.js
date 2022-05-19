@@ -106,7 +106,7 @@ export default function Receipt(props) {
             </Text>
           </View>
           <View>
-            <View style={{ flexDirection: "row" }}>
+            <View style={{ flexDirection: "row", marginBottom: 10 }}>
               <View style={{ width: "50%" }}>
                 <View>
                   <Text style={{ fontWeight: "bold" }}>Número Recibo:</Text>
@@ -134,9 +134,11 @@ export default function Receipt(props) {
                     {receiptDetails?.firstName + " " + receiptDetails?.lastName}
                   </Text>
                 </View>
-                <View style={{ marginTop: 10 }}>
+                <View style={{ marginTop: 10, flexDirection: "row" }}>
                   <Text style={{ fontWeight: "bold" }}>Zona:</Text>
-                  <Text>{receiptDetails?.section}</Text>
+                  <Text style={{ marginLeft: 5 }}>
+                    {receiptDetails?.section || "Villa Mella"}
+                  </Text>
                 </View>
               </View>
             </View>
@@ -230,6 +232,13 @@ export default function Receipt(props) {
               ))}
             </ScrollView>
             <View style={{ marginTop: 15 }}>
+              <View style={styles.totalSection}>
+                <Text style={styles.totalSectionTitle}>Total Mora:</Text>
+                <Text style={styles.totalSectionBody}>
+                  RD${getTotalMora(quotas)}
+                  .00
+                </Text>
+              </View>
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>SubTotal:</Text>
                 <Text style={styles.totalSectionBody}>
@@ -338,3 +347,13 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
 });
+
+function getTotalMora(arr) {
+  var sum = 0;
+
+  arr.map((item) => {
+    sum += parseInt(item.mora);
+  });
+
+  return sum.toString();
+}
