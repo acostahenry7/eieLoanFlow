@@ -51,7 +51,7 @@ async function generateReceipt(object) {
   const printerSerial = response[0].address;
 
   let printedStatus = false;
-  let labelLength = object.amortization.length * 40 + 1000;
+  let labelLength = object.amortization.length * 90 + 1000;
 
   //console.log(labelLength);
 
@@ -89,8 +89,6 @@ async function generateReceipt(object) {
     // );
 
     for (const [key, value] of Object.entries(entry)) {
-      console.log("EJE Y", key, value);
-
       // key.toString() == "amount" ||
       // key.toString() == "mora" ||
       //key.toString() == "totalPaid" ? (suffix = ".00") : (suffix = "");
@@ -102,6 +100,19 @@ async function generateReceipt(object) {
 
       console.log("CURRENT LENGTH", value.toString().length);
       if (c == Object.keys(entry).length) {
+        console.log("IM AM TESTING NOW", index);
+        receiptDetail.push(
+          `^FO${60},${top + 25},^ADN,26,12^FDDesc. Mora: ${
+            object.amortization[index].discountMora
+          } ^FS`
+        );
+
+        receiptDetail.push(
+          `^FO${300},${top + 25},^ADN,26,12^FDDesc. Interes: ${
+            object.amortization[index].discountInterest
+          }  ^FS`
+        );
+
         console.log("HEY DONE ALREADY");
         top += 10;
         x = 40;
@@ -111,7 +122,7 @@ async function generateReceipt(object) {
       c++;
     }
 
-    top += 20;
+    top += 70;
 
     if (index + 1 == quotasQuantity) {
       console.log("from valitadion quantity");
