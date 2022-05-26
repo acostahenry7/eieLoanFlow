@@ -93,6 +93,17 @@ export default function UserData(props) {
           }}
           icon={"update"}
         />
+        <UserDataMenuItem
+          field={"Visitas"}
+          navigation={navigation}
+          nextScreen={"Reports"}
+          options={{
+            header: ["Prestamo", "Cliente", "Recibo", "Fecha", "Monto"],
+
+            bodyKey: "visits",
+          }}
+          icon={"where-to-vote"}
+        />
         {/* 
                 <UserDataMenuItem
                 field={'Atrasos'}

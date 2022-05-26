@@ -156,7 +156,7 @@ export default function HomeScreen(props) {
         setRoutes(routes);
       }
 
-      //console.log(response);
+      console.log("MY ROUTES", response);
     })();
   }, [auth]);
 
