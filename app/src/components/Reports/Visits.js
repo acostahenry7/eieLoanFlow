@@ -69,6 +69,17 @@ export default function Visits(props) {
     searchedVisits = visits;
   }
 
+  const formatedVisits = [];
+
+  searchedVisits.map((item) => {
+    formatedVisits.push({
+      location: item.actual_location,
+      date: item.visit_date,
+      cliente: item.name,
+      commentary: item.commentary,
+    });
+  });
+
   return (
     <View
       style={{
@@ -219,7 +230,7 @@ export default function Visits(props) {
         )}
       />
       <PrintBtn
-        data={searchedVisits}
+        data={formatedVisits}
         header={["Ubicacion", "Fecha", "Cliente", "Comentario"]}
         description={"Reporte de Visitas"}
       />

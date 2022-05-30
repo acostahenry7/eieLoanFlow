@@ -14,6 +14,7 @@ export async function reportPrinting(data) {
       ${zSection(data.reportDescription, 140, 250, 0)}
       
       ${buildHeader(data, 40, 300)}
+      ${buildBody(data, 160, 300)}
       
      ^XZ`;
 
@@ -49,6 +50,21 @@ function buildHeader(obj, x, y) {
   });
 
   return header.toString();
+}
+
+function buildBody(obj, x, y) {
+  let body = "";
+
+  obj.data.map((item) => {
+    for (const [key, value] of Object.entries(item)) {
+      body += zTitle(value, x, y);
+      y += 40;
+    }
+
+    y += 50;
+  });
+
+  return body.toString();
 }
 
 //${buildBody(data.data, 0, 300)}
