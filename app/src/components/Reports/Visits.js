@@ -71,7 +71,7 @@ export default function Visits(props) {
 
   const formatedVisits = [];
 
-  searchedVisits.map((item) => {
+  searchedVisits?.map((item) => {
     formatedVisits.push({
       location: item.actual_location,
       date: item.visit_date,
