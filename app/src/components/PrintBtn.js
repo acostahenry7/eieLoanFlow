@@ -1,10 +1,11 @@
 import { View, Text, Button, TouchableWithoutFeedback } from "react-native";
 import React from "react";
 import { customPrintData } from "../api/bluetooth/Print";
+import { reportPrinting } from "../api/bluetooth/Reports";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function PrintBtn(props) {
-  const { data, header } = props;
+  const { data, header, description } = props;
 
   console.log("From brn", header);
 
@@ -35,7 +36,11 @@ export default function PrintBtn(props) {
               fontWeight: "bold",
             }}
             onPress={async () => {
-              await customPrintData({ data, header });
+              await reportPrinting({
+                data,
+                header,
+                reportDescription: description,
+              });
               console.log("hi");
             }}
           >

@@ -9,6 +9,7 @@ import {
   Button,
   Keyboard,
   Modal,
+  ActivityIndicator,
 } from "react-native";
 import CheckBox from "expo-checkbox";
 import Icon from "react-native-vector-icons/FontAwesome5";
@@ -37,6 +38,7 @@ export default function PaymentsFormScreen(props) {
   const [selectedPrinter, setSelectedPrinter] = useState();
   const [currentQuotaNumber, setCurrentQuotaNumber] = useState([]);
   const [receiptQuotas, setReceiptQuotas] = useState([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   //console.log(quotas);
   //Bluetooth
@@ -287,6 +289,7 @@ export default function PaymentsFormScreen(props) {
       data.amortization = amortization;
       //console.log(amortization);
       setReceiptQuotas(amortization);
+      setIsLoading(true);
 
       const response = await createPaymentaApi(data);
 
@@ -352,6 +355,7 @@ export default function PaymentsFormScreen(props) {
         });
 
         setReceiptVisibility(true);
+        setIsLoading(false);
         //console.log("KKKKKKK", cashBack);
       }
       //console.log("Receipt", receiptDetails);
@@ -360,6 +364,22 @@ export default function PaymentsFormScreen(props) {
 
   return (
     <View style={styles.selectItemContainer}>
+      {isLoading && (
+        <Modal transparent={true} animationType="fade">
+          <View style={styles.modalView}>
+            <View
+              style={{
+                padding: 10,
+                backgroundColor: "rgba(255,255,255,0.9)",
+                borderRadius: 4,
+              }}
+            >
+              <ActivityIndicator size={50} color="#4682b4" />
+              <Text style={{ color: "grey" }}>Espere...</Text>
+            </View>
+          </View>
+        </Modal>
+      )}
       <ScrollView>
         <View style={styles.formGroup}>
           <Text>Número de Préstamo</Text>
@@ -589,6 +609,13 @@ function getAmount(number, loan, quotas) {
 }
 
 const styles = StyleSheet.create({
+  modalView: {
+    backgroundColor: "rgba(0,0,0,0.3)",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   selectItemContainer: {
     paddingHorizontal: 40,
     backgroundColor: "white",
