@@ -137,7 +137,7 @@ export default function Receipt(props) {
                 <View style={{ marginTop: 10, flexDirection: "row" }}>
                   <Text style={{ fontWeight: "bold" }}>Zona:</Text>
                   <Text style={{ marginLeft: 5 }}>
-                    {receiptDetails?.section || "Villa Mella"}
+                    {receiptDetails?.section || "Zona 2 - Villa Mella"}
                   </Text>
                 </View>
               </View>

@@ -1,4 +1,10 @@
-import { View, Text, Button, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  Button,
+  TouchableWithoutFeedback,
+  Modal,
+} from "react-native";
 import React from "react";
 import { customPrintData } from "../api/bluetooth/Print";
 import { reportPrinting } from "../api/bluetooth/Reports";
@@ -11,6 +17,9 @@ export default function PrintBtn(props) {
 
   return (
     <View>
+      <Modal visible={true}>
+        <View style={{ height: "100%" }}></View>
+      </Modal>
       <TouchableWithoutFeedback>
         <View
           style={{
