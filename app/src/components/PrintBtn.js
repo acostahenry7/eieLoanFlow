@@ -4,28 +4,52 @@ import {
   Button,
   TouchableWithoutFeedback,
   Modal,
+  ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useState } from "react";
 import { customPrintData } from "../api/bluetooth/Print";
 import { reportPrinting } from "../api/bluetooth/Reports";
 import Icon from "react-native-vector-icons/MaterialIcons";
 
 export default function PrintBtn(props) {
   const { data, header, description } = props;
+  const [isLoading, setIsLoading] = useState(false);
 
   console.log("From brn", header);
 
   return (
     <View>
-      <Modal visible={true}>
-        <View style={{ height: "100%" }}></View>
+      <Modal visible={isLoading} transparent={true}>
+        <View
+          style={{
+            height: "100%",
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "rgba(0,0,0,0.3)",
+          }}
+        >
+          <View
+            style={{
+              backgroundColor: "rgba(255,255,255,1)",
+              paddingHorizontal: 10,
+              paddingVertical: 15,
+              borderRadius: 4,
+              elevation: 5,
+            }}
+          >
+            <ActivityIndicator color={"#4682b4"} size={50} />
+            <Text style={{ color: "rgba(0,0,0,0.5)" }}>
+              Imprimiendo, porfavor espere...
+            </Text>
+          </View>
+        </View>
       </Modal>
       <TouchableWithoutFeedback>
         <View
           style={{
             position: "absolute",
-            backgroundColor: "skyblue",
-            bottom: 0,
+            backgroundColor: "#4682b4",
+            bottom: 30,
             right: 0,
             paddingVertical: 10,
             paddingHorizontal: 10,
@@ -45,15 +69,17 @@ export default function PrintBtn(props) {
               fontWeight: "bold",
             }}
             onPress={async () => {
+              setIsLoading(true);
               await reportPrinting({
                 data,
                 header,
                 reportDescription: description,
               });
+              setIsLoading(false);
               console.log("hi");
             }}
           >
-            <Icon name="print" size={50} />
+            <Icon name="print" size={40} />
           </Text>
         </View>
       </TouchableWithoutFeedback>

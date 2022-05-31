@@ -6,7 +6,7 @@ export async function reportPrinting(data) {
   console.log(data);
   const response = await getSavedPrintersApi();
   const printerSerial = response[0].address;
-  let labelLength = 400 + data.data.length * 150;
+  let labelLength = 400 + data.data.length * 200;
 
   let zpl = `^XA
      ^LL${labelLength}
