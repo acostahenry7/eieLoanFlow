@@ -265,7 +265,7 @@ export default function Receipt(props) {
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>Monto Recibido:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD${totalPaid(quotas) + receiptDetails.cashBack}.00
+                  RD${totalPaid(quotas)}.00
                 </Text>
               </View>
               <View style={styles.totalSection}>
