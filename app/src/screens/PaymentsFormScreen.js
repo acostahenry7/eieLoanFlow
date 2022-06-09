@@ -64,6 +64,9 @@ export default function PaymentsFormScreen(props) {
         comment,
       } = values;
 
+      let receivedAmount = amount;
+      console.log("AMOUNT", amount);
+
       var totalPaid = 0;
 
       let amortization = [];
@@ -328,6 +331,7 @@ export default function PaymentsFormScreen(props) {
           outletId: auth.outlet_id,
           firstName: params.first_name,
           lastName: params.last_name,
+          receivedAmount,
           amortization: data.amortization,
           quotaNumbers: (() => {
             let result = [];

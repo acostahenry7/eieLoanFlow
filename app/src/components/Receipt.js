@@ -11,6 +11,7 @@ import {
 import { printByBluetooth } from "../api/bluetooth/Print";
 import { Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import useAuth from "../hooks/useAuth";
 
 export default function Receipt(props) {
   const {
@@ -20,6 +21,8 @@ export default function Receipt(props) {
     quotas,
     navigation,
   } = props;
+
+  const { auth } = useAuth();
 
   receiptDetails.amortization = [...quotas];
 
@@ -47,6 +50,10 @@ export default function Receipt(props) {
     return sum;
   };
 
+  const paidTotalAmount = (arr) => {
+    var result = 0;
+  };
+
   return (
     <Modal
       transparent={true}
@@ -54,13 +61,19 @@ export default function Receipt(props) {
       visible={receiptVisibility}
       style={{ height: 50, backgroundColor: "rgba(255, 255, 255, 0)" }}
     >
-      <View style={{ height: "100%", backgroundColor: "rgba(0,0,0, 0.3)" }}>
+      <ScrollView
+        style={{
+          height: "100%",
+          maxWidth: "100%",
+          backgroundColor: "rgba(0,0,0, 0.3)",
+        }}
+      >
         <View
           style={{
             backgroundColor: "white",
-            marginTop: "auto",
-            marginBottom: "auto",
-            marginHorizontal: 20,
+            marginVertical: 15,
+            borderRadius: 5,
+            marginHorizontal: 10,
             shadowColor: "#000",
             shadowOffset: {
               width: 0,
@@ -70,7 +83,7 @@ export default function Receipt(props) {
             shadowRadius: 4,
             elevation: 5,
             paddingVertical: 20,
-            paddingHorizontal: 15,
+            paddingHorizontal: 10,
           }}
         >
           <View>
@@ -82,7 +95,7 @@ export default function Receipt(props) {
             />
           </View>
           <Image
-            style={{ width: "100%", height: 90 }}
+            style={{ width: "100%", height: 100 }}
             source={{
               uri: "http://op.grupoavant.com.do:26015/assets/profile/banner1.png",
             }}
@@ -120,6 +133,10 @@ export default function Receipt(props) {
                   <Text style={{ fontWeight: "bold" }}>Tipo de Pago:</Text>
                   <Text>{receiptDetails?.paymentMethod}</Text>
                 </View>
+                <View style={{ marginTop: 10 }}>
+                  <Text style={{ fontWeight: "bold" }}>Cajero:</Text>
+                  <Text>{auth.login}</Text>
+                </View>
               </View>
               <View style={{ width: "50%" }}>
                 <View>
@@ -134,9 +151,9 @@ export default function Receipt(props) {
                     {receiptDetails?.firstName + " " + receiptDetails?.lastName}
                   </Text>
                 </View>
-                <View style={{ marginTop: 10, flexDirection: "row" }}>
+                <View style={{ marginTop: 10, flexDirection: "column" }}>
                   <Text style={{ fontWeight: "bold" }}>Zona:</Text>
-                  <Text style={{ marginLeft: 5 }}>
+                  <Text style={{}}>
                     {receiptDetails?.section || "Zona 2 - Villa Mella"}
                   </Text>
                 </View>
@@ -152,7 +169,10 @@ export default function Receipt(props) {
             >
               Transacciones
             </Text>
-            <ScrollView style={{ marginTop: 20, maxHeight: 250 }}>
+            <ScrollView
+              style={{ marginTop: 20, maxHeight: 250 }}
+              nestedScrollEnabled={true}
+            >
               <View style={{ flexDirection: "row" }}>
                 <Text style={{ width: "17%", fontWeight: "bold" }}>
                   No. Cuota:
@@ -235,14 +255,14 @@ export default function Receipt(props) {
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>Total Mora:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD${getTotalMora(quotas)}
+                  RD$ {getTotalMora(quotas)}
                   .00
                 </Text>
               </View>
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>SubTotal:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD${totalPaid(quotas, true) + receiptDetails.mora}
+                  RD$ {totalPaid(quotas, true) + receiptDetails.mora}
                   .00
                 </Text>
               </View>
@@ -255,7 +275,7 @@ export default function Receipt(props) {
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>Total:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD${" "}
+                  RD$
                   {totalPaid(quotas, true) +
                     receiptDetails.mora -
                     receiptDetails.discount}
@@ -265,13 +285,22 @@ export default function Receipt(props) {
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>Monto Recibido:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD${totalPaid(quotas)}.00
+                  RD${" "}
+                  {receiptDetails.receivedAmount ||
+                    totalPaid(quotas) + receiptDetails.cashBack}
+                  .00
+                </Text>
+              </View>
+              <View style={styles.totalSection}>
+                <Text style={styles.totalSectionTitle}>Total Pagado:</Text>
+                <Text style={styles.totalSectionBody}>
+                  RD$ {totalPaid(quotas)}.00
                 </Text>
               </View>
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>Saldo Pendiente:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD$
+                  RD${" "}
                   {totalPaid(quotas, true) +
                     receiptDetails.mora -
                     receiptDetails.discount -
@@ -282,7 +311,7 @@ export default function Receipt(props) {
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>Cambio:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD${receiptDetails.cashBack}.00
+                  RD$ {receiptDetails.cashBack}.00
                 </Text>
               </View>
             </View>
@@ -324,7 +353,7 @@ export default function Receipt(props) {
             </View>
           </View>
         </View>
-      </View>
+      </ScrollView>
     </Modal>
   );
 }
