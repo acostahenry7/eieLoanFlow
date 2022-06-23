@@ -255,7 +255,7 @@ export default function Receipt(props) {
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>Total Mora:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD$ {getTotalMora(quotas)}
+                  RD$ {receiptDetails.mora}
                   .00
                 </Text>
               </View>
@@ -300,12 +300,7 @@ export default function Receipt(props) {
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>Saldo Pendiente:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD${" "}
-                  {totalPaid(quotas, true) +
-                    receiptDetails.mora -
-                    receiptDetails.discount -
-                    totalPaid(quotas)}
-                  .00
+                  RD$ {receiptDetails?.pendingAmount - totalPaid(quotas)}.00
                 </Text>
               </View>
               <View style={styles.totalSection}>

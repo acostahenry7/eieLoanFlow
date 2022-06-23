@@ -39,6 +39,7 @@ export default function PaymentsFormScreen(props) {
   const [currentQuotaNumber, setCurrentQuotaNumber] = useState([]);
   const [receiptQuotas, setReceiptQuotas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingAmount, setPendingAmount] = useState("");
 
   //console.log(quotas);
   //Bluetooth
@@ -247,6 +248,12 @@ export default function PaymentsFormScreen(props) {
 
       var data = {};
 
+      const currentPendingAmount = getAmount(
+        quotas[loanNumber].length,
+        loanNumber,
+        quotas
+      );
+
       data.payment = {
         loanId: (function () {
           var result = "";
@@ -261,6 +268,17 @@ export default function PaymentsFormScreen(props) {
         ncf: "",
         customerId: params.customer_id,
         paymentMethod,
+        totalMora: (() => {
+          let result = 0;
+          let mora = 0;
+          amortization.map((item) => {
+            mora += parseFloat(item.mora);
+            result = mora;
+          });
+          //console.log("DISCOUNT", result);
+          return result;
+        })(),
+        pendingAmount: currentPendingAmount,
         paymentType: (function () {
           switch (paymentMethod) {
             case "Efectivo":
@@ -279,6 +297,7 @@ export default function PaymentsFormScreen(props) {
           return paymentMethod;
         })(),
         createdBy: auth.login,
+        receivedAmount,
         cashBack,
         lastModifiedBy: auth.login,
         employeeId: auth.employee_id,
@@ -296,6 +315,8 @@ export default function PaymentsFormScreen(props) {
 
       const response = await createPaymentaApi(data);
 
+      console.log("HIII", currentPendingAmount);
+
       if (response) {
         setReceiptDetails({
           loanNumber,
@@ -303,6 +324,7 @@ export default function PaymentsFormScreen(props) {
           outlet: auth.name,
           rnc: auth.rnc,
           cashBack,
+          pendingAmount: currentPendingAmount,
           discount: (() => {
             let result = 0;
             let discount = 0;
