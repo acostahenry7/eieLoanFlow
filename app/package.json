@@ -58,6 +58,7 @@
     "react-native-screens": "^3.10.2",
     "react-native-svg": "^12.1.1",
     "react-native-web": "0.17.1",
+    "react-native-webview": "^11.22.3",
     "react-native-zebra-bluetooth-printer": "^1.0.8",
     "react-redux": "^7.2.6",
     "tailwind-react-native-classnames": "^1.5.1",

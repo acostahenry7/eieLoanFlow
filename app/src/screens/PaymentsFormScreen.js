@@ -507,6 +507,7 @@ export default function PaymentsFormScreen(props) {
         receiptVisibility={receiptVisibility}
         quotas={receiptQuotas}
         navigation={navigation}
+        origin="payment"
       />
     </View>
   );
