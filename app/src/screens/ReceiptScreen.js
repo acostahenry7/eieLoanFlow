@@ -27,6 +27,7 @@ export default function ReceiptScreen(props) {
   const [payments, setPayments] = useState([]);
   const [quotas, setQuotas] = useState([]);
   const [receiptVisibility, setReceiptVisibility] = useState(false);
+  const [customHtml, setCustomHtml] = useState({});
   const [receiptDetails, setReceiptDetails] = useState({});
 
   console.log(quotas);
@@ -43,69 +44,74 @@ export default function ReceiptScreen(props) {
     {
       name: "Ver",
       action: async (payment) => {
-        console.log(payment);
+        // console.log(payment);
         const response = await getAmortizationByPaymentApi({
           receiptId: payment?.receipt.receipt_id,
         });
-        console.log("RESPONSE", response);
-        setQuotas(response);
+        console.log("RECEIPT TEMPLATE", response);
 
-        //  console.log(quotas);
+        setCustomHtml(response.app_html);
+
+        // console.log("RESPONSE", response);
+        // setQuotas(response);
+
+        // //  console.log(quotas);
         setReceiptDetails({
           loanNumber: loan,
-          outlet: auth.name,
-          rnc: auth.rnc,
-          receiptNumber: payment.receipt.receipt_number,
-          amortization: response,
-          mora: (() => {
-            let result = 0;
-            let mora = 0;
-            response.map((item) => {
-              mora += parseFloat(item.mora);
-              result = mora;
-            });
-            //console.log("DISCOUNT", result);
-            return result;
-          })(),
-          discount: (() => {
-            let result = 0;
-            let discount = 0;
-            response.map((item) => {
-              discount +=
-                parseFloat(item.discountInterest) +
-                parseFloat(item.discountMora);
-              result = discount;
-            });
-            //console.log("DISCOUNT", result);
-            return result;
-          })(),
-          cashBack: parseFloat(response[0].cashBack || 0),
-          date: payment.created_date,
-          time: payment.created_time,
-          firstName: customer.first_name,
-          lastName: customer.last_name,
-          paymentMethod: (function () {
-            var paymentMethod = payment.payment_type;
-            console.log(paymentMethod);
-            switch (paymentMethod) {
-              case "CASH":
-                paymentMethod = "Efectivo";
-                break;
-              case "TRANSFER":
-                paymentMethod = "Transferencia";
-                break;
-              case "CHECK":
-                paymentMethod = "Cheque";
-                break;
-              default:
-                break;
-            }
-            return paymentMethod;
-          })(),
         });
+        //   outlet: auth.name,
+        //   rnc: auth.rnc,
+        //   receiptNumber: payment.receipt.receipt_number,
+        //   amortization: response,
+        //   mora: (() => {
+        //     let result = 0;
+        //     let mora = 0;
+        //     response.map((item) => {
+        //       mora += parseFloat(item.mora);
+        //       result = mora;
+        //     });
+        //     //console.log("DISCOUNT", result);
+        //     return result;
+        //   })(),
+        //   discount: (() => {
+        //     let result = 0;
+        //     let discount = 0;
+        //     response.map((item) => {
+        //       discount +=
+        //         parseFloat(item.discountInterest) +
+        //         parseFloat(item.discountMora);
+        //       result = discount;
+        //     });
+        //     //console.log("DISCOUNT", result);
+        //     return result;
+        //   })(),
+        //   cashBack: parseFloat(response[0].cashBack || 0),
+        //   date: payment.created_date,
+        //   time: payment.created_time,
+        //   firstName: customer.first_name,
+        //   lastName: customer.last_name,
+        //   paymentMethod: (function () {
+        //     var paymentMethod = payment.payment_type;
+        //     console.log(paymentMethod);
+        //     switch (paymentMethod) {
+        //       case "CASH":
+        //         paymentMethod = "Efectivo";
+        //         break;
+        //       case "TRANSFER":
+        //         paymentMethod = "Transferencia";
+        //         break;
+        //       case "CHECK":
+        //         paymentMethod = "Cheque";
+        //         break;
+        //       default:
+        //         break;
+        //     }
+        //     return paymentMethod;
+        //   })(),
+        // });
 
         setReceiptVisibility(true);
-        console.log("hI", receiptDetails);
+
         //console.log(response);
       },
     },
@@ -142,10 +148,12 @@ export default function ReceiptScreen(props) {
       </ScrollView>
       <Receipt
         setReceiptVisibility={setReceiptVisibility}
-        receiptDetails={receiptDetails}
         receiptVisibility={receiptVisibility}
+        receiptDetails={receiptDetails}
         quotas={quotas}
         navigation={navigation}
+        customHtml={customHtml}
+        origin={"receipt"}
       />
     </View>
   );
