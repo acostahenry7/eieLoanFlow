@@ -298,7 +298,9 @@ export default function PaymentsFormScreen(props) {
         })(),
         createdBy: auth.login,
         receivedAmount,
-        cashBack,
+        cashBack: (() => {
+          return Math.round(cashBack);
+        })(),
         lastModifiedBy: auth.login,
         employeeId: auth.employee_id,
         customer,
@@ -323,7 +325,10 @@ export default function PaymentsFormScreen(props) {
           login: auth.login,
           outlet: auth.name,
           rnc: auth.rnc,
-          cashBack,
+          cashBack: (() => {
+            console.log("ESTE ES EL CAMBIO", Math.round(cashBack));
+            return Math.round(cashBack);
+          })(),
           pendingAmount: currentPendingAmount,
           discount: (() => {
             let result = 0;
@@ -459,6 +464,7 @@ export default function PaymentsFormScreen(props) {
               value={formik.values.amount}
               onChangeText={(text) => formik.setFieldValue("amount", text)}
               fieldKey="amount"
+              keyboardType="number-pad"
             />
             <Text
               style={{
@@ -625,7 +631,7 @@ function getAmount(number, loan, quotas) {
   let amount = 0;
 
   while (i < number) {
-    amount += parseInt(quotas[loan][i].current_fee);
+    amount += Math.round(parseFloat(quotas[loan][i].current_fee));
     i++;
   }
 

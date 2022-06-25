@@ -198,7 +198,7 @@ export default function Receipt(props) {
                       <Text>{quota.date}</Text>
                     </View>
                     <View style={{ width: "20%" }}>
-                      <Text>{quota.fixedAmount}</Text>
+                      <Text>{Math.round(quota.fixedAmount)}</Text>
                     </View>
                     <View style={{ width: "17%" }}>
                       <Text>{quota.mora}</Text>
@@ -262,7 +262,8 @@ export default function Receipt(props) {
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>SubTotal:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD$ {totalPaid(quotas, true) + receiptDetails.mora}
+                  RD${" "}
+                  {Math.round(totalPaid(quotas, true) + receiptDetails.mora)}
                   .00
                 </Text>
               </View>
@@ -276,9 +277,11 @@ export default function Receipt(props) {
                 <Text style={styles.totalSectionTitle}>Total:</Text>
                 <Text style={styles.totalSectionBody}>
                   RD$
-                  {totalPaid(quotas, true) +
-                    receiptDetails.mora -
-                    receiptDetails.discount}
+                  {Math.round(
+                    totalPaid(quotas, true) +
+                      receiptDetails.mora -
+                      receiptDetails.discount
+                  )}
                   .00
                 </Text>
               </View>
@@ -300,13 +303,16 @@ export default function Receipt(props) {
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>Saldo Pendiente:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD$ {receiptDetails?.pendingAmount - totalPaid(quotas)}.00
+                  RD${" "}
+                  {Math.round(receiptDetails?.pendingAmount) -
+                    totalPaid(quotas)}
+                  .00
                 </Text>
               </View>
               <View style={styles.totalSection}>
                 <Text style={styles.totalSectionTitle}>Cambio:</Text>
                 <Text style={styles.totalSectionBody}>
-                  RD$ {receiptDetails.cashBack}.00
+                  RD$ {Math.round(receiptDetails.cashBack)}.00
                 </Text>
               </View>
             </View>
