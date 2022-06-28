@@ -211,14 +211,14 @@ export default function Receipt(props) {
                           <Text>{quota.date}</Text>
                         </View>
                         <View style={{ width: "20%" }}>
-                          <Text>{Math.round(quota.fixedAmount)}</Text>
+                          <Text>{Math.round(quota.fixedAmount)}.00</Text>
                         </View>
                         <View style={{ width: "17%" }}>
                           <Text>{quota.mora}</Text>
                         </View>
                         <View style={{ width: "20%" }}>
                           <Text style={{ fontWeight: "bold" }}>
-                            {quota.totalPaid}
+                            {quota.totalPaid}.00
                           </Text>
                         </View>
                       </View>
@@ -406,10 +406,10 @@ export default function Receipt(props) {
                 shadowRadius: 4,
                 elevation: 5,
                 paddingVertical: 20,
-                paddingHorizontal: 10,
+                paddingHorizontal: 0,
               }}
             >
-              <View>
+              <View style={{ paddingHorizontal: 10 }}>
                 <Icon
                   name="close"
                   size={25}
@@ -418,7 +418,14 @@ export default function Receipt(props) {
                 />
               </View>
               <ReceiptHtml html={customHtml} />
-              <View style={{ marginTop: 15, flexDirection: "row", bottom: 0 }}>
+              <View
+                style={{
+                  marginTop: 15,
+                  flexDirection: "row",
+                  bottom: 0,
+                  paddingHorizontal: 10,
+                }}
+              >
                 <Text
                   onPress={() =>
                     navigation.navigate("Payments", {

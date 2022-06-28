@@ -135,7 +135,7 @@ async function generateReceipt(object) {
 
   let zpl = `^XA
               ^LL${labelLength}
-              ^FO35,60^IME:BANNER.GRF^FS
+              ^FO35,60^IME:BANNER.PCX^FS
               ${zTitle(object.outlet, 230, 250)}
               ${zTitle(object.rnc, 230, 275)};
               ${zSection("Recibo", 245, 320)}
@@ -184,22 +184,28 @@ async function generateReceipt(object) {
                 435,
                 top + 150
               )}
-              ${zTitle("Saldo Pendiente:", 270, top + 180)}
+              ${zTitle("Total Pagado  :", 270, top + 180)}
               ${zTitle(
                 "RD$ " + getPendingAmount(object.amortization) + ".00",
                 435,
                 top + 180
               )}
-              ${zTitle("Cambio:", 270, top + 210)}
-              ${zTitle("RD$ " + object.cashBack + ".00", 435, top + 210)}
+              ${zTitle("Saldo Pendiente:", 270, top + 210)}
+              ${zTitle(
+                "RD$ " + getPendingAmount(object.amortization) + ".00",
+                435,
+                top + 210
+              )}
+              ${zTitle("Cambio:", 270, top + 240)}
+              ${zTitle("RD$ " + object.cashBack + ".00", 435, top + 240)}
               ${zTitle(
                 "Nota: No somos responsables de dinero entregado sin recibo",
                 40,
-                top + 270,
+                top + 300,
                 18,
                 20
               )}
-              ${zTitle("--COPIA DE RECIBO--", 140, top + 290, 25, 30)}
+              ${zTitle("--COPIA DE RECIBO--", 140, top + 320, 25, 30)}
               ^XZ`;
 
   //   let zpl = `! 0 200 200 210 1\r\n

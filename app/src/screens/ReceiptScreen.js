@@ -48,25 +48,74 @@ export default function ReceiptScreen(props) {
         const response = await getAmortizationByPaymentApi({
           receiptId: payment?.receipt.receipt_id,
         });
-        console.log("RECEIPT TEMPLATE", response);
+        console.log("RECEIPT TEMPLATE", response.transactions);
 
-        setCustomHtml(response.app_html);
+        setCustomHtml(response.receipt.app_html);
 
-        // console.log("RESPONSE", response);
-        // setQuotas(response);
+        // console.log("RESPONSE", response.transactions;
+        // setQuotas(response.transactions;
 
         // //  console.log(quotas);
         setReceiptDetails({
           loanNumber: loan,
+          outlet: auth.name,
+          rnc: auth.rnc,
+          receiptNumber: payment.receipt.receipt_number,
+          amortization: response.transactions,
+          mora: (() => {
+            let result = 0;
+            let mora = 0;
+            response.transactions.map((item) => {
+              mora += parseFloat(item.mora);
+              result = mora;
+            });
+            //console.log("DISCOUNT", result);
+            return result;
+          })(),
+          discount: (() => {
+            let result = 0;
+            let discount = 0;
+            response.transactions.map((item) => {
+              discount +=
+                parseFloat(item.discountInterest) +
+                parseFloat(item.discountMora);
+              result = discount;
+            });
+            //console.log("DISCOUNT", result);
+            return result;
+          })(),
+          cashBack: parseFloat(response.transactions[0].cashBack || 0),
+          date: payment.created_date,
+          time: payment.created_time,
+          firstName: customer.first_name,
+          lastName: customer.last_name,
+          paymentMethod: (function () {
+            var paymentMethod = payment.payment_type;
+            console.log(paymentMethod);
+            switch (paymentMethod) {
+              case "CASH":
+                paymentMethod = "Efectivo";
+                break;
+              case "TRANSFER":
+                paymentMethod = "Transferencia";
+                break;
+              case "CHECK":
+                paymentMethod = "Cheque";
+                break;
+              default:
+                break;
+            }
+            return paymentMethod;
+          })(),
         });
         //   outlet: auth.name,
         //   rnc: auth.rnc,
         //   receiptNumber: payment.receipt.receipt_number,
-        //   amortization: response,
+        //   amortization: response.transactions
         //   mora: (() => {
         //     let result = 0;
         //     let mora = 0;
-        //     response.map((item) => {
+        //     response.transactionsmap((item) => {
         //       mora += parseFloat(item.mora);
         //       result = mora;
         //     });
@@ -76,7 +125,7 @@ export default function ReceiptScreen(props) {
         //   discount: (() => {
         //     let result = 0;
         //     let discount = 0;
-        //     response.map((item) => {
+        //     response.transactionsmap((item) => {
         //       discount +=
         //         parseFloat(item.discountInterest) +
         //         parseFloat(item.discountMora);
@@ -85,7 +134,7 @@ export default function ReceiptScreen(props) {
         //     //console.log("DISCOUNT", result);
         //     return result;
         //   })(),
-        //   cashBack: parseFloat(response[0].cashBack || 0),
+        //   cashBack: parseFloat(response.transactions0].cashBack || 0),
         //   date: payment.created_date,
         //   time: payment.created_time,
         //   firstName: customer.first_name,
@@ -112,7 +161,7 @@ export default function ReceiptScreen(props) {
 
         setReceiptVisibility(true);
 
-        //console.log(response);
+        //console.log(response.transactions;
       },
     },
     {

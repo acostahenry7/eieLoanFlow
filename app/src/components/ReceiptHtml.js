@@ -11,7 +11,7 @@ export default function ReceiptHtml(props) {
       source={{
         html: html,
       }}
-      style={{ marginTop: 20, height: 600 }}
+      style={{ marginTop: 0, height: 600 }}
     />
   );
 }
