@@ -29,6 +29,7 @@ export default function ReceiptScreen(props) {
   const [receiptVisibility, setReceiptVisibility] = useState(false);
   const [customHtml, setCustomHtml] = useState({});
   const [receiptDetails, setReceiptDetails] = useState({});
+  const [isLoading, setIsLoading] = useState(undefined);
 
   console.log(quotas);
 
@@ -45,9 +46,13 @@ export default function ReceiptScreen(props) {
       name: "Ver",
       action: async (payment) => {
         // console.log(payment);
+        setReceiptVisibility(true);
+        setIsLoading(true);
         const response = await getAmortizationByPaymentApi({
           receiptId: payment?.receipt.receipt_id,
         });
+        setIsLoading(false);
+
         console.log("RECEIPT TEMPLATE", response.transactions);
 
         setCustomHtml(response.receipt.app_html);
@@ -56,6 +61,7 @@ export default function ReceiptScreen(props) {
         // setQuotas(response.transactions;
 
         // //  console.log(quotas);
+
         setReceiptDetails({
           loanNumber: loan,
           outlet: auth.name,
@@ -85,6 +91,9 @@ export default function ReceiptScreen(props) {
             return result;
           })(),
           cashBack: parseFloat(response.transactions[0].cashBack || 0),
+          pendingAmount: parseFloat(
+            response.transactions[0].pendingAmount || 0
+          ),
           date: payment.created_date,
           time: payment.created_time,
           firstName: customer.first_name,
@@ -107,57 +116,8 @@ export default function ReceiptScreen(props) {
             }
             return paymentMethod;
           })(),
+          copyText: "---COPIA DEL RECIBO---",
         });
-        //   outlet: auth.name,
-        //   rnc: auth.rnc,
-        //   receiptNumber: payment.receipt.receipt_number,
-        //   amortization: response.transactions
-        //   mora: (() => {
-        //     let result = 0;
-        //     let mora = 0;
-        //     response.transactionsmap((item) => {
-        //       mora += parseFloat(item.mora);
-        //       result = mora;
-        //     });
-        //     //console.log("DISCOUNT", result);
-        //     return result;
-        //   })(),
-        //   discount: (() => {
-        //     let result = 0;
-        //     let discount = 0;
-        //     response.transactionsmap((item) => {
-        //       discount +=
-        //         parseFloat(item.discountInterest) +
-        //         parseFloat(item.discountMora);
-        //       result = discount;
-        //     });
-        //     //console.log("DISCOUNT", result);
-        //     return result;
-        //   })(),
-        //   cashBack: parseFloat(response.transactions0].cashBack || 0),
-        //   date: payment.created_date,
-        //   time: payment.created_time,
-        //   firstName: customer.first_name,
-        //   lastName: customer.last_name,
-        //   paymentMethod: (function () {
-        //     var paymentMethod = payment.payment_type;
-        //     console.log(paymentMethod);
-        //     switch (paymentMethod) {
-        //       case "CASH":
-        //         paymentMethod = "Efectivo";
-        //         break;
-        //       case "TRANSFER":
-        //         paymentMethod = "Transferencia";
-        //         break;
-        //       case "CHECK":
-        //         paymentMethod = "Cheque";
-        //         break;
-        //       default:
-        //         break;
-        //     }
-        //     return paymentMethod;
-        //   })(),
-        // });
 
         setReceiptVisibility(true);
 
@@ -189,21 +149,48 @@ export default function ReceiptScreen(props) {
             secondaryTitle="Fecha"
             secondaryText={payment?.created_date}
             menuOptions={options}
+            loding={isLoading}
           />
           // <View key={index}>
           //   <Text>{payment.receipt.receipt_number}</Text>
           // </View>
         ))}
       </ScrollView>
-      <Receipt
-        setReceiptVisibility={setReceiptVisibility}
-        receiptVisibility={receiptVisibility}
-        receiptDetails={receiptDetails}
-        quotas={quotas}
-        navigation={navigation}
-        customHtml={customHtml}
-        origin={"receipt"}
-      />
+
+      {isLoading ? (
+        <Modal transparent={true}>
+          <View style={{ backgroundColor: "rgba(0,0,0,0.3)", height: "100%" }}>
+            <View
+              style={{
+                alignItems: "center",
+                justifyContent: "center",
+                height: "100%",
+              }}
+            >
+              <Text
+                style={{
+                  backgroundColor: "#fff",
+                  elevation: 10,
+                  padding: 7,
+                  borderRadius: 4,
+                }}
+              >
+                Cargando... Porfavor espere
+              </Text>
+            </View>
+          </View>
+        </Modal>
+      ) : (
+        <Receipt
+          setReceiptVisibility={setReceiptVisibility}
+          receiptVisibility={receiptVisibility}
+          receiptDetails={receiptDetails}
+          quotas={quotas}
+          navigation={navigation}
+          customHtml={customHtml}
+          origin={"receipt"}
+        />
+      )}
     </View>
   );
 }

@@ -51,7 +51,7 @@ async function generateReceipt(object) {
   const printerSerial = response[0].address;
 
   let printedStatus = false;
-  let labelLength = object.amortization.length * 90 + 1000;
+  let labelLength = object.amortization.length * 90 + 1100;
 
   //console.log(labelLength);
 
@@ -191,11 +191,7 @@ async function generateReceipt(object) {
                 top + 180
               )}
               ${zTitle("Saldo Pendiente:", 270, top + 210)}
-              ${zTitle(
-                "RD$ " + getPendingAmount(object.amortization) + ".00",
-                435,
-                top + 210
-              )}
+              ${zTitle("RD$ " + object.pendingAmount + ".00", 435, top + 210)}
               ${zTitle("Cambio:", 270, top + 240)}
               ${zTitle("RD$ " + object.cashBack + ".00", 435, top + 240)}
               ${zTitle(
@@ -205,7 +201,7 @@ async function generateReceipt(object) {
                 18,
                 20
               )}
-              ${zTitle("--COPIA DE RECIBO--", 140, top + 320, 25, 30)}
+              ${zTitle(object.copyText, 100, top + 350, 25, 30)}
               ^XZ`;
 
   //   let zpl = `! 0 200 200 210 1\r\n

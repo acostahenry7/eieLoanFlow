@@ -24,6 +24,7 @@ export default function Receipt(props) {
     navigation,
     origin,
     customHtml,
+    isLoading,
   } = props;
 
   const { auth } = useAuth();
@@ -322,10 +323,7 @@ export default function Receipt(props) {
                       Saldo Pendiente:
                     </Text>
                     <Text style={styles.totalSectionBody}>
-                      RD${" "}
-                      {Math.round(receiptDetails?.pendingAmount) -
-                        totalPaid(quotas)}
-                      .00
+                      RD$ {Math.round(receiptDetails?.pendingAmount)}
                     </Text>
                   </View>
                   <View style={styles.totalSection}>
@@ -417,7 +415,9 @@ export default function Receipt(props) {
                   style={{ textAlign: "right" }}
                 />
               </View>
+
               <ReceiptHtml html={customHtml} />
+
               <View
                 style={{
                   marginTop: 15,

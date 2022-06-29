@@ -329,7 +329,8 @@ export default function PaymentsFormScreen(props) {
             console.log("ESTE ES EL CAMBIO", Math.round(cashBack));
             return Math.round(cashBack);
           })(),
-          pendingAmount: currentPendingAmount,
+          pendingAmount:
+            parseFloat(currentPendingAmount) - response.loanDetails?.pay,
           discount: (() => {
             let result = 0;
             let discount = 0;
@@ -383,6 +384,7 @@ export default function PaymentsFormScreen(props) {
             const fullDate = `${date}/${month}/${year}  ${hour}:${minute} ${dayTime}`;
             return fullDate.toString();
           })(),
+          copyText: "",
         });
 
         setReceiptVisibility(true);
