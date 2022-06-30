@@ -51,7 +51,6 @@ export default function ReceiptScreen(props) {
         const response = await getAmortizationByPaymentApi({
           receiptId: payment?.receipt.receipt_id,
         });
-        setIsLoading(false);
 
         console.log("RECEIPT TEMPLATE", response.transactions);
 
@@ -119,6 +118,7 @@ export default function ReceiptScreen(props) {
           copyText: "---COPIA DEL RECIBO---",
         });
 
+        setIsLoading(false);
         setReceiptVisibility(true);
 
         //console.log(response.transactions;

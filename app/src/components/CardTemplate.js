@@ -223,7 +223,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     //marginTop: 10,
     backgroundColor: "white",
-    paddingHorizontal: 20,
+    paddingHorizontal: 50,
     paddingVertical: 15,
     borderRadius: 10,
     borderLeftColor: "#4682b4",
