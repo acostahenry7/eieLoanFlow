@@ -116,21 +116,20 @@ export default function PaymentScreen(props) {
         setOpenedCashier(true);
       }
 
-      params = "";
       //console.log(response);
     })();
-  }, [auth, isFocused]);
+  }, [auth]);
 
   useEffect(() => {
     (() => {
-      if (params) {
+      if (params && params.origin == "customerInfo") {
         setLoan(params.loanNumber.toString());
         console.log("Params", params);
         formik.setFieldValue("searchKey", params.loanNumber.toString());
         formik.handleSubmit();
       }
     })();
-  }, [params]);
+  }, [params?.origin]);
 
   useEffect(() => {
     (() => {

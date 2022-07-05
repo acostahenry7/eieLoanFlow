@@ -29,7 +29,7 @@ export default function EIECamera(props) {
       const data = await takePicture();
       const currentLocation = data.uri;
       console.log(data);
-      const filename = `${customer.key}${Date.now()}.jpg`;
+      const filename = `${customer.key}_${Date.now()}.jpg`;
       const newLocation = RNFS.ExternalDirectoryPath + filename;
       console.log("CURRENT URI", newLocation);
       setImage({ ...data, currentUri: `file://${newLocation}`, filename });

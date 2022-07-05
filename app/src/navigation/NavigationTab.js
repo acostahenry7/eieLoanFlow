@@ -34,12 +34,14 @@ export default function NavigationTab() {
       {auth?.login != "admin" ? (
         <Tab.Screen
           name="PaymentsRoot"
+          initialParams={{ loanNumber: null }}
           component={PaymentNavigation}
           options={{
             tabBarLabel: "Cobros",
             tabBarIcon: ({ color, size }) => (
               <Icon name="dollar-sign" color={color} size={size} />
             ),
+            unmountOnBlur: true,
           }}
         />
       ) : undefined}
@@ -64,6 +66,7 @@ export default function NavigationTab() {
             tabBarIcon: ({ color, size }) => (
               <Icon name="users" color={color} size={size} />
             ),
+            unmountOnBlur: true,
           }}
         />
       ) : undefined}

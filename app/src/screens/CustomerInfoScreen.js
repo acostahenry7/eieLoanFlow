@@ -277,7 +277,10 @@ export default function CustomerInfoScreen(props) {
                       onPress={() =>
                         navigation.navigate("PaymentsRoot", {
                           screen: "Payments",
-                          params: { loanNumber: loan.number },
+                          params: {
+                            loanNumber: loan.number,
+                            origin: "customerInfo",
+                          },
                         })
                       }
                       style={{ ...styles.loanNumber, ...styles.loanEntry }}

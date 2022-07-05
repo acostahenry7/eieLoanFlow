@@ -37,8 +37,8 @@ export async function updateCustomerImg(data) {
   data = {
     ...data,
     imageUrl: `${await getSavedConnectionUrlApi()}/assets/profile/${
-      data.fileName
-    }`,
+      data.fileName.split("_")[0]
+    }/${data.fileName}`,
   };
 
   const options = {
