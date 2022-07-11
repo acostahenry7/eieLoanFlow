@@ -118,8 +118,8 @@ export default function HomeScreen(props) {
 
       let data = {
         customerId: id,
-        userId: auth.user_id,
-        username: auth.login,
+        userId: auth?.user_id,
+        username: auth?.login,
         currentLocation: "Calle 4 No. 33",
         commentary: null,
       };
@@ -163,7 +163,7 @@ export default function HomeScreen(props) {
   let searchedCollectors = [];
   useEffect(async () => {
     (async () => {
-      if (auth.login == "admin") {
+      if (auth?.login == "admin") {
         console.log("MODULE ADMIN");
         const response = await getCollectorsApi();
         if (searchedStatus.length >= 1) {
@@ -508,7 +508,7 @@ export default function HomeScreen(props) {
       </View>
 
       {/*Payment Route*/}
-      {auth.login != "admin" ? (
+      {auth?.login != "admin" ? (
         <View style={{}}>
           <View
             style={{

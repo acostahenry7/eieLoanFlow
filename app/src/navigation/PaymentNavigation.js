@@ -9,14 +9,13 @@ const Stack = createStackNavigator();
 
 export default function PaymentNavigation() {
   return (
-    <Stack.Navigator screenOptions={{ unmountOnBlur: true }}>
+    <Stack.Navigator screenOptions={{}}>
       <Stack.Screen
-        initialParams={{ loanNumber: null }}
+        initialParams={{}}
         name="Payments"
         component={PaymentScreen}
         options={{
           title: "Cobros",
-          unmountOnBlur: true,
         }}
       />
       <Stack.Screen

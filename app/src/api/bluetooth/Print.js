@@ -10,19 +10,19 @@ import { getTotalDiscount } from "../../utils/math";
 import { extractIconText } from "../../utils/stringFuctions";
 
 // Bluetooth Printing API
-export async function printByBluetooth(object) {
+export async function printByBluetooth(object, origin) {
   let printedStatus = false;
 
   const blueToothEnabled = await BluetoothManager.isBluetoothEnabled();
 
   if (blueToothEnabled) {
-    const response = await generateReceipt(object);
+    const response = await generateReceipt(object, origin);
     console.log(response);
     printedStatus = response;
   } else {
     await BluetoothManager.enableBluetooth();
 
-    const response = await generateReceipt(object);
+    const response = await generateReceipt(object, origin);
     console.log(response);
     printedStatus = response;
   }
@@ -31,109 +31,111 @@ export async function printByBluetooth(object) {
 }
 
 //This function generate the Receipt
-async function generateReceipt(object) {
-  console.log("ASAAAAAAAAAAAAAAAAAAAAAAAA", object);
-  console.log(object.cashBack);
-
-  let receiptAmortization = [];
-
-  object.amortization.map((item) => {
-    receiptAmortization.push({
-      quota_number: item.quota_number,
-      date: item.date,
-      fixedAmount: item.fixedAmount,
-      mora: item.mora,
-      totalPaid: item.totalPaid,
-    });
-  });
-
+async function generateReceipt(object, origin) {
+  let zpl = "";
+  let printedStatus = false;
   const response = await getSavedPrintersApi();
   const printerSerial = response[0].address;
 
-  let printedStatus = false;
-  let labelLength = object.amortization.length * 90 + 1100;
+  console.log("ASAAAAAAAAAAAAAAAAAAAAAAAA", origin);
+  if (origin == "payment") {
+    console.log(object.cashBack);
 
-  //console.log(labelLength);
+    let receiptAmortization = [];
 
-  let date = (() => {
-    //Date
-    const date = new Date().getDate();
-    const month = new Date().getMonth() + 1;
-    const year = new Date().getFullYear();
+    object.amortization.map((item) => {
+      receiptAmortization.push({
+        quota_number: item.quota_number,
+        date: item.date,
+        fixedAmount: item.fixedAmount,
+        mora: item.mora,
+        totalPaid: item.totalPaid,
+      });
+    });
 
-    const fullDate = `${date}/${month}/${year}`;
-    return fullDate.toString();
-  })();
+    let labelLength = object.amortization.length * 90 + 1200;
 
-  let receiptHeader =
-    "^FO40,655,^ADN,26,12^FDNo.Cuota  Fecha Cuota  Monto   Mora   Pagado^FS";
-  let receiptDetail = [];
-  let bodyItem = [];
-  let receiptBody = [];
+    //console.log(labelLength);
 
-  let quotasQuantity = object.amortization.length;
-  //console.log("Cantidad de Cuotas", quotasQuantity);
+    let date = (() => {
+      //Date
+      const date = new Date().getDate();
+      const month = new Date().getMonth() + 1;
+      const year = new Date().getFullYear();
 
-  let width = 40;
-  let top = 680;
-  var noteHeight;
-  var c = 1;
-  var x = 40;
-  let suffix;
-  receiptAmortization.map((entry, index) => {
-    noteHeight = 0;
-    // receiptDetail.push(
-    //   `^FO${width},${top},^ADN,26,12^FD${entry.quota_number}     ${date}    ${
-    //     Math.trunc(entry.amount) + ".00"
-    //   }  ${entry.mora}  ${Math.trunc(entry.totalPaid) + ".00"}^FS`
-    // );
+      const fullDate = `${date}/${month}/${year}`;
+      return fullDate.toString();
+    })();
 
-    for (const [key, value] of Object.entries(entry)) {
-      // key.toString() == "amount" ||
-      // key.toString() == "mora" ||
-      //key.toString() == "totalPaid" ? (suffix = ".00") : (suffix = "");
+    let receiptHeader =
+      "^FO40,725,^ADN,26,12^FDNo.Cuota  Fecha Cuota  Monto   Mora   Pagado^FS";
+    let receiptDetail = [];
+    let bodyItem = [];
+    let receiptBody = [];
 
-      if (c == 4 || c == 5) x = x - 20;
-      receiptDetail.push(`^FO${x},${top},^ADN,26,12^FD${value}^FS`);
+    let quotasQuantity = object.amortization.length;
+    //console.log("Cantidad de Cuotas", quotasQuantity);
 
-      x += parseFloat(value.toString().length) * 7 + 80;
+    let width = 40;
+    let top = 750;
+    var noteHeight;
+    var c = 1;
+    var x = 40;
+    let suffix;
+    receiptAmortization.map((entry, index) => {
+      noteHeight = 0;
+      // receiptDetail.push(
+      //   `^FO${width},${top},^ADN,26,12^FD${entry.quota_number}     ${date}    ${
+      //     Math.trunc(entry.amount) + ".00"
+      //   }  ${entry.mora}  ${Math.trunc(entry.totalPaid) + ".00"}^FS`
+      // );
 
-      console.log("CURRENT LENGTH", value.toString().length);
-      if (c == Object.keys(entry).length) {
-        console.log("IM AM TESTING NOW", index);
-        receiptDetail.push(
-          `^FO${60},${top + 25},^ADN,26,12^FDDesc. Mora: ${
-            object.amortization[index].discountMora
-          } ^FS`
-        );
+      for (const [key, value] of Object.entries(entry)) {
+        // key.toString() == "amount" ||
+        // key.toString() == "mora" ||
+        //key.toString() == "totalPaid" ? (suffix = ".00") : (suffix = "");
 
-        receiptDetail.push(
-          `^FO${300},${top + 25},^ADN,26,12^FDDesc. Interes: ${
-            object.amortization[index].discountInterest
-          }  ^FS`
-        );
+        if (c == 4 || c == 5) x = x - 20;
+        receiptDetail.push(`^FO${x},${top},^ADN,26,12^FD${value}^FS`);
 
-        console.log("HEY DONE ALREADY");
-        top += 10;
-        x = 40;
-        c = 0;
+        x += parseFloat(value.toString().length) * 7 + 80;
+
+        console.log("CURRENT LENGTH", value.toString().length);
+        if (c == Object.keys(entry).length) {
+          console.log("IM AM TESTING NOW", index);
+          receiptDetail.push(
+            `^FO${60},${top + 25},^ADN,26,12^FDDesc. Mora: ${
+              object.amortization[index].discountMora
+            } ^FS`
+          );
+
+          receiptDetail.push(
+            `^FO${300},${top + 25},^ADN,26,12^FDDesc. Interes: ${
+              object.amortization[index].discountInterest
+            }  ^FS`
+          );
+
+          console.log("HEY DONE ALREADY");
+          top += 10;
+          x = 40;
+          c = 0;
+        }
+
+        c++;
       }
 
-      c++;
-    }
+      top += 70;
 
-    top += 70;
+      if (index + 1 == quotasQuantity) {
+        console.log("from valitadion quantity");
+        noteHeight = top + 40;
+        console.log(noteHeight);
+      }
+    });
 
-    if (index + 1 == quotasQuantity) {
-      console.log("from valitadion quantity");
-      noteHeight = top + 40;
-      console.log(noteHeight);
-    }
-  });
+    receiptDetail = receiptDetail.join();
 
-  receiptDetail = receiptDetail.join();
-
-  let zpl = `^XA
+    zpl = `^XA
               ^LL${labelLength}
               ^FO35,60^IME:BANNER.PCX^FS
               ${zTitle(object.outlet, 230, 250)}
@@ -151,7 +153,9 @@ async function generateReceipt(object) {
               ${zTitle(object.paymentMethod, 40, 570)}
               ${zTitle("Zona: ", 300, 545)}
               ${zTitle("Villa Mella", 300, 570)}
-              ${zSection("Transacciones", 200, 620)}
+              ${zTitle("Cajero: ", 40, 630)}
+              ${zTitle("liberio", 40, 655)}
+              ${zSection("Transacciones", 200, 690)}
               ${receiptHeader}
               ${receiptDetail}
               ${zTitle("Total Mora:", 270, top + 30)}
@@ -186,7 +190,7 @@ async function generateReceipt(object) {
               )}
               ${zTitle("Total Pagado  :", 270, top + 180)}
               ${zTitle(
-                "RD$ " + getPendingAmount(object.amortization) + ".00",
+                "RD$ " + totalPaid(object.amortization) + ".00",
                 435,
                 top + 180
               )}
@@ -203,6 +207,9 @@ async function generateReceipt(object) {
               )}
               ${zTitle(object.copyText, 100, top + 350, 25, 30)}
               ^XZ`;
+  } else {
+    zpl = object.appZPL;
+  }
 
   //   let zpl = `! 0 200 200 210 1\r\n
   //   TEXT 4 0 30 40 Hello World\r\n
@@ -336,6 +343,17 @@ const getTotal = (arr) => {
 
   console.log(sum);
   return sum.toString();
+};
+
+const totalPaid = (arr) => {
+  let result = 0;
+  let i = 0;
+
+  for (i of arr) {
+    result += parseFloat(i.totalPaid);
+  }
+
+  return result;
 };
 
 const getReceivedAmount = (arr) => {

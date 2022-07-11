@@ -354,7 +354,10 @@ export default function Receipt(props) {
                     style={{ marginLeft: "auto", right: 0 }}
                     title="Imprimir"
                     onPress={async () => {
-                      const response = await printByBluetooth(receiptDetails);
+                      const response = await printByBluetooth(
+                        receiptDetails,
+                        origin
+                      );
                       console.log("Pay", response);
                       if (response == true) {
                         navigation.navigate("Payments", {
@@ -445,7 +448,10 @@ export default function Receipt(props) {
                     style={{ marginLeft: "auto", right: 0 }}
                     title="Imprimir"
                     onPress={async () => {
-                      const response = await printByBluetooth(receiptDetails);
+                      const response = await printByBluetooth(
+                        receiptDetails,
+                        origin
+                      );
                       console.log("Pay", response);
                       if (response == true) {
                         navigation.navigate("Payments", {

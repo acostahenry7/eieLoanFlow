@@ -129,7 +129,7 @@ export default function PaymentScreen(props) {
         formik.handleSubmit();
       }
     })();
-  }, [params?.origin]);
+  }, [params]);
 
   useEffect(() => {
     (() => {
@@ -235,6 +235,7 @@ export default function PaymentScreen(props) {
                 {isLoading && (
                   <ActivityIndicator size="large" style={styles.spinner} />
                 )}
+                {/* <Text>Limpiar Búsqueda</Text> */}
               </View>
             </View>
           )

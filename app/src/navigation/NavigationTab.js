@@ -15,10 +15,7 @@ export default function NavigationTab() {
   const { auth } = useAuth();
 
   return (
-    <Tab.Navigator
-      initialRouteName="Settings"
-      screenOptions={{ unmountOnBlur: true }}
-    >
+    <Tab.Navigator initialRouteName="Settings" screenOptions={{}}>
       <Tab.Screen
         name="GpsRoot"
         component={GpsNavigation}
@@ -41,7 +38,6 @@ export default function NavigationTab() {
             tabBarIcon: ({ color, size }) => (
               <Icon name="dollar-sign" color={color} size={size} />
             ),
-            unmountOnBlur: true,
           }}
         />
       ) : undefined}

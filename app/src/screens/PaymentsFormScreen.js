@@ -17,9 +17,10 @@ import ModalDropdown from "react-native-modal-dropdown";
 import { useFormik } from "formik";
 import { isEmpty } from "lodash";
 import useAuth from "../hooks/useAuth";
-import { createPaymentaApi } from "../api/payments";
+import { createPaymentaApi, setReceiptZPL } from "../api/payments";
 import Receipt from "../components/Receipt";
 import { getTotalDiscount } from "../utils/math";
+import { genereateZPLTemplate } from "../utils/printFunctions";
 
 export default function PaymentsFormScreen(props) {
   const {
@@ -268,6 +269,7 @@ export default function PaymentsFormScreen(props) {
         ncf: "",
         customerId: params.customer_id,
         paymentMethod,
+
         totalMora: (() => {
           let result = 0;
           let mora = 0;
@@ -319,77 +321,86 @@ export default function PaymentsFormScreen(props) {
 
       console.log("HIII", currentPendingAmount);
 
+      let testing = {
+        loanNumber,
+        login: auth.login,
+        outlet: auth.name,
+        rnc: auth.rnc,
+        cashBack: (() => {
+          console.log("ESTE ES EL CAMBIO", Math.round(cashBack));
+          return Math.round(cashBack);
+        })(),
+        pendingAmount:
+          parseFloat(currentPendingAmount) - response.loanDetails?.pay,
+        discount: (() => {
+          let result = 0;
+          let discount = 0;
+          data.amortization.map((item) => {
+            discount +=
+              parseFloat(item.discountInterest) + parseFloat(item.discountMora);
+            result = discount;
+          });
+          //console.log("DISCOUNT", result);
+          return result;
+        })(),
+        mora: (() => {
+          let result = 0;
+          let mora = 0;
+          data.amortization.map((item) => {
+            mora += parseFloat(item.mora);
+            result = mora;
+          });
+          //console.log("DISCOUNT", result);
+          return result;
+        })(),
+        section: response.loanDetails?.section,
+        receiptNumber: response.receipt?.receipt_number,
+        paymentMethod: data.payment.paymentMethod,
+        outletId: auth.outlet_id,
+        firstName: params.first_name,
+        lastName: params.last_name,
+        receivedAmount,
+        amortization: data.amortization,
+        quotaNumbers: (() => {
+          let result = [];
+          data.amortization.map((quota, index) => {
+            result.push(quotas[loanNumber][index].quota_number.toString());
+          });
+
+          return result;
+        })(),
+        date: (() => {
+          //Date
+          const date = new Date().getDate();
+          const month = new Date().getMonth() + 1;
+          const year = new Date().getFullYear();
+
+          //Time
+          const hour = new Date().getHours();
+          var minute = new Date().getMinutes();
+          minute < 10 ? (minute = "" + minute) : (minute = minute);
+          var dayTime = hour >= 12 ? "PM" : "AM";
+
+          const fullDate = `${date}/${month}/${year}  ${hour}:${minute} ${dayTime}`;
+          return fullDate.toString();
+        })(),
+        copyText: "",
+      };
+
       if (response) {
-        setReceiptDetails({
-          loanNumber,
-          login: auth.login,
-          outlet: auth.name,
-          rnc: auth.rnc,
-          cashBack: (() => {
-            console.log("ESTE ES EL CAMBIO", Math.round(cashBack));
-            return Math.round(cashBack);
-          })(),
-          pendingAmount:
-            parseFloat(currentPendingAmount) - response.loanDetails?.pay,
-          discount: (() => {
-            let result = 0;
-            let discount = 0;
-            data.amortization.map((item) => {
-              discount +=
-                parseFloat(item.discountInterest) +
-                parseFloat(item.discountMora);
-              result = discount;
-            });
-            //console.log("DISCOUNT", result);
-            return result;
-          })(),
-          mora: (() => {
-            let result = 0;
-            let mora = 0;
-            data.amortization.map((item) => {
-              mora += parseFloat(item.mora);
-              result = mora;
-            });
-            //console.log("DISCOUNT", result);
-            return result;
-          })(),
-          section: response.loanDetails?.section,
-          receiptNumber: response.receipt?.receipt_number,
-          paymentMethod: data.payment.paymentMethod,
-          outletId: auth.outlet_id,
-          firstName: params.first_name,
-          lastName: params.last_name,
-          receivedAmount,
-          amortization: data.amortization,
-          quotaNumbers: (() => {
-            let result = [];
-            data.amortization.map((quota, index) => {
-              result.push(quotas[loanNumber][index].quota_number.toString());
-            });
+        setReceiptDetails(testing);
 
-            return result;
-          })(),
-          date: (() => {
-            //Date
-            const date = new Date().getDate();
-            const month = new Date().getMonth() + 1;
-            const year = new Date().getFullYear();
-
-            //Time
-            const hour = new Date().getHours();
-            var minute = new Date().getMinutes();
-            minute < 10 ? (minute = "" + minute) : (minute = minute);
-            var dayTime = hour >= 12 ? "PM" : "AM";
-
-            const fullDate = `${date}/${month}/${year}  ${hour}:${minute} ${dayTime}`;
-            return fullDate.toString();
-          })(),
-          copyText: "",
-        });
+        let zpl = genereateZPLTemplate(testing);
+        console.log("TESTING HI", zpl);
+        await setReceiptZPL(zpl, response.receipt?.receipt_id);
 
         setReceiptVisibility(true);
         setIsLoading(false);
         //console.log("KKKKKKK", cashBack);
+      } else {
+        Alert.alert("Error", "No se pudo realizar el pago correctamente!");
+        setReceiptVisibility(true);
+        setIsLoading(false);
       }
       //console.log("Receipt", receiptDetails);
     },
