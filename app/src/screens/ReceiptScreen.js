@@ -15,6 +15,7 @@ import {
 import CardTemplate from "../components/CardTemplate";
 import Receipt from "../components/Receipt";
 import useAuth from "../hooks/useAuth";
+import Loading from "../components/Loading";
 
 export default function ReceiptScreen(props) {
   const {
@@ -62,7 +63,7 @@ export default function ReceiptScreen(props) {
         // //  console.log(quotas);
 
         setReceiptDetails({
-          appZPL: response.receipt.app_zpl.toString(),
+          appZPL: response.receipt.app_zpl?.toString(),
         });
 
         setIsLoading(false);
@@ -80,11 +81,8 @@ export default function ReceiptScreen(props) {
   ];
 
   return (
-    <View>
-      <View style={{ elevation: 3, backgroundColor: "white" }}>
-        <TextInput style={{ backgroundColor: "skyblue" }} />
-      </View>
-      <ScrollView style={{ paddingHorizontal: 10, marginBottom: 35 }}>
+    <View style={{ paddingTop: 10 }}>
+      <ScrollView style={{ paddingHorizontal: 10 }}>
         {payments?.map((payment, index) => (
           <CardTemplate
             screen="Recibo"
@@ -105,28 +103,7 @@ export default function ReceiptScreen(props) {
       </ScrollView>
 
       {isLoading ? (
-        <Modal transparent={true}>
-          <View style={{ backgroundColor: "rgba(0,0,0,0.3)", height: "100%" }}>
-            <View
-              style={{
-                alignItems: "center",
-                justifyContent: "center",
-                height: "100%",
-              }}
-            >
-              <Text
-                style={{
-                  backgroundColor: "#fff",
-                  elevation: 10,
-                  padding: 7,
-                  borderRadius: 4,
-                }}
-              >
-                Cargando... Porfavor espere
-              </Text>
-            </View>
-          </View>
-        </Modal>
+        <Loading />
       ) : (
         <Receipt
           setReceiptVisibility={setReceiptVisibility}

@@ -128,6 +128,7 @@ export default function DayPayments(props) {
         <View style={styles.filter}>
           <CheckBox
             disabled={allDisabled}
+            tintColors={{ true: "#4682b4", false: "grey" }}
             value={allSelected}
             onValueChange={() => {
               if (!allSelected) {
@@ -144,6 +145,7 @@ export default function DayPayments(props) {
         <View style={styles.filter}>
           <CheckBox
             value={arrearSelected}
+            tintColors={{ true: "#4682b4", false: "grey" }}
             onValueChange={() => {
               if (!arrearSelected) {
                 setArrearSelected(true);
@@ -237,7 +239,7 @@ const styles = StyleSheet.create({
 
   headerContainer: {
     flexDirection: "row",
-    backgroundColor: "#6EADB9",
+    backgroundColor: "#4682b4",
     height: 25,
   },
 

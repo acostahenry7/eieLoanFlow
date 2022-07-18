@@ -71,7 +71,7 @@ export default function NavigationTab() {
         name="Settings"
         component={AcountNavigation}
         options={{
-          //tabBarLabel: "Ajustes",
+          tabBarLabel: "Ajustes",
           tabBarIcon: ({ color, size }) => (
             <Icon name="sliders-h" color={color} size={size} />
           ),

@@ -35,6 +35,14 @@ async function generateReceipt(object, origin) {
   let zpl = "";
   let printedStatus = false;
   const response = await getSavedPrintersApi();
+  if (response == null) {
+    console.log("error");
+    return {
+      resType: "error",
+      message:
+        "No se encontró ninguna impresora configurada. Dirígase a Ajustes > Dispositivos > Añadir Impresora",
+    };
+  }
   const printerSerial = response[0].address;
 
   console.log("ASAAAAAAAAAAAAAAAAAAAAAAAA", origin);
@@ -143,61 +151,61 @@ async function generateReceipt(object, origin) {
               ${zSection("Recibo", 245, 320)}
               ${zTitle("Numero Recibo", 40, 375)}
               ${zTitle(object.receiptNumber, 40, 400, 25, 30)}
-              ${zTitle("Fecha de Pago: ", 300, 375)}
-              ${zTitle(object.date, 300, 400)}
+              ${zTitle("Fecha de Pago: ", 260, 375)}
+              ${zTitle(object.date, 260, 400)}
               ${zTitle("Prestamo: ", 40, 460)}
               ${zTitle(object.loanNumber, 40, 485)}
-              ${zTitle("Cliente: ", 300, 460)}
-              ${zTitle(object.firstName + " " + object.lastName, 300, 485)}
+              ${zTitle("Cliente: ", 260, 460)}
+              ${zTitle(object.firstName + " " + object.lastName, 260, 485)}
               ${zTitle("Tipo de Pago: ", 40, 545)}
               ${zTitle(object.paymentMethod, 40, 570)}
-              ${zTitle("Zona: ", 300, 545)}
-              ${zTitle("Villa Mella", 300, 570)}
+              ${zTitle("Zona: ", 260, 545)}
+              ${zTitle(object.section, 260, 570)}
               ${zTitle("Cajero: ", 40, 630)}
-              ${zTitle("liberio", 40, 655)}
+              ${zTitle(object.login, 40, 655)}
               ${zSection("Transacciones", 200, 690)}
               ${receiptHeader}
               ${receiptDetail}
-              ${zTitle("Total Mora:", 270, top + 30)}
+              ${zTitle("Total Mora:", 200, top + 30)}
               ${zTitle(
                 "RD$ " + getTotalMora(object.amortization) + ".00",
-                435,
+                365,
                 top + 30
               )}
-              ${zTitle("SubTotal:", 270, top + 60)}
+              ${zTitle("SubTotal:", 200, top + 60)}
               ${zTitle(
                 "RD$ " + getSubTotal(object.amortization) + ".00",
-                435,
+                365,
                 top + 60
               )}
-              ${zTitle("Descuento:", 270, top + 90)}
+              ${zTitle("Descuento:", 200, top + 90)}
               ${zTitle(
                 "RD$ " + getTotalDiscount(object.amortization) + ".00",
-                435,
+                365,
                 top + 90
               )}
-              ${zTitle("Total:", 270, top + 120)}
+              ${zTitle("Total:", 200, top + 120)}
               ${zTitle(
                 "RD$ " + getTotal(object.amortization) + ".00",
-                435,
+                365,
                 top + 120
               )}
-              ${zTitle("Monto Recibido:", 270, top + 150)}
+              ${zTitle("Monto Recibido:", 200, top + 150)}
               ${zTitle(
                 "RD$ " + getReceivedAmount(object.amortization) + ".00",
-                435,
+                365,
                 top + 150
               )}
-              ${zTitle("Total Pagado  :", 270, top + 180)}
+              ${zTitle("Total Pagado  :", 200, top + 180)}
               ${zTitle(
                 "RD$ " + totalPaid(object.amortization) + ".00",
-                435,
+                365,
                 top + 180
               )}
-              ${zTitle("Saldo Pendiente:", 270, top + 210)}
-              ${zTitle("RD$ " + object.pendingAmount + ".00", 435, top + 210)}
-              ${zTitle("Cambio:", 270, top + 240)}
-              ${zTitle("RD$ " + object.cashBack + ".00", 435, top + 240)}
+              ${zTitle("Saldo Pendiente:", 200, top + 210)}
+              ${zTitle("RD$ " + object.pendingAmount + ".00", 365, top + 210)}
+              ${zTitle("Cambio:", 200, top + 240)}
+              ${zTitle("RD$ " + object.cashBack + ".00", 365, top + 240)}
               ${zTitle(
                 "Nota: No somos responsables de dinero entregado sin recibo",
                 40,
@@ -221,7 +229,11 @@ async function generateReceipt(object, origin) {
     result = await RNZebraBluetoothPrinter.print(printerSerial, zpl);
     result = true;
   } catch (error) {
-    console.log(error);
+    return {
+      resType: "error",
+      message:
+        "No se pudo conectar a la impresora, verifique que permanece encendida y vinculada a su dispositivo.",
+    };
   }
 
   printedStatus = result;

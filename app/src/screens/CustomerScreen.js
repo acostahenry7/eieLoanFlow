@@ -5,6 +5,7 @@ import CustomerCard from "../components/CustomerCard";
 import CustomerList from "../components/CustomerList";
 import CustomerSearch from "../components/CustomerSearch";
 import useAuth from "../hooks/useAuth";
+import Loading from "../components/Loading";
 
 export default function CustomerScreen(props) {
   const {
@@ -15,6 +16,7 @@ export default function CustomerScreen(props) {
   const [customers, setCustomers] = useState([]);
   const [nextUrl, setNextUrl] = useState(null);
   const [searchStatus, searchValue] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const { auth } = useAuth();
 
   useEffect(() => {
@@ -25,7 +27,9 @@ export default function CustomerScreen(props) {
 
   useEffect(() => {
     (async () => {
+      setIsLoading(true);
       auth && auth?.login != "admin" ? await loadCustomers(auth) : undefined;
+      setIsLoading(false);
       console.log("hi from customer");
     })();
   }, [auth]);
@@ -99,12 +103,15 @@ export default function CustomerScreen(props) {
         searchStatus={searchStatus}
         setSearchValue={searchValue}
       />
-
-      <CustomerList
-        customers={searchedCustomers}
-        loadCustomers={loadCustomers}
-        isNext={nextUrl}
-      />
+      {!isLoading ? (
+        <CustomerList
+          customers={searchedCustomers}
+          loadCustomers={loadCustomers}
+          isNext={nextUrl}
+        />
+      ) : (
+        <Loading text="" />
+      )}
     </SafeAreaView>
   );
 }

@@ -3,7 +3,9 @@ import React from "react";
 import { WebView } from "react-native-webview";
 
 export default function ReceiptHtml(props) {
-  const { html } = props;
+  var { html } = props;
+
+  html == null ? (html = "<h1>No existe ningún recibo.</h1>") : (html = html);
 
   return (
     <WebView

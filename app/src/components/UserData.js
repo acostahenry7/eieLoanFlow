@@ -19,7 +19,7 @@ export default function UserData(props) {
   const { login, first_name, last_name } = auth;
 
   return (
-    <ScrollView style={{ paddingTop: 30, paddingBottom: 100 }}>
+    <ScrollView style={{ paddingTop: 20, paddingBottom: 100 }}>
       <Text style={styles.menuDivisionTitle}>Cuenta</Text>
       <View
         style={{
@@ -60,7 +60,7 @@ export default function UserData(props) {
           <AdminManagement navigation={navigation} />
         ) : undefined}
       </View>
-      <View style={{ marginTop: 20 }}>
+      <View style={{ marginTop: 0 }}>
         <Text style={styles.menuDivisionTitle}>Dispositivos</Text>
         <UserDataMenuItem
           field={"Añadir Impresora"}
@@ -184,9 +184,13 @@ function AdminManagement({ navigation }) {
 
 const styles = StyleSheet.create({
   menuDivisionTitle: {
-    color: "#1e90ff",
-    fontWeight: "bold",
+    color: "white",
+    fontWeight: "900",
+    backgroundColor: "#4682b4",
+    borderRadius: 15,
+    marginHorizontal: 5,
     paddingHorizontal: 15,
+    paddingVertical: 2,
     marginBottom: 12,
   },
 

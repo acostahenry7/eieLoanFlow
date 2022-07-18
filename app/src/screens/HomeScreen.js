@@ -22,6 +22,7 @@ import { useFormik } from "formik";
 import { createVisitCommentaryApi, getPayementRoutes } from "../api/payments";
 import { WINDOW_DIMENSION as windowDimensions } from "../utils/constants";
 import * as Yup from "yup";
+import Loading from "../components/Loading";
 import CardTemplate from "../components/CardTemplate";
 import { getCollectorsApi, updateCollectorParams } from "../api/collectors";
 import tw from "twrnc";
@@ -559,13 +560,7 @@ export default function HomeScreen(props) {
             }}
           >
             {isLoading == true ? (
-              <ActivityIndicator
-                style={{
-                  marginTop: 100,
-                }}
-                color={"blue"}
-                size={"large"}
-              />
+              <Loading />
             ) : (
               <View>
                 <View style={{ paddingHorizontal: 15 }}>

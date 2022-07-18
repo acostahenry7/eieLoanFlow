@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   View,
   SafeAreaView,
@@ -14,6 +14,7 @@ import { Alert } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import useAuth from "../hooks/useAuth";
 import ReceiptHtml from "./ReceiptHtml";
+import Loading from "../components/Loading";
 
 export default function Receipt(props) {
   const {
@@ -28,6 +29,8 @@ export default function Receipt(props) {
   } = props;
 
   const { auth } = useAuth();
+
+  const [isPrinting, setIsPrinting] = useState(false);
 
   if (origin == "payment") {
     receiptDetails.amortization = [...quotas];
@@ -419,6 +422,7 @@ export default function Receipt(props) {
                 />
               </View>
 
+              {isPrinting && <Loading text="Imprimiendo..." />}
               <ReceiptHtml html={customHtml} />
 
               <View
@@ -448,20 +452,19 @@ export default function Receipt(props) {
                     style={{ marginLeft: "auto", right: 0 }}
                     title="Imprimir"
                     onPress={async () => {
+                      setIsPrinting(true);
                       const response = await printByBluetooth(
                         receiptDetails,
                         origin
                       );
+                      setIsPrinting(false);
                       console.log("Pay", response);
                       if (response == true) {
                         navigation.navigate("Payments", {
                           loanNumber: receiptDetails.loanNumber,
                         });
                       } else {
-                        Alert.alert(
-                          "Error de Impresión",
-                          "Verifique que la impresora no esté ihnibida e inténtelo nuevamente."
-                        );
+                        Alert.alert("Error de Impresión", response.message);
                       }
                     }}
                   />

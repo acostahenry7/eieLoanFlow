@@ -15,6 +15,7 @@ import Icon from "react-native-vector-icons/FontAwesome5";
 import { getClientByloan, getRegisterStatusApi } from "../api/payments";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import Loading from "../components/Loading";
 import { isEmpty } from "lodash";
 import {
   Menu,
@@ -90,7 +91,7 @@ export default function PaymentScreen(props) {
           await retriveCustomer(value.searchKey);
         } else {
           if (params) {
-            await retriveCustomer(params.loanNumber.toString());
+            await retriveCustomer(params.loanNumber?.toString());
           }
         }
       } else {
@@ -123,9 +124,9 @@ export default function PaymentScreen(props) {
   useEffect(() => {
     (() => {
       if (params && params.origin == "customerInfo") {
-        setLoan(params.loanNumber.toString());
+        setLoan(params?.loanNumber?.toString());
         console.log("Params", params);
-        formik.setFieldValue("searchKey", params.loanNumber.toString());
+        formik.setFieldValue("searchKey", params?.loanNumber?.toString());
         formik.handleSubmit();
       }
     })();
@@ -173,9 +174,13 @@ export default function PaymentScreen(props) {
       } else {
         setIsCustomer(false);
         setLoan(key);
-        setError(
-          `El cliente con No. préstamo/cédula ${loan} no existe, o no se encuentra entre tus zonas asignadas`
-        );
+        if (loan == undefined) {
+          setError("");
+        } else {
+          setError(
+            `El cliente con No. préstamo/cédula ${loan} no existe, o no se encuentra entre tus zonas asignadas`
+          );
+        }
       }
 
       //console.log(currentQuotas);
@@ -232,9 +237,7 @@ export default function PaymentScreen(props) {
                 ) : (
                   <Text style={{ ...styles.error }}>{error}</Text>
                 )}
-                {isLoading && (
-                  <ActivityIndicator size="large" style={styles.spinner} />
-                )}
+                {isLoading && <Loading />}
                 {/* <Text>Limpiar Búsqueda</Text> */}
               </View>
             </View>
