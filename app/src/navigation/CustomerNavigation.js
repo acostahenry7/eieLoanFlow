@@ -12,7 +12,10 @@ export default function CustomerNavigation(props) {
   const navigation = useNavigation();
 
   return (
-    <Stack.Navigator initialRouteName="Customers">
+    <Stack.Navigator
+      initialRouteName="Customers"
+      screenOptions={{ unmountOnBlur: true }}
+    >
       <Stack.Screen
         name="Customers"
         component={CustomerScreen}

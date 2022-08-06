@@ -15,7 +15,10 @@ export default function NavigationTab() {
   const { auth } = useAuth();
 
   return (
-    <Tab.Navigator initialRouteName="Settings" screenOptions={{}}>
+    <Tab.Navigator
+      initialRouteName="Settings"
+      screenOptions={{ unmountOnBlur: true }}
+    >
       <Tab.Screen
         name="GpsRoot"
         component={GpsNavigation}
