@@ -13,6 +13,7 @@ import { generateCoordsByAddress } from "../api/geolocation/locations";
 import Loading from "../components/Loading";
 import { getPayementRoutes } from "../api/payments";
 import useAuth from "../hooks/useAuth";
+import Geocoder from "react-native-geocoding";
 
 const MapScreen = (props) => {
   //console.log(props);
@@ -22,6 +23,8 @@ const MapScreen = (props) => {
   const [customers, setCustomers] = useState([]);
   const [currentCustomer, setCurrentCustomer] = useState();
   const { auth } = useAuth();
+
+  Geocoder.init("AIzaSyCV2wvw5V8c1hjTjaKyuCXppDjs81uk-n4", { language: "es" });
 
   useEffect(() => {
     (async () => {
@@ -36,7 +39,7 @@ const MapScreen = (props) => {
 
   useEffect(() => {
     (async () => {
-      const response = await generateCoordsByAddress(
+      const response = await Geocoder.from(
         currentCustomer?.section.replace("-", " ") +
           " " +
           currentCustomer.location.replace("C/", "Calle ").replace("NO.", "# ")
@@ -48,24 +51,6 @@ const MapScreen = (props) => {
       console.log("hi", address);
     })();
   }, [currentCustomer]);
-
-  // useEffect(() => {
-  //   ((async) => {
-  //     Geolocation.getCurrentPosition(
-  //       (position) => {
-  //         console.log("POSITION", position);
-  //         setTest(position.coords);
-  //       },
-  //       (error) => {
-  //         Alert.alert(
-  //           "Error de GPS",
-  //           "Error accediendo a su ubicación, habilite la ubicación por gps en su dispositivo."
-  //         );
-  //       },
-  //       { enableHighAccuracy: false, timeout: 20000 }
-  //     );
-  //   })();
-  // }, []);
 
   return (
     <View style={{}}>
@@ -104,9 +89,10 @@ const MapScreen = (props) => {
               flexWrap: "wrap",
             }}
           >
-            {customers?.map((item) => (
+            {customers?.map((item, index) => (
               <TouchableWithoutFeedback
                 onPress={() => setCurrentCustomer(item)}
+                key={index}
               >
                 <View style={{}}>
                   <View

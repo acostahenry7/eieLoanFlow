@@ -152,6 +152,7 @@ export default function HomeScreen(props) {
       if (response) {
         setRoutes({});
         console.log("hi");
+        console.log(response);
         setRoutes(response.filteredData);
       } else {
         setRoutes(routes);

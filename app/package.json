@@ -44,6 +44,8 @@
     "react-native-elements": "^3.4.2",
     "react-native-fade-in-out": "^1.0.6",
     "react-native-fs": "^2.19.0",
+    "react-native-geocoder": "^0.5.0",
+    "react-native-geocoding": "^0.5.0",
     "react-native-gesture-handler": "^2.1.1",
     "react-native-google-places-autocomplete": "^2.4.1",
     "react-native-location-enabler": "^4.1.0",

@@ -7,7 +7,15 @@ import { selectOrigin } from "../redux/slices/navSlice";
 import Geolocation from "@react-native-community/geolocation";
 
 export default function Map(props) {
-  const { address } = props;
+  const { address, customer } = props;
+
+  const [customerName, setCustomerName] = useState("customer");
+
+  useEffect(() => {
+    (() => {
+      setCustomerName(customer.name);
+    })();
+  }, [customer]);
 
   const [newCustomers, setNewCustomers] = useState([]);
 
@@ -35,10 +43,11 @@ export default function Map(props) {
               latitude: address.lat || 0,
               longitude: address.lng || 0,
             }}
-            title="Tu ubicación"
+            title={customerName}
             //description={origin.description}
             identifier="origin"
             onPress={() => {
+              setCustomerName("");
               Linking.openURL(
                 `https://www.waze.com/ul?ll=${address.lat}%2C${address.lng}&navigate=yes&zoom=17`
               );
