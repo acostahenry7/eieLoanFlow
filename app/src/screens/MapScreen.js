@@ -4,6 +4,7 @@ import {
   Alert,
   TouchableWithoutFeedback,
   ScrollView,
+  TextInput,
 } from "react-native";
 import React, { useEffect, useState } from "react";
 import tw from "tailwind-react-native-classnames";
@@ -21,6 +22,8 @@ const MapScreen = (props) => {
   const [address, setAddress] = useState({ lng: 0, lat: 0 });
   const [isLoading, setIsLoading] = useState(false);
   const [customers, setCustomers] = useState([]);
+  const [searchedCustomer, setSearchedCustomer] = useState([]);
+  const [searchStatus, setSearchStatus] = useState("");
   const [currentCustomer, setCurrentCustomer] = useState();
   const { auth } = useAuth();
 
@@ -33,39 +36,79 @@ const MapScreen = (props) => {
       setCurrentCustomer(response.data[0]);
       setIsLoading(false);
       setCustomers(response.data);
+      setSearchedCustomer(response.data);
       console.log(response.data);
     })();
   }, []);
 
+  let backgroundColor;
+
   useEffect(() => {
-    (async () => {
-      const response = await Geocoder.from(
-        currentCustomer?.section.replace("-", " ") +
-          " " +
-          currentCustomer.location.replace("C/", "Calle ").replace("NO.", "# ")
+    (() => {
+      console.log(
+        currentCustomer?.location
+          .replace("C/", "Calle ")
+          .replace("NO.", "# ")
+          .replace("¥", "Ñ")
       );
-      setAddress({
-        lng: response.results[0].geometry.location.lng,
-        lat: response.results[0].geometry.location.lat,
-      });
-      console.log("hi", address);
+
+      Geocoder.from(
+        "Republica Dominicana, Santo Domingo," +
+          currentCustomer?.section.replace("-", " ") +
+          " " +
+          currentCustomer?.location
+            .replace("C/", "Calle ")
+            .replace("NO.", "# ")
+            .replace("¥", "ñ")
+      )
+        .then((response) => {
+          setAddress({
+            lng: response.results[0].geometry.location.lng,
+            lat: response.results[0].geometry.location.lat,
+          });
+        })
+        .catch((err) => {
+          console.log(err);
+          Alert.alert(
+            "Error al buscar ubicación",
+            "No se pudo obtener esta dirección desde maps."
+          );
+        });
     })();
   }, [currentCustomer]);
+
+  useEffect(() => {
+    (() => {
+      let searchedCustomers = [];
+
+      if (searchStatus.length > 0) {
+        searchedCustomers = customers.filter((customer) => {
+          return customer.name
+            .toLowerCase()
+            .includes(searchStatus.toLowerCase());
+        });
+
+        setSearchedCustomer(searchedCustomers);
+      } else {
+        setSearchedCustomer(customers);
+      }
+    })();
+  }, [searchStatus]);
 
   return (
     <View style={{}}>
       <View style={{ height: "50%" }}>
         {address && <Map address={address} customer={currentCustomer} />}
       </View>
-      <ScrollView
+      <View
         style={{
           height: "50%",
           borderTopStartRadius: 20,
           borderTopEndRadius: 20,
-          borderTopColor: "black",
-          borderWidth: 0.5,
+          borderTopColor: "blue",
+          borderWidth: 0,
           borderBottomWidth: 0,
-          elevation: 4,
+          elevation: 7,
           backgroundColor: "whitesmoke",
         }}
       >
@@ -81,46 +124,92 @@ const MapScreen = (props) => {
         {isLoading ? (
           <Loading />
         ) : (
-          <View
-            style={{
-              paddingHorizontal: 10,
-              paddingVertical: 15,
-              flexDirection: "row",
-              flexWrap: "wrap",
-            }}
-          >
-            {customers?.map((item, index) => (
-              <TouchableWithoutFeedback
-                onPress={() => setCurrentCustomer(item)}
-                key={index}
+          <View>
+            <TextInput
+              placeholder="Escribe el nombre del cliente..."
+              onChangeText={(text) => setSearchStatus(text)}
+              keyboardType="web-search"
+              style={{
+                marginTop: 5,
+                marginBottom: 10,
+                marginLeft: "auto",
+                marginRight: "auto",
+                height: 20,
+                borderWidth: 1,
+                borderColor: "#D1D7DB",
+                width: 375,
+                height: 40,
+                paddingHorizontal: 10,
+                borderRadius: 3,
+                flexDirection: "row",
+                backgroundColor: "rgba(255,255,255,0.4)",
+                paddingBottom: 0,
+              }}
+            />
+            <ScrollView>
+              <View
+                style={{
+                  width: "100%",
+                  paddingHorizontal: 10,
+                  paddingVertical: 15,
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                }}
               >
-                <View style={{}}>
-                  <View
-                    style={{
-                      padding: 10,
-                      backgroundColor: "white",
-                      marginVertical: 5,
-                      elevation: 4,
-                      width: 185,
-
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginHorizontal: 4,
-                      borderRadius: 10,
-                      borderLeftWidth: 2,
-                      borderBottomWidth: 1,
-                      borderColor: "grey",
-                    }}
+                {searchedCustomer?.map((item, index) => (
+                  <TouchableWithoutFeedback
+                    onPress={() => setCurrentCustomer(item)}
+                    key={index}
                   >
-                    <Text style={{ fontWeight: "bold" }}>{item.name}</Text>
-                    <Text>{item.section + " " + item.location}</Text>
-                  </View>
-                </View>
-              </TouchableWithoutFeedback>
-            ))}
+                    <View style={{}}>
+                      <View
+                        style={{
+                          padding: 10,
+                          backgroundColor:
+                            currentCustomer.name === item.name
+                              ? "#4682b4"
+                              : "white",
+                          marginVertical: 5,
+                          elevation: 4,
+                          width: "50%",
+                          height: 110,
+
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginHorizontal: 4,
+                          borderRadius: 10,
+                          borderLeftWidth: 2,
+                          borderBottomWidth: 1,
+                          borderColor:
+                            currentCustomer.name === item.name
+                              ? "#4682b4"
+                              : "#4682b4",
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontWeight: "bold",
+                            color:
+                              currentCustomer.name === item.name
+                                ? "white"
+                                : "black",
+                          }}
+                        >
+                          {item.name}
+                        </Text>
+                        {/* <Text style={{ color: "skyblue", fontWeight: "bold" }}>
+                      Ver ubicación
+                    </Text> */}
+                        {/* <Text>{item.section + " " + item.location}</Text> */}
+                      </View>
+                    </View>
+                  </TouchableWithoutFeedback>
+                ))}
+              </View>
+            </ScrollView>
           </View>
         )}
-      </ScrollView>
+      </View>
     </View>
   );
 };

@@ -2,12 +2,15 @@ import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
+  Modal,
   StyleSheet,
+  ScrollView,
   TextInput,
   Button,
   TouchableWithoutFeedback,
   ActivityIndicator,
   Keyboard,
+  Alert,
 } from "react-native";
 import { Card } from "react-native-elements";
 import { useIsFocused } from "@react-navigation/native";
@@ -69,8 +72,10 @@ export default function PaymentScreen(props) {
   const [text, setText] = useState("");
   const [loan, setLoan] = useState("");
   const [openedCashier, setOpenedCashier] = useState(true);
+  const [isRegisterOpened, setIsRegisterOpened] = useState(false);
+  const [cashierVisible, setCashierVisible] = useState(false);
   const [openCashier, setOpenCashier] = useState(false);
-
+  const [currentCashier, setCurrentCashier] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isCustomer, setIsCustomer] = useState(false);
   const [isOpenedComment, setIsOpenedComment] = useState(false);
@@ -86,7 +91,13 @@ export default function PaymentScreen(props) {
       setIsLoading(true);
       setOpenCashier(!openCashier);
 
-      if (openedCashier == true) {
+      const response = await getRegisterStatusApi(auth?.user_id);
+      console.log("Res", response);
+      if (response?.status == false) {
+        setIsRegisterOpened(false);
+      }
+
+      if (isRegisterOpened == true) {
         if (value.searchKey != "") {
           await retriveCustomer(value.searchKey);
         } else {
@@ -104,6 +115,42 @@ export default function PaymentScreen(props) {
       formik.setFieldValue("searchKey", "");
     },
   });
+
+  const cashierForm = useFormik({
+    initialValues: { amount: "", description: "" },
+    validateOnChange: false,
+    onSubmit: async (values) => {
+      let data = {
+        amount: values.amount,
+        description: values.description,
+        userId: auth.user_id,
+        outletId: auth.outlet_id,
+        createdBy: auth.login,
+        lastModifiedBy: auth.login,
+      };
+
+      const register = await createRegisterApi(data);
+
+      setIsRegisterOpened(true);
+    },
+  });
+
+  useEffect(() => {
+    (async () => {
+      console.log("SI ESTOY POR ACA");
+      const response = await getRegisterStatusApi(auth?.user_id);
+      console.log("Res", response);
+      if (response?.status == false) {
+        setIsRegisterOpened(false);
+      } else {
+        setIsRegisterOpened(true);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {})();
+  }, [currentCashier]);
 
   useEffect(() => {
     (async () => {
@@ -198,71 +245,176 @@ export default function PaymentScreen(props) {
 
   return (
     <View>
-      {
-        auth ? (
-          openedCashier != true ? (
-            <Text></Text>
-          ) : (
-            <View style={styles.container}>
-              <View style={{ flexDirection: "row", paddingHorizontal: 15 }}>
-                <TextInput
-                  style={{ ...styles.searchInput, marginRight: 10 }}
-                  placeholder="#préstamo"
-                  value={formik.values.searchKey}
-                  onChangeText={(text) =>
-                    formik.setFieldValue("searchKey", text)
-                  }
-                />
-                <Button
-                  style={{ borderRadius: 50 }}
-                  title="Buscar"
-                  onPress={formik.handleSubmit}
-                />
-              </View>
-              <Text style={styles.error}>{formik.errors.searchKey}</Text>
-              <View>
-                {isCustomer == true ? (
-                  <PaymentCustomerCard
-                    customer={customer}
-                    register={registerInfo}
-                    setIsCustomer={setIsCustomer}
-                    isCustomer={isEmpty(customer)}
-                    navigation={navigation}
-                    loans={loans}
-                    loan={loan}
-                    quotas={quotas}
-                    isOpenedComment={isOpenedComment}
-                    setIsOpenedComment={setIsOpenedComment}
-                  />
+      {isLoading ? (
+        <Loading />
+      ) : (
+        <View>
+          {
+            isRegisterOpened ? (
+              auth ? (
+                openedCashier != true ? (
+                  <Text></Text>
                 ) : (
-                  <Text style={{ ...styles.error }}>{error}</Text>
+                  <View style={styles.container}>
+                    <View
+                      style={{ flexDirection: "row", paddingHorizontal: 15 }}
+                    >
+                      <TextInput
+                        style={{ ...styles.searchInput, marginRight: 10 }}
+                        placeholder="#préstamo"
+                        value={formik.values.searchKey}
+                        onChangeText={(text) =>
+                          formik.setFieldValue("searchKey", text)
+                        }
+                      />
+                      <Button
+                        style={{ borderRadius: 50 }}
+                        title="Buscar"
+                        onPress={formik.handleSubmit}
+                      />
+                    </View>
+                    <Text style={styles.error}>{formik.errors.searchKey}</Text>
+                    <View>
+                      {isCustomer == true ? (
+                        <PaymentCustomerCard
+                          customer={customer}
+                          register={registerInfo}
+                          setIsCustomer={setIsCustomer}
+                          isCustomer={isEmpty(customer)}
+                          navigation={navigation}
+                          loans={loans}
+                          loan={loan}
+                          quotas={quotas}
+                          isOpenedComment={isOpenedComment}
+                          setIsOpenedComment={setIsOpenedComment}
+                        />
+                      ) : (
+                        <Text style={{ ...styles.error }}>{error}</Text>
+                      )}
+                      {isLoading && <Loading />}
+                      {/* <Text>Limpiar Búsqueda</Text> */}
+                    </View>
+                  </View>
+                )
+              ) : (
+                <View style={{ alignItems: "center", paddingTop: 40 }}>
+                  <Text style={{ fontSize: 19, fontWeight: "bold" }}>
+                    OH oh... No te ecuentras conectado...
+                  </Text>
+                  <Text
+                    style={{ fontSize: 16, color: "blue", marginTop: 15 }}
+                    onPress={() => navigation.navigate("Settings")}
+                  >
+                    Conectarse
+                  </Text>
+                </View>
+              )
+            ) : (
+              <View>
+                {cashierVisible == true ? (
+                  <Modal visible={cashierVisible} transparent={true}>
+                    <View
+                      style={{
+                        height: "100%",
+                        width: "100%",
+                        backgroundColor: "rgba(0,0,0,0.3)",
+                      }}
+                    >
+                      <View
+                        style={styles.modalView}
+                        keyboardShouldPersistTaps="handled"
+                      >
+                        <View>
+                          <Text style={{}}>Abrir Caja</Text>
+                          <View
+                            style={{
+                              ...styles.formGroup,
+                            }}
+                          >
+                            <Text>Monto de apertura</Text>
+                            <TextInput
+                              style={styles.textInput}
+                              keyboardType="number-pad"
+                              value={formik.values.amount}
+                              onChangeText={(text) =>
+                                cashierForm.setFieldValue("amount", text)
+                              }
+                            />
+                          </View>
+                          <View>
+                            <Text>Descripción</Text>
+                            <TextInput
+                              style={{ ...styles.textInput, height: 80 }}
+                              multiline={true}
+                              value={formik.values.description}
+                              onChangeText={(text) =>
+                                cashierForm.setFieldValue("description", text)
+                              }
+                            />
+                          </View>
+                        </View>
+                        <View>
+                          <View style={styles.footContainer}>
+                            <TouchableWithoutFeedback>
+                              <Text
+                                onPress={() => setCashierVisible(false)}
+                                style={{
+                                  ...styles.btn,
+                                  backgroundColor: "white",
+                                  color: "blue",
+                                }}
+                              >
+                                Cancelar
+                              </Text>
+                            </TouchableWithoutFeedback>
+                            <TouchableWithoutFeedback
+                              onPress={cashierForm.handleSubmit}
+                            >
+                              <Text style={styles.btn}>Guardar</Text>
+                            </TouchableWithoutFeedback>
+                          </View>
+                        </View>
+                      </View>
+                    </View>
+                  </Modal>
+                ) : (
+                  <View
+                    style={{
+                      height: "100%",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <TouchableWithoutFeedback
+                      title="Abrir Caja"
+                      onPress={() => setCashierVisible(true)}
+                    >
+                      <Text
+                        style={{
+                          ...styles.btn,
+                          width: "60%",
+                          fontWeight: "bold",
+                          textAlign: "center",
+                          paddingVertical: 15,
+                        }}
+                      >
+                        Abrir Caja
+                      </Text>
+                    </TouchableWithoutFeedback>
+                  </View>
                 )}
-                {isLoading && <Loading />}
-                {/* <Text>Limpiar Búsqueda</Text> */}
               </View>
-            </View>
-          )
-        ) : (
-          <View style={{ alignItems: "center", paddingTop: 40 }}>
-            <Text style={{ fontSize: 19, fontWeight: "bold" }}>
-              OH oh... No te ecuentras conectado...
-            </Text>
-            <Text
-              style={{ fontSize: 16, color: "blue", marginTop: 15 }}
-              onPress={() => navigation.navigate("Settings")}
-            >
-              Conectarse
-            </Text>
-          </View>
-        )
-        //navigation.navigate('Settings')
-      }
+            )
+            //navigation.navigate('Settings')
+          }
 
-      {isOpenedComment && (
-        <CashierForm
-          setIsOpenedComment={setIsOpenedComment}
-          setIsCustomer={setIsCustomer}
-        />
+          {isOpenedComment && (
+            <CashierForm
+              setIsOpenedComment={setIsOpenedComment}
+              setIsCustomer={setIsCustomer}
+            />
+          )}
+        </View>
       )}
     </View>
   );
@@ -466,5 +618,33 @@ const styles = StyleSheet.create({
     paddingVertical: 9,
     paddingHorizontal: 10,
     fontSize: 25,
+  },
+  textInput: {
+    marginTop: 5,
+    height: 20,
+    borderWidth: 1,
+    borderColor: "#D1D7DB",
+    width: 330,
+    height: 40,
+    paddingHorizontal: 10,
+    borderRadius: 3,
+    flexDirection: "row",
+    backgroundColor: "white",
+    paddingBottom: 0,
+  },
+
+  footContainer: {
+    paddingTop: 15,
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "flex-end",
+  },
+
+  btn: {
+    backgroundColor: "#3289cc",
+    marginHorizontal: 15,
+    color: "white",
+    padding: 5,
+    borderRadius: 5,
   },
 });

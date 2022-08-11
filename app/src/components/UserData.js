@@ -20,7 +20,7 @@ export default function UserData(props) {
 
   return (
     <ScrollView style={{ paddingTop: 20, paddingBottom: 100 }}>
-      <Text style={styles.menuDivisionTitle}>Cuenta</Text>
+      {/* <Text style={styles.menuDivisionTitle}>Cuenta</Text> */}
       <View
         style={{
           flexDirection: "row",

@@ -518,12 +518,12 @@ export default function HomeScreen(props) {
               paddingHorizontal: 6,
               paddingVertical: 10,
               backgroundColor: "rgba(153,190,226, 0.2)",
+              backgroundColor: "whitesmoke",
             }}
           >
             <View
               style={{
                 backgroundColor: "#4682b4",
-                height: "100%",
                 height: "100%",
                 borderRadius: 10,
                 elevation: 15,
@@ -554,7 +554,7 @@ export default function HomeScreen(props) {
                 windowDimensions.height > 805
                   ? windowDimensions.height * 0.67 //0.6
                   : windowDimensions.height * 0.624,
-              backgroundColor: "rgba(153,190,226, 0.2)",
+              backgroundColor: "whitesmoke",
               //paddingTop: 10,
               paddingHorizontal: 3,
               //paddingBottom: 10,
@@ -579,6 +579,10 @@ export default function HomeScreen(props) {
                     options={["Todos", ...Object.keys(routes)]}
                     defaultValue="Todos"
                     textStyle={styles.selectItemText}
+                    dropdownTextHighlightStyle={{
+                      backgroundColor: "grey",
+                      color: "white",
+                    }}
                   />
                 </View>
                 {Object.keys(routes).map(function (key, item) {
@@ -1135,19 +1139,19 @@ const styles = StyleSheet.create({
 
   selectItem: {
     //alignSelf: 'center',
-    backgroundColor: "#4682b4",
+    backgroundColor: "rgba(255, 255, 255, 0.3)",
     borderWidth: 1,
     borderColor: "#D1D7DB",
     paddingVertical: 10,
     alignItems: "center",
-    paddingHorizontal: 15,
+    paddingHorizontal: 10,
     borderRadius: 5,
     flexDirection: "row",
   },
 
   selectItemText: {
     fontSize: 16,
-    color: "white",
+    color: "black",
     width: "100%",
     textAlign: "center",
   },
@@ -1158,7 +1162,7 @@ const styles = StyleSheet.create({
     maxWidth: 300,
     marginTop: 10,
     marginLeft: 20,
-    backgroundColor: "#4682b4",
+    backgroundColor: "white",
   },
 
   selectItemOptionsText: {
@@ -1166,6 +1170,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     textAlign: "center",
     backgroundColor: "transparent",
-    color: "white",
+    color: "black",
   },
 });
