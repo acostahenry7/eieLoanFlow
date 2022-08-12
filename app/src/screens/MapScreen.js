@@ -171,7 +171,7 @@ const MapScreen = (props) => {
                               : "white",
                           marginVertical: 5,
                           elevation: 4,
-                          width: "50%",
+                          width: 185,
                           height: 110,
 
                           alignItems: "center",

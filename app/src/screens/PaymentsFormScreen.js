@@ -255,6 +255,7 @@ export default function PaymentsFormScreen(props) {
         quotas
       );
 
+      console.log("HEY I AM YOUR REGISTER", register);
       data.payment = {
         loanId: (function () {
           var result = "";

@@ -72,7 +72,7 @@ export default function PaymentScreen(props) {
   const [text, setText] = useState("");
   const [loan, setLoan] = useState("");
   const [openedCashier, setOpenedCashier] = useState(true);
-  const [isRegisterOpened, setIsRegisterOpened] = useState(false);
+  const [isRegisterOpened, setIsRegisterOpened] = useState(true);
   const [cashierVisible, setCashierVisible] = useState(false);
   const [openCashier, setOpenCashier] = useState(false);
   const [currentCashier, setCurrentCashier] = useState(false);
@@ -80,6 +80,20 @@ export default function PaymentScreen(props) {
   const [isCustomer, setIsCustomer] = useState(false);
   const [isOpenedComment, setIsOpenedComment] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    (async () => {
+      console.log("SI ESTOY POR ACA");
+      const response = await getRegisterStatusApi(auth?.user_id);
+      console.log("Res", response);
+      if (response?.status == false) {
+        setIsRegisterOpened(false);
+      } else {
+        setRegisterInfo(response.register);
+        setIsRegisterOpened(true);
+      }
+    })();
+  }, []);
 
   const formik = useFormik({
     initialValues: { searchKey: "" },
@@ -130,23 +144,12 @@ export default function PaymentScreen(props) {
       };
 
       const register = await createRegisterApi(data);
+      console.log("WHAT COMES IN REGISTER", register);
+      setRegisterInfo(register);
 
       setIsRegisterOpened(true);
     },
   });
-
-  useEffect(() => {
-    (async () => {
-      console.log("SI ESTOY POR ACA");
-      const response = await getRegisterStatusApi(auth?.user_id);
-      console.log("Res", response);
-      if (response?.status == false) {
-        setIsRegisterOpened(false);
-      } else {
-        setIsRegisterOpened(true);
-      }
-    })();
-  }, []);
 
   useEffect(() => {
     (async () => {})();
