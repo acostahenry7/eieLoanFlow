@@ -29,6 +29,7 @@ import tw from "twrnc";
 import FadeInOut from "react-native-fade-in-out";
 import RenderHtml from "react-native-render-html";
 import ModalDropdown from "react-native-modal-dropdown";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 export default function HomeScreen(props) {
   const { navigation } = props;
@@ -57,6 +58,8 @@ export default function HomeScreen(props) {
   };
 
   console.log(windowDimensions);
+
+  const netInfo = useNetInfo();
 
   const formik = useFormik({
     initialValues: { commentary: "" },
@@ -199,6 +202,7 @@ export default function HomeScreen(props) {
 
   return (
     <SafeAreaView style={{}}>
+      <Text>{netInfo?.type?.toString()}</Text>
       <Modal visible={false}>
         <RenderHtml contentWidth={100} source={source} />
       </Modal>

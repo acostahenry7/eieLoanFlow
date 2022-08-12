@@ -13,7 +13,13 @@ export default function GpsNavigation() {
       screenOptions={{ unmountOnBlur: true }}
     >
       {/* <Stack.Screen name="Gps" component={GpsScreen} /> */}
-      <Stack.Screen name="Maps" component={MapScreen} />
+      <Stack.Screen
+        name="Maps"
+        component={MapScreen}
+        options={{
+          title: "Ubicación de Clientes",
+        }}
+      />
     </Stack.Navigator>
   );
 }
