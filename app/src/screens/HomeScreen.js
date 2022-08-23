@@ -29,7 +29,7 @@ import tw from "twrnc";
 import FadeInOut from "react-native-fade-in-out";
 import RenderHtml from "react-native-render-html";
 import ModalDropdown from "react-native-modal-dropdown";
-import { useNetInfo } from "@react-native-community/netinfo";
+import NetInfo from "@react-native-community/netinfo";
 
 export default function HomeScreen(props) {
   const { navigation } = props;
@@ -59,7 +59,13 @@ export default function HomeScreen(props) {
 
   console.log(windowDimensions);
 
-  const netInfo = useNetInfo();
+  const [netInfo, setNetInfo] = useState("");
+
+  useEffect(() => {
+    NetInfo.addEventListener((state) => {
+      setNetInfo(state.isInternetReachable.toString());
+    });
+  }, []);
 
   const formik = useFormik({
     initialValues: { commentary: "" },
@@ -202,7 +208,7 @@ export default function HomeScreen(props) {
 
   return (
     <SafeAreaView style={{}}>
-      <Text>{netInfo?.type?.toString()}</Text>
+      <Text>{netInfo}</Text>
       <Modal visible={false}>
         <RenderHtml contentWidth={100} source={source} />
       </Modal>
@@ -607,7 +613,15 @@ export default function HomeScreen(props) {
                   return (
                     <View key={item}>
                       <View style={{ paddingVertical: 10 }}>
-                        <Text style={{ textAlign: "center" }}>{searchKey}</Text>
+                        <Text
+                          style={{
+                            textAlign: "center",
+                            fontSize: 12,
+                            color: "rgba(0,0,0,0.5)",
+                          }}
+                        >
+                          {searchKey}
+                        </Text>
                       </View>
                       {routes[searchKey]?.map((item, index) => (
                         <CardTemplate

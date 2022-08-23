@@ -15,6 +15,7 @@ import Loading from "../components/Loading";
 import { getPayementRoutes } from "../api/payments";
 import useAuth from "../hooks/useAuth";
 import Geocoder from "react-native-geocoding";
+import { WINDOW_DIMENSION as windowDimensions } from "../utils/constants";
 
 const MapScreen = (props) => {
   //console.log(props);
@@ -124,7 +125,7 @@ const MapScreen = (props) => {
         {isLoading ? (
           <Loading />
         ) : (
-          <View>
+          <View style={{ height: "100%" }}>
             <TextInput
               placeholder="Escribe el nombre del cliente..."
               onChangeText={(text) => setSearchStatus(text)}
@@ -171,9 +172,9 @@ const MapScreen = (props) => {
                               : "white",
                           marginVertical: 5,
                           elevation: 4,
-                          width: 185,
+                          width: windowDimensions.width <= 393 ? 176 : 185,
                           height: 110,
-
+                          position: "relative",
                           alignItems: "center",
                           justifyContent: "center",
                           marginHorizontal: 4,
