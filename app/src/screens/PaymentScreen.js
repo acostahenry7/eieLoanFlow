@@ -180,7 +180,7 @@ export default function PaymentScreen(props) {
         formik.handleSubmit();
       }
     })();
-  }, [params]);
+  }, [params, isFocused]);
 
   useEffect(() => {
     (() => {

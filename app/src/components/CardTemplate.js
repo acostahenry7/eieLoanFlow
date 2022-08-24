@@ -71,6 +71,7 @@ export default function CardTemplate(props) {
                   marginLeft: 0,
                   justifyContent: "flex-start",
                   paddingTop: 12,
+                  width: "100%",
                 }}
               >
                 <Text style={styles.title}>{mainTitle}</Text>
@@ -79,7 +80,7 @@ export default function CardTemplate(props) {
               <View style={{ marginTop: 7 }}>
                 <Text style={styles.title}>{secondaryTitle}</Text>
                 <Text style={styles.secondaryText}>
-                  {formatText(secondaryText)}
+                  {capitalize(secondaryText)}
                 </Text>
               </View>
             </View>
@@ -163,7 +164,7 @@ export default function CardTemplate(props) {
             </View>
             <View>
               <Text style={styles.title}>{secondaryTitle}</Text>
-              <Text>{secondaryText}</Text>
+              <Text>{capitalize(secondaryText)}</Text>
             </View>
             <View>
               <Menu>
@@ -210,7 +211,7 @@ const styles = StyleSheet.create({
     elevation: 3,
     //marginTop: 10,
     backgroundColor: "white",
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingVertical: 15,
     borderRadius: 10,
     borderLeftColor: "#4682b4",
@@ -254,6 +255,7 @@ const styles = StyleSheet.create({
   secondaryText: {
     fontWeight: "bold",
     fontSize: 14,
+    width: 250,
   },
 
   menuOption: {

@@ -208,7 +208,7 @@ export default function HomeScreen(props) {
 
   return (
     <SafeAreaView style={{}}>
-      <Text>{netInfo}</Text>
+      {/* <Text>{netInfo}</Text> */}
       <Modal visible={false}>
         <RenderHtml contentWidth={100} source={source} />
       </Modal>
@@ -611,7 +611,7 @@ export default function HomeScreen(props) {
                   }
 
                   return (
-                    <View key={item}>
+                    <View key={item} style={{ paddingBottom: 30 }}>
                       <View style={{ paddingVertical: 10 }}>
                         <Text
                           style={{
@@ -624,24 +624,25 @@ export default function HomeScreen(props) {
                         </Text>
                       </View>
                       {routes[searchKey]?.map((item, index) => (
-                        <CardTemplate
-                          key={index}
-                          data={item}
-                          admin={false}
-                          uid={item.customer_id}
-                          mainTitle="Cliente"
-                          mainText={item.name}
-                          secondaryTitle="Dirección"
-                          secondaryText={item.location}
-                          menuOptions={[
-                            {
-                              name: "Localizar",
-                              action: () => {
-                                navigation.navigate("Gps");
+                        <View key={index}>
+                          <CardTemplate
+                            data={item}
+                            admin={false}
+                            uid={item.customer_id}
+                            mainTitle="Cliente"
+                            mainText={item.name}
+                            secondaryTitle="Dirección"
+                            secondaryText={item.location}
+                            menuOptions={[
+                              {
+                                name: "Localizar",
+                                action: () => {
+                                  navigation.navigate("Gps");
+                                },
                               },
-                            },
-                          ]}
-                        />
+                            ]}
+                          />
+                        </View>
                       ))}
                     </View>
                   );
