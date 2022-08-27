@@ -115,6 +115,12 @@ export default function CustomerCard(props) {
               <Text onPress={goToCustomer} style={{ fontSize: 11 }}>
                 {capitalize(customer.address)}
               </Text>
+              <Text
+                onPress={goToCustomer}
+                style={{ fontSize: 11, fontWeight: "bold" }}
+              >
+                {capitalize(customer.business)}
+              </Text>
             </View>
 
             <View style={{}}>

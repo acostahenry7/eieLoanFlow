@@ -43,7 +43,9 @@ export default function CustomerScreen(props) {
         " " +
         customer.last_name +
         " " +
-        customer.identification
+        customer.identification +
+        " " +
+        customer.business
       ).toLowerCase();
       var searchedText = searchStatus.toLocaleLowerCase();
       return customerName.includes(searchedText);
@@ -69,6 +71,7 @@ export default function CustomerScreen(props) {
           first_name: customer.first_name,
           last_name: customer.last_name,
           address: customer.street,
+          business: customer.business,
           atrasos: 0,
           cuotas: 10,
           cuota: "$RD 1200",
