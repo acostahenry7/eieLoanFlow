@@ -646,7 +646,8 @@ function getAmount(number, loan, quotas) {
   let amount = 0;
 
   while (i < number) {
-    amount += Math.round(parseFloat(quotas[loan][i].current_fee));
+    //amount += Math.round(parseFloat(quotas[loan][i].current_fee));
+    amount += parseFloat(quotas[loan][i].current_fee);
     i++;
   }
 
