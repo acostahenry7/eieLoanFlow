@@ -11,6 +11,7 @@ import {
   Image,
   ScrollView,
   ActivityIndicator,
+  FlatList,
 } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -25,11 +26,13 @@ import * as Yup from "yup";
 import Loading from "../components/Loading";
 import CardTemplate from "../components/CardTemplate";
 import { getCollectorsApi, updateCollectorParams } from "../api/collectors";
+import { getCustomerApi } from "../api/customers";
 import tw from "twrnc";
 import FadeInOut from "react-native-fade-in-out";
 import RenderHtml from "react-native-render-html";
 import ModalDropdown from "react-native-modal-dropdown";
 import NetInfo from "@react-native-community/netinfo";
+import CheckBox from "@react-native-community/checkbox";
 
 export default function HomeScreen(props) {
   const { navigation } = props;
@@ -45,9 +48,13 @@ export default function HomeScreen(props) {
   const [visitId, setVisitId] = useState("");
   const [routes, setRoutes] = useState({});
   const [collectors, setCollectors] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [currentCollector, setCurrentCollector] = useState({});
+  const [currentCustomer, setCurrentCustomer] = useState({});
+  const [selectedCustomers, setSelectedCustomers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [paramFormVisible, setParamFormVisible] = useState(false);
+  const [routeModifyVisible, setRouteModifyVisible] = useState(false);
   const [searchCollector, setSearchCollector] = useState(false);
   const [searchedStatus, setSearchedStatus] = useState("");
   const [sectionFilter, setSectionFilter] = useState("Todos");
@@ -76,7 +83,7 @@ export default function HomeScreen(props) {
         commentary: values.commentary,
         visitId,
       };
-      console.log("hi");
+
       const response = await createVisitCommentaryApi(data);
       setIsCommentaryFormVisible(false);
       if (response == true) {
@@ -98,12 +105,7 @@ export default function HomeScreen(props) {
         routerRestriction: values.routeParam,
         userId: currentCollector.jhi_user?.user_id,
       };
-      console.log(
-        "OOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO",
-        currentCollector
-      );
 
-      console.log(data);
       const response = await updateCollectorParams(data);
 
       if (response)
@@ -159,23 +161,42 @@ export default function HomeScreen(props) {
 
       setIsLoading(false);
       if (response) {
-        setRoutes({});
-        console.log("hi");
-        console.log(response);
         setRoutes(response.filteredData);
       } else {
         setRoutes(routes);
       }
-
-      console.log("MY ROUTES", response);
     })();
   }, [auth]);
+
+  useEffect(() => {
+    (async () => {
+      if (currentCollector.employee_id) {
+        //setIsLoading(true);
+        const customerList = await getCustomerApi(
+          "",
+          currentCollector.employee_id
+        );
+
+        if (customerList) {
+          setCustomers(customerList.customers);
+          //setIsLoading(false);
+          setRouteModifyVisible(true);
+        }
+      }
+    })();
+  }, [currentCollector]);
+
+  useEffect(() => {
+    (() => {
+      setSelectedCustomers([...selectedCustomers, currentCustomer]);
+      console.log("SELECTED", selectedCustomers);
+    })();
+  }, [currentCustomer]);
 
   let searchedCollectors = [];
   useEffect(async () => {
     (async () => {
       if (auth?.login == "admin") {
-        console.log("MODULE ADMIN");
         const response = await getCollectorsApi();
         if (searchedStatus.length >= 1) {
           searchedCollectors = response?.filter((collector) => {
@@ -204,6 +225,22 @@ export default function HomeScreen(props) {
     <p style='text-align:center;'>
       Hello World!
     </p>`,
+  };
+
+  const validateSelection = (customer) => {
+    let exists = selectedCustomers.find(
+      (item) => item.customer_id == customer.customer_id
+    );
+    let bool = false;
+    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", exists);
+    if (isEmpty(exists)) {
+      setSelectedCustomers([...selectedCustomers, customer]);
+      bool = true;
+    } else {
+      bool = false;
+    }
+    console.log("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", bool);
+    return bool;
   };
 
   return (
@@ -256,6 +293,74 @@ export default function HomeScreen(props) {
                       borderRadius: 5,
                       paddingHorizontal: 3,
                     }}
+                  />
+                </View>
+              </View>
+              <View style={{ marginTop: 20 }}>
+                <Button
+                  title="Actualizar Parámetros"
+                  onPress={paramForm.handleSubmit}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+      }
+      {
+        <Modal
+          visible={routeModifyVisible}
+          animationType={"fade"}
+          transparent={true}
+        >
+          <View style={{ height: "100%", backgroundColor: "rgba(0,0,0,0.3)" }}>
+            <View
+              style={{
+                ...styles.modalContainer,
+                paddingHorizontal: 30,
+                height: "auto",
+              }}
+            >
+              <Icon
+                name="times"
+                style={{ textAlign: "right", fontSize: 18 }}
+                onPress={() => setRouteModifyVisible(false)}
+              />
+              <Text
+                style={{
+                  ...styles.commentaryTitle,
+                  marginLeft: "auto",
+                  marginRight: "auto",
+                }}
+              >
+                Seleccione un cliente
+              </Text>
+              <Text style={{ textAlign: "center" }}>
+                Cobrador:{" "}
+                {currentCollector.first_name + " " + currentCollector.last_name}
+              </Text>
+              <View style={{ marginTop: 30 }}>
+                <View style={{ maxHeight: 400 }}>
+                  <FlatList
+                    data={customers}
+                    keyExtractor={(item, index) => index}
+                    renderItem={({ item, index }) => (
+                      <View
+                        key={index}
+                        style={{
+                          padding: 5,
+                          borderTopColor: "black",
+                          borderTopWidth: 0.5,
+                          flexDirection: "row",
+                        }}
+                      >
+                        <CheckBox
+                          tintColors={{ true: "#4682b4", false: "grey" }}
+                          value={(() => validateSelection(item))()}
+                          onValueChange={() => setCurrentCustomer(item)}
+                        />
+                        <Text>{item.first_name}</Text>
+                      </View>
+                    )}
                   />
                 </View>
               </View>
@@ -597,7 +702,7 @@ export default function HomeScreen(props) {
                 </View>
                 {Object.keys(routes).map(function (key, item) {
                   let searchKey = key;
-                  console.log(sectionFilter);
+
                   if (sectionFilter.length > 1) {
                     if (sectionFilter == "Todos") {
                       searchKey = key;
@@ -783,6 +888,12 @@ export default function HomeScreen(props) {
                       action: async () => {
                         setParamFormVisible(true);
                         await setCurrentCollector(item);
+                      },
+                    },
+                    {
+                      name: "Añadir Cliente a ruta",
+                      action: async () => {
+                        setCurrentCollector(item);
                       },
                     },
                   ]}

@@ -28,8 +28,6 @@ export default function CardTemplate(props) {
     admin,
   } = props;
 
-  console.log(data);
-
   const formatText = (str) => {
     var result = "";
 

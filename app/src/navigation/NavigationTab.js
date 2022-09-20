@@ -17,7 +17,7 @@ export default function NavigationTab() {
   return (
     <Tab.Navigator
       initialRouteName="Settings"
-      screenOptions={{ unmountOnBlur: true }}
+      //screenOptions={{ unmountOnBlur: true }}
     >
       <Tab.Screen
         name="GpsRoot"

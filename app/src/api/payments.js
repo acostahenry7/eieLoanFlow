@@ -65,7 +65,6 @@ export async function createPaymentaApi(data) {
 }
 
 export async function createVisitCommentaryApi(data) {
-  console.log(data);
   const options = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
