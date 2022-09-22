@@ -20,7 +20,11 @@ import { isEmpty, set } from "lodash";
 import { createVisitApi } from "../api/visit";
 import useAuth from "../hooks/useAuth";
 import { useFormik } from "formik";
-import { createVisitCommentaryApi, getPayementRoutes } from "../api/payments";
+import {
+  createVisitCommentaryApi,
+  getPayementRoutes,
+  createPaymentRouterDetail,
+} from "../api/payments";
 import { WINDOW_DIMENSION as windowDimensions } from "../utils/constants";
 import * as Yup from "yup";
 import Loading from "../components/Loading";
@@ -33,6 +37,7 @@ import RenderHtml from "react-native-render-html";
 import ModalDropdown from "react-native-modal-dropdown";
 import NetInfo from "@react-native-community/netinfo";
 import CheckBox from "@react-native-community/checkbox";
+import { formatFullName } from "../utils/stringFuctions";
 
 export default function HomeScreen(props) {
   const { navigation } = props;
@@ -51,6 +56,7 @@ export default function HomeScreen(props) {
   const [customers, setCustomers] = useState([]);
   const [currentCollector, setCurrentCollector] = useState({});
   const [currentCustomer, setCurrentCustomer] = useState({});
+  const [addCustomerEvent, setAddCustomerEvent] = useState(false);
   const [selectedCustomers, setSelectedCustomers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [paramFormVisible, setParamFormVisible] = useState(false);
@@ -178,20 +184,56 @@ export default function HomeScreen(props) {
         );
 
         if (customerList) {
-          setCustomers(customerList.customers);
+          console.log("CUSTOMER LIST", customerList);
+          let arr = [];
+          customerList.customers.map((item) => {
+            arr.push({
+              customer_id: item.customer_id,
+              first_name: item.first_name, //+ " " + item.last_name,
+              loan_number_id: item.loan_number_id,
+              loan_id: item.loan_id,
+              loan_situation: item.loan_situation,
+              selected: false,
+            });
+          });
+
+          setCustomers(arr);
           //setIsLoading(false);
           setRouteModifyVisible(true);
         }
       }
     })();
-  }, [currentCollector]);
+  }, [addCustomerEvent]);
 
   useEffect(() => {
     (() => {
-      setSelectedCustomers([...selectedCustomers, currentCustomer]);
       console.log("SELECTED", selectedCustomers);
+      let arr = [];
+      customers.map((customer, index) => {
+        let obj = selectedCustomers.find(
+          (scustomer) => scustomer.customer_id == customer.customer_id
+        );
+
+        console.log("OBJECT", obj, index);
+        if (isEmpty(obj)) {
+          console.log("found");
+          //customers[index].selected = true;
+        } else {
+          customers[index].selected = true;
+          arr = customers;
+        }
+      });
+      setCustomers([...arr]);
     })();
-  }, [currentCustomer]);
+  }, [selectedCustomers]);
+
+  useEffect(() => {
+    (() => {
+      if (routeModifyVisible == false) {
+        setSelectedCustomers([]);
+      }
+    })();
+  }, [routeModifyVisible]);
 
   let searchedCollectors = [];
   useEffect(async () => {
@@ -355,10 +397,34 @@ export default function HomeScreen(props) {
                       >
                         <CheckBox
                           tintColors={{ true: "#4682b4", false: "grey" }}
-                          value={(() => validateSelection(item))()}
-                          onValueChange={() => setCurrentCustomer(item)}
+                          value={item.selected}
+                          onValueChange={() => {
+                            let obj = selectedCustomers.find(
+                              (selectedCustomer) =>
+                                selectedCustomer.customer_id == item.customer_id
+                            );
+                            isEmpty(obj)
+                              ? setSelectedCustomers([
+                                  ...selectedCustomers,
+                                  item,
+                                ])
+                              : Alert.alert("Ya existe");
+                          }}
                         />
-                        <Text>{item.first_name}</Text>
+                        <View
+                          style={{
+                            flexDirection: "row",
+                          }}
+                        >
+                          <Text
+                            style={{ textAlignVertical: "center", width: 200 }}
+                          >
+                            {item.first_name}
+                          </Text>
+                          <Text style={{ textAlignVertical: "center" }}>
+                            {item.loan_number_id}
+                          </Text>
+                        </View>
                       </View>
                     )}
                   />
@@ -366,8 +432,10 @@ export default function HomeScreen(props) {
               </View>
               <View style={{ marginTop: 20 }}>
                 <Button
-                  title="Actualizar Parámetros"
-                  onPress={paramForm.handleSubmit}
+                  title="Agregar Clientes"
+                  onPress={() => {
+                    createPaymentRouterDetail(selectedCustomers);
+                  }}
                 />
               </View>
             </View>
@@ -894,6 +962,7 @@ export default function HomeScreen(props) {
                       name: "Añadir Cliente a ruta",
                       action: async () => {
                         setCurrentCollector(item);
+                        setAddCustomerEvent(!addCustomerEvent);
                       },
                     },
                   ]}

@@ -97,6 +97,24 @@ export async function getPayementRoutes(employeeId) {
   }
 }
 
+export async function createPaymentRouterDetail(data) {
+  const options = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  };
+
+  try {
+    const url = `${await getSavedConnectionUrlApi()}/payment/routerdetail/create`;
+    const response = await fetch(url, options);
+    const result = await response.json();
+
+    return result;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 //ZPL
 
 export async function setReceiptZPL(zpl, id) {
