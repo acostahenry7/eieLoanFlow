@@ -97,7 +97,12 @@ export async function getPayementRoutes(employeeId) {
   }
 }
 
-export async function createPaymentRouterDetail(data) {
+export async function createPaymentRouterDetail(customers, employee) {
+  const data = {
+    employee,
+    customers,
+  };
+
   const options = {
     method: "POST",
     headers: { "Content-Type": "application/json" },

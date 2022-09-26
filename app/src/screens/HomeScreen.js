@@ -193,6 +193,8 @@ export default function HomeScreen(props) {
               loan_number_id: item.loan_number_id,
               loan_id: item.loan_id,
               loan_situation: item.loan_situation,
+              loan_payment_address_id: item.loan_payment_address_id,
+              status_type: "ACTIVE",
               selected: false,
             });
           });
@@ -434,7 +436,10 @@ export default function HomeScreen(props) {
                 <Button
                   title="Agregar Clientes"
                   onPress={() => {
-                    createPaymentRouterDetail(selectedCustomers);
+                    createPaymentRouterDetail(
+                      selectedCustomers,
+                      currentCollector
+                    );
                   }}
                 />
               </View>
