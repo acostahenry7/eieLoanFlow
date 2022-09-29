@@ -5,7 +5,7 @@ export default function Loading(props) {
   const { text } = props;
 
   return (
-    <Modal visible={true} transparent={true}>
+    <Modal visible={true} transparent={true} style={{ zIndex: 999 }}>
       <View
         style={{
           height: "100%",

@@ -58,11 +58,13 @@ export default function HomeScreen(props) {
   const [currentCustomer, setCurrentCustomer] = useState({});
   const [addCustomerEvent, setAddCustomerEvent] = useState(false);
   const [selectedCustomers, setSelectedCustomers] = useState([]);
+  const [initialCustomers, setInitialCustomers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [paramFormVisible, setParamFormVisible] = useState(false);
   const [routeModifyVisible, setRouteModifyVisible] = useState(false);
   const [searchCollector, setSearchCollector] = useState(false);
   const [searchedStatus, setSearchedStatus] = useState("");
+  const [cSearchStatus, setCSearchStatus] = useState("");
   const [sectionFilter, setSectionFilter] = useState("Todos");
   const html = require(`../utils/templates/Receipt.html`);
 
@@ -200,6 +202,7 @@ export default function HomeScreen(props) {
           });
 
           setCustomers(arr);
+          setInitialCustomers(arr);
           //setIsLoading(false);
           setRouteModifyVisible(true);
         }
@@ -263,6 +266,35 @@ export default function HomeScreen(props) {
       }
     })();
   }, [auth, searchedStatus]);
+
+  let searchedCustomers = [];
+  useEffect(async () => {
+    (async () => {
+      console.log("hi");
+      if (auth?.login == "admin") {
+        setIsLoading(true);
+        const response = await getCustomerApi("", currentCollector.employee_id);
+        if (cSearchStatus.length >= 1) {
+          searchedCustomers = customers.filter((customer) => {
+            var customerName = (
+              customer.first_name +
+              " " +
+              customer.last_name +
+              " "
+            ).toLowerCase();
+
+            var searchedText = cSearchStatus.toLowerCase();
+
+            return customerName.includes(searchedText);
+          });
+          setIsLoading(false);
+          setCustomers(searchedCustomers);
+        } else {
+          setCustomers(response?.customers);
+        }
+      }
+    })();
+  }, [auth, cSearchStatus]);
 
   let source = {
     html: `
@@ -366,7 +398,7 @@ export default function HomeScreen(props) {
             >
               <Icon
                 name="times"
-                style={{ textAlign: "right", fontSize: 18 }}
+                style={{ textAlign: "right", fontSize: 25 }}
                 onPress={() => setRouteModifyVisible(false)}
               />
               <Text
@@ -382,6 +414,16 @@ export default function HomeScreen(props) {
                 Cobrador:{" "}
                 {currentCollector.first_name + " " + currentCollector.last_name}
               </Text>
+              <View>
+                <TextInput
+                  style={{ ...styles.textInput }}
+                  placeholder="Busca un cliente"
+                  value={cSearchStatus}
+                  onChangeText={(text) => {
+                    setCSearchStatus(text);
+                  }}
+                />
+              </View>
               <View style={{ marginTop: 30 }}>
                 <View style={{ maxHeight: 400 }}>
                   <FlatList
@@ -410,7 +452,7 @@ export default function HomeScreen(props) {
                                   ...selectedCustomers,
                                   item,
                                 ])
-                              : Alert.alert("Ya existe");
+                              : Alert.alert("Already Selected");
                           }}
                         />
                         <View
