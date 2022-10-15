@@ -21,6 +21,7 @@ import { createPaymentaApi, setReceiptZPL } from "../api/payments";
 import Receipt from "../components/Receipt";
 import { getTotalDiscount } from "../utils/math";
 import { genereateZPLTemplate } from "../utils/printFunctions";
+import { setPaymentObject } from "../utils/math";
 
 export default function PaymentsFormScreen(props) {
   const {
@@ -85,167 +86,167 @@ export default function PaymentsFormScreen(props) {
       var i = 0;
       var counter = 1;
 
-      while (i < quotasNumber) {
-        //console.log(quotas[loanNumber][i].quota_number);
+      // while (i < quotasNumber) {
+      //   //console.log(quotas[loanNumber][i].quota_number);
 
-        if (amount > 0) {
-          var statusType = "PAID";
+      //   if (amount > 0) {
+      //     var statusType = "PAID";
 
-          //Es un abono
-          if (amount < parseInt(quotas[loanNumber][i].current_fee)) {
-            statusType = "COMPOST";
-          }
+      //     //Es un abono
+      //     if (amount < parseInt(quotas[loanNumber][i].current_fee)) {
+      //       statusType = "COMPOST";
+      //     }
 
-          if (statusType != "COMPOST") {
-            amortization.push({
-              quota_number: quotas[loanNumber][i].quota_number,
-              date: ((date) => {
-                var str = quotas[loanNumber][i].payment_date.split("T")[0];
+      //     if (statusType != "COMPOST") {
+      //       amortization.push({
+      //         quota_number: quotas[loanNumber][i].quota_number,
+      //         date: ((date) => {
+      //           var str = quotas[loanNumber][i].payment_date.split("T")[0];
 
-                date = str.split("-").reverse().join("/");
+      //           date = str.split("-").reverse().join("/");
 
-                return date;
-              })(),
-              amount: parseInt(quotas[loanNumber][i].current_fee),
-              quotaId: quotas[loanNumber][i].amortization_id,
-              totalPaid: parseInt(quotas[loanNumber][i].current_fee),
-              statusType,
-              mora: quotas[loanNumber][i].mora,
-              discountMora: quotas[loanNumber][i].discount_mora,
-              discountInterest: quotas[loanNumber][i].discount_interest,
-              fixedAmount: quotas[loanNumber][i].fixed_amount,
-              paid: statusType == "PAID" ? true : false,
-              order: ++quotaOrder,
-            });
-            totalPaid += parseInt(quotas[loanNumber][i].current_fee);
-            amount -= quotas[loanNumber][i].current_fee;
+      //           return date;
+      //         })(),
+      //         amount: parseInt(quotas[loanNumber][i].current_fee),
+      //         quotaId: quotas[loanNumber][i].amortization_id,
+      //         totalPaid: parseInt(quotas[loanNumber][i].current_fee),
+      //         statusType,
+      //         mora: quotas[loanNumber][i].mora,
+      //         discountMora: quotas[loanNumber][i].discount_mora,
+      //         discountInterest: quotas[loanNumber][i].discount_interest,
+      //         fixedAmount: quotas[loanNumber][i].fixed_amount,
+      //         paid: statusType == "PAID" ? true : false,
+      //         order: ++quotaOrder,
+      //       });
+      //       totalPaid += parseInt(quotas[loanNumber][i].current_fee);
+      //       amount -= quotas[loanNumber][i].current_fee;
 
-            if (counter <= parseInt(quotasNumber)) {
-              if (paymentDistribution == true) {
-                let x = i + 1;
+      //       if (counter <= parseInt(quotasNumber)) {
+      //         if (paymentDistribution == true) {
+      //           let x = i + 1;
 
-                while (amount != 0) {
-                  if (!isEmpty(quotas[loanNumber][x])) {
-                    // //console.log(quotas[loanNumber][x]);
-                    if (amount >= quotas[loanNumber][x].current_fee) {
-                      statusType = "PAID";
-                      //console.log("NO ME DIGAS", quotas[loanNumber][x]);
-                      amortization.push({
-                        quota_number: quotas[loanNumber][x].quota_number,
-                        date: ((date) => {
-                          var str =
-                            quotas[loanNumber][x].payment_date.split("T")[0];
+      //           while (amount != 0) {
+      //             if (!isEmpty(quotas[loanNumber][x])) {
+      //               // //console.log(quotas[loanNumber][x]);
+      //               if (amount >= quotas[loanNumber][x].current_fee) {
+      //                 statusType = "PAID";
+      //                 //console.log("NO ME DIGAS", quotas[loanNumber][x]);
+      //                 amortization.push({
+      //                   quota_number: quotas[loanNumber][x].quota_number,
+      //                   date: ((date) => {
+      //                     var str =
+      //                       quotas[loanNumber][x].payment_date.split("T")[0];
 
-                          date = str.split("-").reverse().join("/");
+      //                     date = str.split("-").reverse().join("/");
 
-                          return date;
-                        })(),
-                        amount: parseInt(quotas[loanNumber][x].current_fee),
-                        quotaId: quotas[loanNumber][x].amortization_id,
-                        totalPaid: parseInt(quotas[loanNumber][x].current_fee),
-                        statusType,
-                        mora: quotas[loanNumber][x].mora,
-                        discountMora: quotas[loanNumber][x].discount_mora,
-                        discountInterest:
-                          quotas[loanNumber][x].discount_interest,
-                        fixedAmount: quotas[loanNumber][x].fixed_amount,
-                        paid: statusType == "PAID" ? true : false,
-                        order: ++quotaOrder,
-                      });
+      //                     return date;
+      //                   })(),
+      //                   amount: parseInt(quotas[loanNumber][x].current_fee),
+      //                   quotaId: quotas[loanNumber][x].amortization_id,
+      //                   totalPaid: parseInt(quotas[loanNumber][x].current_fee),
+      //                   statusType,
+      //                   mora: quotas[loanNumber][x].mora,
+      //                   discountMora: quotas[loanNumber][x].discount_mora,
+      //                   discountInterest:
+      //                     quotas[loanNumber][x].discount_interest,
+      //                   fixedAmount: quotas[loanNumber][x].fixed_amount,
+      //                   paid: statusType == "PAID" ? true : false,
+      //                   order: ++quotaOrder,
+      //                 });
 
-                      totalPaid += parseInt(quotas[loanNumber][i].current_fee);
-                      amount -= parseInt(quotas[loanNumber][x].current_fee);
-                    } else {
-                      statusType = "COMPOST";
-                      //console.log("NO ME DIGAS", quotas[loanNumber][x]);
-                      amortization.push({
-                        quota_number: quotas[loanNumber][x].quota_number,
-                        date: ((date) => {
-                          var str =
-                            quotas[loanNumber][x].payment_date.split("T")[0];
+      //                 totalPaid += parseInt(quotas[loanNumber][i].current_fee);
+      //                 amount -= parseInt(quotas[loanNumber][x].current_fee);
+      //               } else {
+      //                 statusType = "COMPOST";
+      //                 //console.log("NO ME DIGAS", quotas[loanNumber][x]);
+      //                 amortization.push({
+      //                   quota_number: quotas[loanNumber][x].quota_number,
+      //                   date: ((date) => {
+      //                     var str =
+      //                       quotas[loanNumber][x].payment_date.split("T")[0];
 
-                          date = str.split("-").reverse().join("/");
+      //                     date = str.split("-").reverse().join("/");
 
-                          return date;
-                        })(),
-                        amount: parseInt(quotas[loanNumber][x].current_fee),
-                        quotaId: quotas[loanNumber][x].amortization_id,
-                        totalPaid: amount,
-                        statusType,
-                        mora: quotas[loanNumber][x].mora,
-                        discountMora: quotas[loanNumber][x].discount_mora,
-                        discountInterest:
-                          quotas[loanNumber][x].discount_interest,
-                        fixedAmount: quotas[loanNumber][x].fixed_amount,
-                        paid: statusType == "PAID" ? true : false,
-                        order: ++quotaOrder,
-                      });
-                      totalPaid += amount;
-                      amount = 0;
-                      cashBack = amount;
-                      console.log("CASHBACK 1", cashBack);
-                    }
-                  } else {
-                    amount = 0;
+      //                     return date;
+      //                   })(),
+      //                   amount: parseInt(quotas[loanNumber][x].current_fee),
+      //                   quotaId: quotas[loanNumber][x].amortization_id,
+      //                   totalPaid: amount,
+      //                   statusType,
+      //                   mora: quotas[loanNumber][x].mora,
+      //                   discountMora: quotas[loanNumber][x].discount_mora,
+      //                   discountInterest:
+      //                     quotas[loanNumber][x].discount_interest,
+      //                   fixedAmount: quotas[loanNumber][x].fixed_amount,
+      //                   paid: statusType == "PAID" ? true : false,
+      //                   order: ++quotaOrder,
+      //                 });
+      //                 totalPaid += amount;
+      //                 amount = 0;
+      //                 cashBack = amount;
+      //                 console.log("CASHBACK 1", cashBack);
+      //               }
+      //             } else {
+      //               amount = 0;
 
-                    cashBack = amount;
-                    console.log("CASHBACK 2", cashBack);
-                  }
+      //               cashBack = amount;
+      //               console.log("CASHBACK 2", cashBack);
+      //             }
 
-                  x++;
-                }
+      //             x++;
+      //           }
 
-                //amount -= quotas[loanNumber][i].current_fee
-              } else {
-                cashBack = amount;
-                console.log("CASHBACK 3", cashBack);
-              }
-            } else {
-              cashBack = amount;
-              console.log("CASHBACK 4", counter, cashBack);
-            }
-          } else {
-            paymentDistribution = true;
-            //console.log('here');
+      //           //amount -= quotas[loanNumber][i].current_fee
+      //         } else {
+      //           cashBack = amount;
+      //           console.log("CASHBACK 3", cashBack);
+      //         }
+      //       } else {
+      //         cashBack = amount;
+      //         console.log("CASHBACK 4", counter, cashBack);
+      //       }
+      //     } else {
+      //       paymentDistribution = true;
+      //       //console.log('here');
 
-            if (paymentDistribution == true) {
-              amortization.push({
-                //quota_number: ,
+      //       if (paymentDistribution == true) {
+      //         amortization.push({
+      //           //quota_number: ,
 
-                date: ((date) => {
-                  var str = quotas[loanNumber][i].payment_date.split("T")[0];
+      //           date: ((date) => {
+      //             var str = quotas[loanNumber][i].payment_date.split("T")[0];
 
-                  date = str.split("-").reverse().join("/");
+      //             date = str.split("-").reverse().join("/");
 
-                  return date;
-                })(),
-                quota_number: quotas[loanNumber][i].quota_number,
-                amount: parseInt(quotas[loanNumber][i].current_fee),
-                quotaId: quotas[loanNumber][i].amortization_id,
-                totalPaid: amount,
-                statusType,
-                mora: quotas[loanNumber][i].mora,
-                discountMora: quotas[loanNumber][i].discount_mora,
-                discountInterest: quotas[loanNumber][i].discount_interest,
-                fixedAmount: quotas[loanNumber][i].fixed_amount,
-                paid: statusType == "PAID" ? true : false,
-                order: ++quotaOrder,
-              });
+      //             return date;
+      //           })(),
+      //           quota_number: quotas[loanNumber][i].quota_number,
+      //           amount: parseInt(quotas[loanNumber][i].current_fee),
+      //           quotaId: quotas[loanNumber][i].amortization_id,
+      //           totalPaid: amount,
+      //           statusType,
+      //           mora: quotas[loanNumber][i].mora,
+      //           discountMora: quotas[loanNumber][i].discount_mora,
+      //           discountInterest: quotas[loanNumber][i].discount_interest,
+      //           fixedAmount: quotas[loanNumber][i].fixed_amount,
+      //           paid: statusType == "PAID" ? true : false,
+      //           order: ++quotaOrder,
+      //         });
 
-              totalPaid += amount;
-              amount -= quotas[loanNumber][i].current_fee;
-            } else {
-              cashBack = amount;
-              console.log("CASHBACK 5", cashBack);
-              //console.log(cashBack, "TE RESTANNN");
-            }
-          }
+      //         totalPaid += amount;
+      //         amount -= quotas[loanNumber][i].current_fee;
+      //       } else {
+      //         cashBack = amount;
+      //         console.log("CASHBACK 5", cashBack);
+      //         //console.log(cashBack, "TE RESTANNN");
+      //       }
+      //     }
 
-          // parseInt(amount) - parseInt(quotas[loanNumber][i].current_fee));
-        }
-        ++i;
-        counter++;
-      }
+      //     // parseInt(amount) - parseInt(quotas[loanNumber][i].current_fee));
+      //   }
+      //   ++i;
+      //   counter++;
+      // }
 
       var data = {};
 
@@ -255,154 +256,183 @@ export default function PaymentsFormScreen(props) {
         quotas
       );
 
-      console.log("HEY I AM YOUR REGISTER", register);
-      data.payment = {
-        loanId: (function () {
-          var result = "";
+      //console.log("HEY I AM YOUR REGISTER", register);
+      // data.payment = {
+      //   loanId: loans.filter((loan) => loan.number == loanNumber)[0].loanId,
 
-          loans.map((item) => {
-            if (item.number.toString() == loanNumber) {
-              result = item.loanId.toString();
-            }
-          });
-          return result;
-        })(),
-        ncf: "",
-        customerId: params.customer_id,
-        paymentMethod,
+      //   ncf: "",
+      //   customerId: params.customer_id,
+      //   paymentMethod,
 
-        totalMora: (() => {
-          let result = 0;
-          let mora = 0;
-          amortization.map((item) => {
-            mora += parseFloat(item.mora);
-            result = mora;
-          });
-          //console.log("DISCOUNT", result);
-          return result;
-        })(),
-        pendingAmount: currentPendingAmount,
-        paymentType: (function () {
-          switch (paymentMethod) {
-            case "Efectivo":
-              paymentMethod = "CASH";
-              break;
-            case "Transferencia":
-              paymentMethod = "TRANSFER";
-              break;
-            case "Cheque":
-              paymentMethod = "CHECK";
-              break;
-            default:
-              break;
-          }
+      //   totalMora: parseFloat(
+      //     amortization.reduce((acc, quota) => acc + parseFloat(quota.mora), 0)
+      //   ),
 
-          return paymentMethod;
-        })(),
-        createdBy: auth.login,
-        receivedAmount,
-        cashBack: (() => {
-          return Math.round(cashBack);
-        })(),
-        lastModifiedBy: auth.login,
-        employeeId: auth.employee_id,
-        customer,
-        outletId: auth.outlet_id,
-        comment: comment,
-        registerId: register.register_id,
-        payOfLoan: payLoan == "si" ? true : false,
-      };
+      //   pendingAmount: currentPendingAmount,
+      //   paymentType: (function () {
+      //     switch (paymentMethod) {
+      //       case "Efectivo":
+      //         paymentMethod = "CASH";
+      //         break;
+      //       case "Transferencia":
+      //         paymentMethod = "TRANSFER";
+      //         break;
+      //       case "Cheque":
+      //         paymentMethod = "CHECK";
+      //         break;
+      //       default:
+      //         break;
+      //     }
+
+      //     return paymentMethod;
+      //   })(),
+      //   createdBy: auth.login,
+      //   receivedAmount,
+      //   cashBack: (() => {
+      //     return Math.round(cashBack);
+      //   })(),
+      //   lastModifiedBy: auth.login,
+      //   employeeId: auth.employee_id,
+      //   customer,
+      //   outletId: auth.outlet_id,
+      //   comment: comment,
+      //   registerId: register.register_id,
+      //   payOfLoan: payLoan == "si" ? true : false,
+      // };
+
+      let testingData;
+      try {
+        testingData = setPaymentObject({
+          loanId: loans.filter((loan) => loan.number == loanNumber)[0].loanId,
+          loanNumber,
+          quotaNumber: quotasNumber,
+          paymentMethod,
+          loanQuotas: (() => {
+            let loanQuotas = [];
+            quotas[loanNumber].map((quota) => {
+              loanQuotas.push({
+                quotaId: quota.amortization_id,
+                quotaNumber: quota.quota_number,
+                amount: parseInt(quota.fixed_amount),
+                currentAmount: parseInt(quota.current_fee),
+                date: quota.date,
+                mora: quota.mora,
+                discountMora: quota.discount_mora,
+                discountInterest: quota.discount_interest,
+                totalPaid: 0,
+                statusType: "ACTIVE",
+                isPaid: false,
+              });
+            });
+            return loanQuotas;
+          })(),
+          liquidateLoan: payLoan,
+          ncf: "",
+          amount: amount,
+          payNextQuotas: isChecked ? true : false,
+          commentary: comment,
+          createdBy: auth.login,
+          lastModifiedBy: auth.login,
+          employeeId: auth.employee_id,
+          outletId: auth.outlet_id,
+          customerId: params.customer_id,
+          totalMora: parseFloat(
+            amortization.reduce((acc, quota) => acc + parseFloat(quota.mora), 0)
+          ),
+        });
+        console.log("HIII", testingData);
+      } catch (error) {
+        Alert("Error", error.message.toString());
+      }
 
       data.amortization = amortization;
       //console.log(amortization);
-      setReceiptQuotas(amortization);
-      setIsLoading(true);
+      // setReceiptQuotas(amortization);
+      // setIsLoading(true);
 
-      const response = await createPaymentaApi(data);
+      //const response = await createPaymentaApi(data);
 
-      console.log("HIII", currentPendingAmount);
+      // let testing = {
+      //   loanNumber,
+      //   login: auth.login,
+      //   outlet: auth.name,
+      //   rnc: auth.rnc,
+      //   cashBack: (() => {
+      //     console.log("ESTE ES EL CAMBIO", Math.round(cashBack));
+      //     return Math.round(cashBack);
+      //   })(),
+      //   pendingAmount:
+      //     parseFloat(currentPendingAmount) - response.loanDetails?.pay,
+      //   discount: (() => {
+      //     let result = 0;
+      //     let discount = 0;
+      //     data.amortization.map((item) => {
+      //       discount +=
+      //         parseFloat(item.discountInterest) + parseFloat(item.discountMora);
+      //       result = discount;
+      //     });
+      //     //console.log("DISCOUNT", result);
+      //     return result;
+      //   })(),
+      //   mora: (() => {
+      //     let result = 0;
+      //     let mora = 0;
+      //     data.amortization.map((item) => {
+      //       mora += parseFloat(item.mora);
+      //       result = mora;
+      //     });
+      //     //console.log("DISCOUNT", result);
+      //     return result;
+      //   })(),
+      //   section: response.loanDetails?.section,
+      //   receiptNumber: response.receipt?.receipt_number,
+      //   paymentMethod: data.payment.paymentMethod,
+      //   outletId: auth.outlet_id,
+      //   firstName: params.first_name,
+      //   lastName: params.last_name,
+      //   receivedAmount,
+      //   amortization: data.amortization,
+      //   quotaNumbers: (() => {
+      //     let result = [];
+      //     data.amortization.map((quota, index) => {
+      //       result.push(quotas[loanNumber][index].quota_number.toString());
+      //     });
 
-      let testing = {
-        loanNumber,
-        login: auth.login,
-        outlet: auth.name,
-        rnc: auth.rnc,
-        cashBack: (() => {
-          console.log("ESTE ES EL CAMBIO", Math.round(cashBack));
-          return Math.round(cashBack);
-        })(),
-        pendingAmount:
-          parseFloat(currentPendingAmount) - response.loanDetails?.pay,
-        discount: (() => {
-          let result = 0;
-          let discount = 0;
-          data.amortization.map((item) => {
-            discount +=
-              parseFloat(item.discountInterest) + parseFloat(item.discountMora);
-            result = discount;
-          });
-          //console.log("DISCOUNT", result);
-          return result;
-        })(),
-        mora: (() => {
-          let result = 0;
-          let mora = 0;
-          data.amortization.map((item) => {
-            mora += parseFloat(item.mora);
-            result = mora;
-          });
-          //console.log("DISCOUNT", result);
-          return result;
-        })(),
-        section: response.loanDetails?.section,
-        receiptNumber: response.receipt?.receipt_number,
-        paymentMethod: data.payment.paymentMethod,
-        outletId: auth.outlet_id,
-        firstName: params.first_name,
-        lastName: params.last_name,
-        receivedAmount,
-        amortization: data.amortization,
-        quotaNumbers: (() => {
-          let result = [];
-          data.amortization.map((quota, index) => {
-            result.push(quotas[loanNumber][index].quota_number.toString());
-          });
+      //     return result;
+      //   })(),
+      //   date: (() => {
+      //     //Date
+      //     const date = new Date().getDate();
+      //     const month = new Date().getMonth() + 1;
+      //     const year = new Date().getFullYear();
 
-          return result;
-        })(),
-        date: (() => {
-          //Date
-          const date = new Date().getDate();
-          const month = new Date().getMonth() + 1;
-          const year = new Date().getFullYear();
+      //     //Time
+      //     const hour = new Date().getHours();
+      //     var minute = new Date().getMinutes();
+      //     minute < 10 ? (minute = "" + minute) : (minute = minute);
+      //     var dayTime = hour >= 12 ? "PM" : "AM";
 
-          //Time
-          const hour = new Date().getHours();
-          var minute = new Date().getMinutes();
-          minute < 10 ? (minute = "" + minute) : (minute = minute);
-          var dayTime = hour >= 12 ? "PM" : "AM";
+      //     const fullDate = `${date}/${month}/${year}  ${hour}:${minute} ${dayTime}`;
+      //     return fullDate.toString();
+      //   })(),
+      //   copyText: "",
+      // };
 
-          const fullDate = `${date}/${month}/${year}  ${hour}:${minute} ${dayTime}`;
-          return fullDate.toString();
-        })(),
-        copyText: "",
-      };
+      // if (response) {
+      //   setReceiptDetails(testing);
 
-      if (response) {
-        setReceiptDetails(testing);
+      //   let zpl = genereateZPLTemplate(testing);
+      //   console.log("TESTING HI", zpl);
+      //   await setReceiptZPL(zpl, response.receipt?.receipt_id);
 
-        let zpl = genereateZPLTemplate(testing);
-        console.log("TESTING HI", zpl);
-        await setReceiptZPL(zpl, response.receipt?.receipt_id);
-
-        setReceiptVisibility(true);
-        setIsLoading(false);
-        //console.log("KKKKKKK", cashBack);
-      } else {
-        Alert.alert("Error", "No se pudo realizar el pago correctamente!");
-        setReceiptVisibility(true);
-        setIsLoading(false);
-      }
+      //   setReceiptVisibility(true);
+      //   setIsLoading(false);
+      //   //console.log("KKKKKKK", cashBack);
+      // } else {
+      //   Alert.alert("Error", "No se pudo realizar el pago correctamente!");
+      //   setReceiptVisibility(true);
+      //   setIsLoading(false);
+      // }
       //console.log("Receipt", receiptDetails);
     },
   });

@@ -87,6 +87,7 @@ export default function PaymentScreen(props) {
       const response = await getRegisterStatusApi(auth?.user_id);
       console.log("Res", response);
       if (response?.status == false) {
+        console.log("AAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBB");
         setIsRegisterOpened(false);
       } else {
         setRegisterInfo(response.register);
