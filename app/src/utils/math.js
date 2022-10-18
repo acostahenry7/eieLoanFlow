@@ -15,7 +15,7 @@ export function getTotalDiscount(object) {
 
 //Validates fields and throws an error
 function requiredField(field) {
-  throw new Error(`${field} field Required`);
+  throw new Error(`Se require completar el campo ${field}`);
 }
 
 //Validates function is receiving an object as a paramater
@@ -33,7 +33,7 @@ export function setPaymentObject(
     loanQuotas = [],
     liquidateLoan = false,
     ncf = "",
-    amount = requiredField("amount"),
+    amount = requiredField("Pagar"),
     payNextQuotas = false,
     commentary = "",
     createdBy = requiredField("createdBy"),

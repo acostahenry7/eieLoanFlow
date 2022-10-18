@@ -328,7 +328,7 @@ export default function PaymentsFormScreen(props) {
           })(),
           liquidateLoan: payLoan,
           ncf: "",
-          amount: amount,
+          amount: amount || undefined,
           payNextQuotas: isChecked ? true : false,
           commentary: comment,
           createdBy: auth.login,
@@ -342,7 +342,7 @@ export default function PaymentsFormScreen(props) {
         });
         console.log("HIII", testingData);
       } catch (error) {
-        Alert("Error", error.message.toString());
+        Alert.alert("Error", error.message.toString());
       }
 
       data.amortization = amortization;
