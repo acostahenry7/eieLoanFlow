@@ -35,6 +35,7 @@ export function setPaymentObject(
     ncf = "",
     amount = requiredField("Pagar"),
     payNextQuotas = false,
+    totalMora = 0,
     commentary = "",
     createdBy = requiredField("createdBy"),
     lastModifiedBy = requiredField("lastModifiedBy"),
@@ -97,7 +98,7 @@ export function setPaymentObject(
       loanId,
       loanNumber,
       quotaNumber,
-      paymentMethod: getPaymentMethod(paymentMethod),
+      paymentType: getPaymentMethod(paymentMethod),
       liquidateLoan,
       ncf,
       amount,
@@ -112,6 +113,10 @@ export function setPaymentObject(
       pendingAmount:
         loanQuotas.reduce((a, quota) => a + quota.currentAmount, 0) -
         (amount - change),
+      totalPaid: amount - change,
+      totalMora: parseFloat(
+        paidQuotas.reduce((acc, quota) => acc + parseFloat(quota.mora), 0)
+      ),
       change,
     },
     amortization: paidQuotas,
@@ -139,14 +144,14 @@ function getPaidQuotas(
     );
     console.log("TOTAL", sumQuotas);
     if (amount < sumQuotas) {
-      throw new Error("Amount must be grater than " + sumQuotas);
+      throw new Error("El monto a pagar debe ser mayor a " + sumQuotas);
     }
     console.log(sumQuotas);
     quotaNumber = loanQuotas.length;
   }
 
   if (amount == 0) {
-    throw new Error("Amount must be grater than 0");
+    throw new Error("El monto a pagar debe ser superior a 0.");
   }
 
   //Realizando el pago según cantidad de cuotas

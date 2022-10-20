@@ -51,7 +51,7 @@ export default function Receipt(props) {
 
     arr.map((item) => {
       //console.log(item);
-      subtotal == true ? (param = item.fixedAmount) : (param = item.totalPaid);
+      subtotal == true ? (param = item.amount) : (param = item.totalPaid);
       sum += parseFloat(param);
     });
 
@@ -208,14 +208,20 @@ export default function Receipt(props) {
                       <View style={{ flexDirection: "row", marginTop: 10 }}>
                         <View style={{ width: "17%" }}>
                           <Text style={{ fontWeight: "bold" }}>
-                            {quotas[index].quota_number}
+                            {quotas[index].quotaNumber}
                           </Text>
                         </View>
                         <View style={{ width: "30%" }}>
-                          <Text>{quota.date}</Text>
+                          <Text>
+                            {quota.date
+                              .split("T")[0]
+                              .split("-")
+                              .reverse()
+                              .join("/")}
+                          </Text>
                         </View>
                         <View style={{ width: "20%" }}>
-                          <Text>{Math.round(quota.fixedAmount)}.00</Text>
+                          <Text>{Math.round(quota.amount)}.00</Text>
                         </View>
                         <View style={{ width: "17%" }}>
                           <Text>{quota.mora}</Text>
@@ -318,7 +324,7 @@ export default function Receipt(props) {
                   <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Total Pagado:</Text>
                     <Text style={styles.totalSectionBody}>
-                      RD$ {totalPaid(quotas)}.00
+                      RD$ {receiptDetails.totalPaid}.00
                     </Text>
                   </View>
                   <View style={styles.totalSection}>
@@ -326,7 +332,7 @@ export default function Receipt(props) {
                       Saldo Pendiente:
                     </Text>
                     <Text style={styles.totalSectionBody}>
-                      RD$ {Math.round(receiptDetails?.pendingAmount)}
+                      RD$ {Math.round(receiptDetails?.pendingAmount)}.00
                     </Text>
                   </View>
                   <View style={styles.totalSection}>

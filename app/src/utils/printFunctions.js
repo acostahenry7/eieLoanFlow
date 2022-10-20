@@ -33,15 +33,15 @@ export function zText(text, x, y) {
 //--------------------- Generate ZPL Receipt --------------------------------
 
 export function genereateZPLTemplate(object) {
-  console.log("FROM GENERATE ZPP", object);
+  //console.log("FROM GENERATE ZPP", object);
 
   let receiptAmortization = [];
 
   object.amortization.map((item) => {
     receiptAmortization.push({
-      quota_number: item.quota_number,
+      quota_number: item.quotaNumber,
       date: item.date,
-      fixedAmount: item.fixedAmount,
+      fixedAmount: item.amount,
       mora: item.mora,
       totalPaid: item.totalPaid,
     });
@@ -53,7 +53,7 @@ export function genereateZPLTemplate(object) {
   let printedStatus = false;
   let labelLength = object.amortization.length * 90 + 1200;
 
-  //console.log(labelLength);
+  ////console.log(labelLength);
 
   let date = (() => {
     //Date
@@ -72,7 +72,7 @@ export function genereateZPLTemplate(object) {
   let receiptBody = [];
 
   let quotasQuantity = object.amortization.length;
-  //console.log("Cantidad de Cuotas", quotasQuantity);
+  ////console.log("Cantidad de Cuotas", quotasQuantity);
 
   let width = 40;
   let top = 750;
@@ -98,9 +98,9 @@ export function genereateZPLTemplate(object) {
 
       x += parseFloat(value.toString().length) * 7 + 80;
 
-      console.log("CURRENT LENGTH", value.toString().length);
+      //console.log("CURRENT LENGTH", value.toString().length);
       if (c == Object.keys(entry).length) {
-        console.log("IM AM TESTING NOW", index);
+        //console.log("IM AM TESTING NOW", index);
         receiptDetail.push(
           `^FO${60},${top + 25},^ADN,26,12^FDDesc. Mora: ${
             object.amortization[index].discountMora
@@ -113,7 +113,7 @@ export function genereateZPLTemplate(object) {
           }  ^FS`
         );
 
-        console.log("HEY DONE ALREADY");
+        //console.log("HEY DONE ALREADY");
         top += 10;
         x = 40;
         c = 0;
@@ -125,9 +125,9 @@ export function genereateZPLTemplate(object) {
     top += 70;
 
     if (index + 1 == quotasQuantity) {
-      console.log("from valitadion quantity");
+      //console.log("from valitadion quantity");
       noteHeight = top + 40;
-      console.log(noteHeight);
+      //console.log(noteHeight);
     }
   });
 
@@ -181,17 +181,9 @@ export function genereateZPLTemplate(object) {
                 top + 120
               )}
               ${zTitle("Monto Recibido:", 200, top + 150)}
-              ${zTitle(
-                "RD$ " + getReceivedAmount(object.amortization) + ".00",
-                365,
-                top + 150
-              )}
+              ${zTitle("RD$ " + object.receivedAmount + ".00", 365, top + 150)}
               ${zTitle("Total Pagado  :", 200, top + 180)}
-              ${zTitle(
-                "RD$ " + totalPaid(object.amortization) + ".00",
-                365,
-                top + 180
-              )}
+              ${zTitle("RD$ " + object.totalPaid + ".00", 365, top + 180)}
               ${zTitle("Saldo Pendiente:", 200, top + 210)}
               ${zTitle("RD$ " + object.pendingAmount + ".00", 365, top + 210)}
               ${zTitle("Cambio:", 200, top + 240)}
@@ -247,11 +239,11 @@ const getSubTotal = (arr) => {
   var sum = 0;
 
   arr.map((item) => {
-    console.log(item);
+    //console.log(item);
     sum += parseFloat(item.fixedAmount) + parseInt(item.mora);
   });
 
-  console.log(sum);
+  //console.log(sum);
   return sum.toString();
 };
 
@@ -259,7 +251,7 @@ const getTotal = (arr) => {
   var sum = 0;
 
   arr.map((item) => {
-    console.log(item);
+    //console.log(item);
     sum +=
       parseFloat(item.fixedAmount) +
       parseInt(item.mora) -
@@ -267,7 +259,7 @@ const getTotal = (arr) => {
       parseFloat(item.discountInterest);
   });
 
-  console.log(sum);
+  //console.log(sum);
   return sum.toString();
 };
 
@@ -276,7 +268,7 @@ const totalPaid = (arr) => {
   let i = 0;
 
   for (i of arr) {
-    result += parseFloat(i.totalPaid);
+    result += parseInt(i.totalPaid);
   }
 
   return result;
@@ -286,7 +278,7 @@ const getReceivedAmount = (arr) => {
   var sum = 0;
 
   arr.map((item) => {
-    console.log(item);
+    //console.log(item);
     sum += parseFloat(item.totalPaid);
     // parseFloat(item.totalPaid) +
     // parseInt(item.mora) -
@@ -294,7 +286,7 @@ const getReceivedAmount = (arr) => {
     // parseFloat(item.discountInterest);
   });
 
-  console.log(sum);
+  //console.log(sum);
   return sum.toString();
 };
 

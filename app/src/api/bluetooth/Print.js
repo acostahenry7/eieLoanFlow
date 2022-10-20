@@ -53,9 +53,9 @@ async function generateReceipt(object, origin) {
 
     object.amortization.map((item) => {
       receiptAmortization.push({
-        quota_number: item.quota_number,
+        quota_number: item.quotaNumber,
         date: item.date,
-        fixedAmount: item.fixedAmount,
+        fixedAmount: item.amount,
         mora: item.mora,
         totalPaid: item.totalPaid,
       });
@@ -63,7 +63,7 @@ async function generateReceipt(object, origin) {
 
     let labelLength = object.amortization.length * 90 + 1200;
 
-    //console.log(labelLength);
+    console.log("-----------", receiptAmortization);
 
     let date = (() => {
       //Date
