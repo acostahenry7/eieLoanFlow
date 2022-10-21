@@ -40,7 +40,7 @@ export function genereateZPLTemplate(object) {
   object.amortization.map((item) => {
     receiptAmortization.push({
       quota_number: item.quotaNumber,
-      date: item.date,
+      date: item.date.split("T")[0].split("-").reverse().join("/"),
       fixedAmount: item.amount,
       mora: item.mora,
       totalPaid: item.totalPaid,
@@ -240,7 +240,7 @@ const getSubTotal = (arr) => {
 
   arr.map((item) => {
     //console.log(item);
-    sum += parseFloat(item.fixedAmount) + parseInt(item.mora);
+    sum += parseFloat(item.amount) + parseInt(item.mora);
   });
 
   //console.log(sum);
@@ -253,7 +253,7 @@ const getTotal = (arr) => {
   arr.map((item) => {
     //console.log(item);
     sum +=
-      parseFloat(item.fixedAmount) +
+      parseFloat(item.amount) +
       parseInt(item.mora) -
       parseFloat(item.discountMora) -
       parseFloat(item.discountInterest);

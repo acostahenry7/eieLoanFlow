@@ -67,7 +67,7 @@ export default function PaymentsFormScreen(props) {
         comment,
       } = values;
 
-      let receivedAmount = amount;
+      let receivedAmount = Math.round(parseFloat(amount));
       //console.log("AMOUNT", amount);
 
       var totalPaid = 0;

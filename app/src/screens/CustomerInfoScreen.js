@@ -31,7 +31,7 @@ export default function CustomerInfoScreen(props) {
   console.log(params);
   const [customer, setCustomer] = useState(null);
   const [loans, setLoans] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [cameraVisible, setCameraVisible] = useState(false);
   const [trigger, setTrigger] = useState(false);
   const [testTrigger, setTestTrigger] = useState(false);
@@ -39,7 +39,7 @@ export default function CustomerInfoScreen(props) {
   useEffect(() => {
     auth
       ? (async () => {
-          setIsLoading(true);
+          //setIsLoading(true);
           try {
             const response = await getCustomerInfo({
               id: params.id,

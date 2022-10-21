@@ -33,6 +33,7 @@ import { formatFullName, extractIconText } from "../utils/stringFuctions";
 import { goToPage } from "../utils/navigation";
 import useAuth from "../hooks/useAuth";
 import { createRegisterApi } from "../api/payments";
+import { significantFigure } from "../utils/math";
 
 export default function PaymentScreen(props) {
   const isFocused = useIsFocused();
@@ -438,76 +439,135 @@ function PaymentCustomerCard(props) {
     isOpenedComment,
   } = props;
 
-  return !isCustomer ? (
-    <TouchableWithoutFeedback>
-      <Card>
-        <View style={styles.infoContent}>
-          <View style={{ ...styles.row, ...styles.icon }}>
-            <Text style={styles.iconText}>
-              {extractIconText(formatFullName(customer?.first_name, customer))}
-            </Text>
-          </View>
-          <View style={styles.customerInfoContent}>
-            <Text style={styles.customerInfoName}>
-              {formatFullName(customer?.first_name, customer)}
-            </Text>
-          </View>
+  console.log("MY QUOTAS", loan);
+  let pendingAmount = quotas[loan]?.reduce(
+    (acc, item) => acc + parseInt(item.fixed_amount),
+    0
+  );
 
-          <Menu>
-            <MenuTrigger>
-              <Icon
-                name="ellipsis-v"
-                style={{
-                  top: 0,
-                  fontSize: 18,
-                  width: 33,
-                  paddingHorizontal: 13,
-                  paddingVertical: 6,
-                  borderRadius: 50,
-                }}
-              />
-            </MenuTrigger>
-            <MenuOptions
-              customStyles={{ optionText: { fontSize: 15 } }}
-              optionsContainerStyle={{ marginLeft: 6 }}
-            >
-              <MenuOption
-                style={styles.menuOption}
-                onSelect={() =>
-                  goToPage("PaymentsForm", navigation, {
-                    ...customer,
-                    loans,
-                    loan,
-                    quotas,
-                    register,
-                  })
-                }
-                text="Cobrar"
-              />
-              <MenuOption
-                style={styles.menuOption}
-                text="Ver Recibo"
-                onSelect={() =>
-                  navigation.navigate("Receipt", {
-                    customer,
-                    loans: loans,
-                    loan,
-                  })
-                }
-              />
-              <MenuOption
-                style={styles.menuOption}
-                onSelect={() => {
-                  setIsOpenedComment(!isOpenedComment);
-                  setIsCustomer(false);
-                }}
-                text="Crear Comentario"
-              />
-            </MenuOptions>
-          </Menu>
+  return !isCustomer ? (
+    <View>
+      <TouchableWithoutFeedback>
+        <Card>
+          <View style={styles.infoContent}>
+            <View style={{ ...styles.row, ...styles.icon }}>
+              <Text style={styles.iconText}>
+                {extractIconText(
+                  formatFullName(customer?.first_name, customer)
+                )}
+              </Text>
+            </View>
+            <View style={styles.customerInfoContent}>
+              <Text style={styles.customerInfoName}>
+                {formatFullName(customer?.first_name, customer)}
+              </Text>
+            </View>
+
+            <Menu>
+              <MenuTrigger>
+                <Icon
+                  name="ellipsis-v"
+                  style={{
+                    top: 0,
+                    fontSize: 18,
+                    width: 33,
+                    paddingHorizontal: 13,
+                    paddingVertical: 6,
+                    borderRadius: 50,
+                  }}
+                />
+              </MenuTrigger>
+              <MenuOptions
+                customStyles={{ optionText: { fontSize: 15 } }}
+                optionsContainerStyle={{ marginLeft: 6 }}
+              >
+                <MenuOption
+                  style={styles.menuOption}
+                  onSelect={() =>
+                    goToPage("PaymentsForm", navigation, {
+                      ...customer,
+                      loans,
+                      loan,
+                      quotas,
+                      register,
+                    })
+                  }
+                  text="Cobrar"
+                />
+                <MenuOption
+                  style={styles.menuOption}
+                  text="Ver Recibo"
+                  onSelect={() =>
+                    navigation.navigate("Receipt", {
+                      customer,
+                      loans: loans,
+                      loan,
+                    })
+                  }
+                />
+                <MenuOption
+                  style={styles.menuOption}
+                  onSelect={() => {
+                    setIsOpenedComment(!isOpenedComment);
+                    setIsCustomer(false);
+                  }}
+                  text="Crear Comentario"
+                />
+              </MenuOptions>
+            </Menu>
+          </View>
+        </Card>
+      </TouchableWithoutFeedback>
+      <View
+        style={{
+          marginHorizontal: 15,
+          marginVertical: 15,
+          padding: 15,
+          borderRadius: 10,
+          borderColor: "rgba(0,0,0,0.3)",
+          borderWidth: 0.5,
+          backgroundColor: "rgba(255,255,255,0.7)",
+        }}
+      >
+        <View>
+          <Text style={styles.cITitle}>Situación Crediticia del Cliente</Text>
+          <View style={{ marginTop: 15 }}>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={styles.cItext}>Cantidad de cuotas pendientes:</Text>
+              <Text style={styles.cIValue}> {quotas[loan].length}</Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={styles.cItext}>Monto por cuota:</Text>
+              <Text style={styles.cIValue}>
+                {" "}
+                RD$ {significantFigure(quotas[loan][1].fixed_amount)}.00
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={styles.cItext}>Monto total Pendiente:</Text>
+              <Text style={styles.cIValue}>
+                {" "}
+                RD$ {significantFigure(pendingAmount)}
+                .00
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <Text style={styles.cItext}>Monto total en atraso:</Text>
+              <Text style={styles.cIValue}>
+                {" "}
+                RD${" "}
+                {significantFigure(
+                  quotas[loan]
+                    .filter((item) => item.status_type == "DEFEATED")
+                    .reduce((acc, item) => acc + parseInt(item.fixed_amount), 0)
+                )}
+                .00
+              </Text>
+            </View>
+          </View>
         </View>
-      </Card>
-    </TouchableWithoutFeedback>
+      </View>
+    </View>
   ) : (
     <Text></Text>
   );
@@ -650,5 +710,20 @@ const styles = StyleSheet.create({
     color: "white",
     padding: 5,
     borderRadius: 5,
+  },
+
+  cITitle: {
+    color: "rgba(0,0,0,0.8)",
+    fontWeight: "bold",
+  },
+
+  cItext: {
+    color: "rgba(0,0,0,0.4)",
+    width: 220,
+    // textAlign: "right",
+  },
+
+  cIValue: {
+    fontWeight: "600",
   },
 });

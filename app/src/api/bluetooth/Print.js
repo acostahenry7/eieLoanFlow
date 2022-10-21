@@ -54,7 +54,7 @@ async function generateReceipt(object, origin) {
     object.amortization.map((item) => {
       receiptAmortization.push({
         quota_number: item.quotaNumber,
-        date: item.date,
+        date: item.date.split("T")[0].split("-").reverse().join("/"),
         fixedAmount: item.amount,
         mora: item.mora,
         totalPaid: item.totalPaid,
@@ -191,17 +191,9 @@ async function generateReceipt(object, origin) {
                 top + 120
               )}
               ${zTitle("Monto Recibido:", 200, top + 150)}
-              ${zTitle(
-                "RD$ " + getReceivedAmount(object.amortization) + ".00",
-                365,
-                top + 150
-              )}
+              ${zTitle("RD$ " + object.receivedAmount + ".00", 365, top + 150)}
               ${zTitle("Total Pagado  :", 200, top + 180)}
-              ${zTitle(
-                "RD$ " + totalPaid(object.amortization) + ".00",
-                365,
-                top + 180
-              )}
+              ${zTitle("RD$ " + object.totalPaid + ".00", 365, top + 180)}
               ${zTitle("Saldo Pendiente:", 200, top + 210)}
               ${zTitle("RD$ " + object.pendingAmount + ".00", 365, top + 210)}
               ${zTitle("Cambio:", 200, top + 240)}
@@ -334,7 +326,7 @@ const getSubTotal = (arr) => {
 
   arr.map((item) => {
     console.log(item);
-    sum += parseFloat(item.fixedAmount) + parseInt(item.mora);
+    sum += parseFloat(item.amount) + parseInt(item.mora);
   });
 
   console.log(sum);
@@ -347,7 +339,7 @@ const getTotal = (arr) => {
   arr.map((item) => {
     console.log(item);
     sum +=
-      parseFloat(item.fixedAmount) +
+      parseFloat(item.amount) +
       parseInt(item.mora) -
       parseFloat(item.discountMora) -
       parseFloat(item.discountInterest);

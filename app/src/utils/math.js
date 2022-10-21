@@ -221,59 +221,55 @@ function getPaymentMethod(m) {
   return paymentMethod;
 }
 
-// try {
-//   setPayment({
-//     loanId: "90e26e00-1ff6-48b0-85a9-7fb213292e07",
-//     loanNumber: "11352",
-//     liquidateLoan: false,
-//     quotaNumber: 1,
-//     loanQuotas: {
-//       11352: [
-//         {
-//           quotaId: "",
-//           quotaNumber: 1,
-//           amount: 800,
-//           currentAmount: 800,
-//           date: "", //todayDate(),
-//           mora: "",
-//           discountMora: "",
-//           discountInterest: "",
-//           totalPaid: 0,
-//           statusType: "ACTIVE",
-//           isPaid: false,
-//         },
-//         {
-//           quotaId: "",
-//           quotaNumber: 2,
-//           amount: 800,
-//           currentAmount: 800,
-//           date: "",
-//           mora: "",
-//           discountMora: "",
-//           discountInterest: "",
-//           totalPaid: 0,
-//           statusType: "ACTIVE",
-//           isPaid: false,
-//         },
-//         {
-//           quotaId: "",
-//           quotaNumber: 3,
-//           amount: 800,
-//           currentAmount: 800,
-//           date: "",
-//           mora: "",
-//           discountMora: "",
-//           discountInterest: "",
-//           totalPaid: 0,
-//           statusType: "ACTIVE",
-//           isPaid: false,
-//         },
-//       ],
-//     },
-//     amount: 800,
-//     payNextQuotas: false,
-//     customerId: "b57c520b-af96-4f2d-b8a1-f8ed5533f379",
-//   });
-// } catch (e) {
-//   console.warn(e);
-// }
+//--------------------------------- Math Fancy Functions----------------------------------------
+
+export function significantFigure(num) {
+  num = num.toString();
+
+  let styledNum = "";
+
+  switch (num.length) {
+    case 4:
+      styledNum = separatorPlace(num, 1);
+      break;
+    case 5:
+      styledNum = separatorPlace(num, 2);
+      break;
+    case 6:
+      styledNum = separatorPlace(num, 3);
+      break;
+    case 7:
+      styledNum = separatorPlace(num, 1, 4);
+      break;
+    case 8:
+      styledNum = separatorPlace(num, 2, 5);
+      break;
+    case 9:
+      styledNum = separatorPlace(num, 3, 6);
+      break;
+    default:
+      break;
+  }
+
+  console.log(styledNum, typeof styledNum);
+  return styledNum;
+}
+
+function separatorPlace(num, fPos, sPos) {
+  let result = "";
+
+  if (num.length <= 6) {
+    for (let i = 0; i < num.length; i++) {
+      i == fPos ? (result += ",") : undefined;
+      result += num.charAt(i);
+    }
+  } else {
+    for (let i = 0; i < num.length; i++) {
+      i == fPos ? (result += ",") : undefined;
+      i == sPos ? (result += ",") : undefined;
+      result += num.charAt(i);
+    }
+  }
+
+  return result;
+}

@@ -477,11 +477,14 @@ export default function HomeScreen(props) {
               <View style={{ marginTop: 20 }}>
                 <Button
                   title="Agregar Clientes"
-                  onPress={() => {
-                    createPaymentRouterDetail(
+                  onPress={async () => {
+                    let response = await createPaymentRouterDetail(
                       selectedCustomers,
                       currentCollector
                     );
+
+                    Alert.alert(response.messageTitle, response.message);
+                    setRouteModifyVisible(false);
                   }}
                 />
               </View>
