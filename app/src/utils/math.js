@@ -43,6 +43,7 @@ export function setPaymentObject(
     outletId = requiredField("outletId"),
     customerId = requiredField("customerId"),
     customer,
+    registerId = requiredField("registerId"),
   } = requiredInfo()
 ) {
   let paidQuotas = [];
@@ -110,6 +111,7 @@ export function setPaymentObject(
       outletId,
       customerId,
       customer,
+      registerId,
       pendingAmount:
         loanQuotas.reduce((a, quota) => a + quota.currentAmount, 0) -
         (amount - change),
