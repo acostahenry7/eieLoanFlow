@@ -1,4 +1,5 @@
 //Discount Functions
+//testing comment
 export function getTotalDiscount(object) {
   let result = 0;
   let discount = 0;
