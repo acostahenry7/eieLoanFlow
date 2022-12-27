@@ -191,7 +191,7 @@ function getPaidQuotas(
     //console.log(quotaNumber, index);
 
     if (amount >= loanQuotas[index].currentAmount) {
-      //
+      //This is a test note
       //console.log("camount", loanQuotas[index].currentAmount, "amount", amount);
       loanQuotas[index].totalPaid = parseFloat(
         (loanQuotas[index].currentAmount - loanQuotas[index].mora).toFixed(2)
