@@ -77,7 +77,7 @@ export default function CustomerScreen(props) {
           cuota: "$RD 1200",
           loan_status: (() => {
             var results, status;
-            response.loans.map((item) => {
+            response.loans?.map((item) => {
               if (customer.customer_id == item.customer_id) {
                 results = "ARREARS";
                 status = "done";

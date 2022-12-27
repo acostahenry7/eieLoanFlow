@@ -15,6 +15,7 @@ import Icon from "react-native-vector-icons/MaterialIcons";
 import useAuth from "../hooks/useAuth";
 import ReceiptHtml from "./ReceiptHtml";
 import Loading from "../components/Loading";
+import { significantFigure } from "../utils/math";
 
 export default function Receipt(props) {
   const {
@@ -52,6 +53,8 @@ export default function Receipt(props) {
     arr.map((item) => {
       //console.log(item);
       subtotal == true ? (param = item.amount) : (param = item.totalPaid);
+
+      console.log("PARAM", param);
       sum += parseFloat(param);
     });
 
@@ -208,7 +211,8 @@ export default function Receipt(props) {
                       <View style={{ flexDirection: "row", marginTop: 10 }}>
                         <View style={{ width: "17%" }}>
                           <Text style={{ fontWeight: "bold" }}>
-                            {quotas[index].quotaNumber}
+                            {quotas[index].quotaNumber}/
+                            {receiptDetails?.fixedQuotas}
                           </Text>
                         </View>
                         <View style={{ width: "30%" }}>
@@ -221,14 +225,27 @@ export default function Receipt(props) {
                           </Text>
                         </View>
                         <View style={{ width: "20%" }}>
-                          <Text>{Math.round(quota.amount)}.00</Text>
+                          <Text>
+                            {significantFigure(
+                              parseFloat(quota.amount).toFixed(2)
+                            )}
+                          </Text>
                         </View>
                         <View style={{ width: "17%" }}>
-                          <Text>{quota.mora}</Text>
+                          <Text>
+                            {parseFloat(
+                              significantFigure(quota.fixedMora)
+                            ).toFixed(2)}
+                          </Text>
                         </View>
                         <View style={{ width: "20%" }}>
                           <Text style={{ fontWeight: "bold" }}>
-                            {quota.totalPaid}.00
+                            {significantFigure(
+                              (
+                                parseFloat(quota.totalPaid) +
+                                parseFloat(quota.totalPaidMora)
+                              ).toFixed(2)
+                            )}
                           </Text>
                         </View>
                       </View>
@@ -278,36 +295,47 @@ export default function Receipt(props) {
                   <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Total Mora:</Text>
                     <Text style={styles.totalSectionBody}>
-                      RD$ {receiptDetails.mora}
-                      .00
+                      RD${" "}
+                      {hasDecimal(receiptDetails.mora)
+                        ? significantFigure(receiptDetails.mora.toFixed(2))
+                        : receiptDetails.mora + ".00"}
                     </Text>
                   </View>
                   <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>SubTotal:</Text>
                     <Text style={styles.totalSectionBody}>
                       RD${" "}
-                      {Math.round(
-                        totalPaid(quotas, true) + receiptDetails.mora
-                      )}
-                      .00
+                      {hasDecimal(totalPaid(quotas, true) + receiptDetails.mora)
+                        ? significantFigure(
+                            (
+                              totalPaid(quotas, true) + receiptDetails.mora
+                            ).toFixed(2)
+                          )
+                        : significantFigure(
+                            (
+                              totalPaid(quotas, true) + receiptDetails.mora
+                            ).toFixed(2)
+                          )}
                     </Text>
                   </View>
                   <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Descuentos:</Text>
                     <Text style={styles.totalSectionBody}>
-                      RD$ {receiptDetails.discount}.00
+                      RD${" "}
+                      {significantFigure(receiptDetails.discount?.toFixed(2))}
                     </Text>
                   </View>
                   <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Total:</Text>
                     <Text style={styles.totalSectionBody}>
                       RD$
-                      {Math.round(
-                        totalPaid(quotas, true) +
+                      {significantFigure(
+                        (
+                          totalPaid(quotas, true) +
                           receiptDetails.mora -
                           receiptDetails.discount
+                        ).toFixed(2)
                       )}
-                      .00
                     </Text>
                   </View>
                   <View style={styles.totalSection}>
@@ -316,15 +344,16 @@ export default function Receipt(props) {
                     </Text>
                     <Text style={styles.totalSectionBody}>
                       RD${" "}
-                      {receiptDetails.receivedAmount ||
-                        totalPaid(quotas) + receiptDetails.cashBack}
-                      .00
+                      {significantFigure(
+                        receiptDetails.receivedAmount?.toFixed(2)
+                      )}
                     </Text>
                   </View>
                   <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Total Pagado:</Text>
                     <Text style={styles.totalSectionBody}>
-                      RD$ {receiptDetails.totalPaid}.00
+                      RD${" "}
+                      {significantFigure(receiptDetails.totalPaid?.toFixed(2))}
                     </Text>
                   </View>
                   <View style={styles.totalSection}>
@@ -332,13 +361,17 @@ export default function Receipt(props) {
                       Saldo Pendiente:
                     </Text>
                     <Text style={styles.totalSectionBody}>
-                      RD$ {Math.round(receiptDetails?.pendingAmount)}.00
+                      RD${" "}
+                      {significantFigure(
+                        receiptDetails?.pendingAmount?.toFixed(2)
+                      )}
                     </Text>
                   </View>
                   <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Cambio:</Text>
                     <Text style={styles.totalSectionBody}>
-                      RD$ {Math.round(receiptDetails.cashBack)}.00
+                      RD${" "}
+                      {significantFigure(receiptDetails.cashBack?.toFixed(2))}
                     </Text>
                   </View>
                 </View>
@@ -346,8 +379,12 @@ export default function Receipt(props) {
               <View style={{ marginTop: 15, flexDirection: "row", bottom: 0 }}>
                 <Text
                   onPress={() =>
-                    navigation.navigate("Payments", {
-                      loanNumber: receiptDetails.loanNumber,
+                    navigation.navigate("PaymentsRoot", {
+                      screen: "Payments",
+                      params: {
+                        loanNumber: receiptDetails.loanNumber,
+                        origin: "customerInfo",
+                      },
                     })
                   }
                   style={{
@@ -367,7 +404,7 @@ export default function Receipt(props) {
                         receiptDetails,
                         origin
                       );
-                      console.log("Pay", response);
+                      //console.log("Pay", response);
                       if (response == true) {
                         navigation.navigate("Payments", {
                           loanNumber: receiptDetails.loanNumber,
@@ -441,8 +478,12 @@ export default function Receipt(props) {
               >
                 <Text
                   onPress={() =>
-                    navigation.navigate("Payments", {
-                      loanNumber: receiptDetails.loanNumber,
+                    navigation.navigate("PaymentsRoot", {
+                      screen: "Payments",
+                      params: {
+                        loanNumber: receiptDetails.loanNumber,
+                        origin: "customerInfo",
+                      },
                     })
                   }
                   style={{
@@ -454,7 +495,7 @@ export default function Receipt(props) {
                   Volver a Cobros
                 </Text>
                 <View style={{ width: "50%" }}>
-                  <Button
+                  {/* <Button
                     style={{ marginLeft: "auto", right: 0 }}
                     title="Imprimir"
                     onPress={async () => {
@@ -464,7 +505,7 @@ export default function Receipt(props) {
                         origin
                       );
                       setIsPrinting(false);
-                      console.log("Pay", response);
+                      //console.log("Pay", response);
                       if (response == true) {
                         navigation.navigate("Payments", {
                           loanNumber: receiptDetails.loanNumber,
@@ -473,7 +514,7 @@ export default function Receipt(props) {
                         Alert.alert("Error de Impresión", response.message);
                       }
                     }}
-                  />
+                  /> */}
                 </View>
               </View>
             </View>
@@ -511,4 +552,9 @@ function getTotalMora(arr) {
   });
 
   return sum.toString();
+}
+
+function hasDecimal(num) {
+  console.log("has decimal", !!(parseFloat(num) % 1));
+  return !!(parseFloat(num) % 1);
 }

@@ -1,12 +1,12 @@
 import { getSavedConnectionUrlApi } from "./server/connection";
 
 export async function getCustomerImgApi(id) {
-  console.log("here", id);
+  //console.log("here", id);
 
   try {
     const url = `${await getSavedConnectionUrlApi()}/customer/img/${id}`;
     const response = await fetch(url);
-    console.log(response);
+    //console.log(response);
     const result = await response.json();
 
     return result;
@@ -71,6 +71,6 @@ const createFormData = (image, body) => {
     type: "image/jpeg",
   });
 
-  console.log("DATA FROM CREATE", data);
+  //console.log("DATA FROM CREATE", data);
   return data;
 };
