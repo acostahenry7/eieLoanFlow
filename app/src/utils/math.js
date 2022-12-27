@@ -32,6 +32,7 @@ export function setPaymentObject(
     paymentMethod = "Efectivo",
     loanQuotas = [],
     liquidateLoan = false,
+    globalDiscount = 0,
     ncf = "",
     amount = requiredField("Pagar"),
     payNextQuotas = false,
@@ -43,12 +44,14 @@ export function setPaymentObject(
     outletId = requiredField("outletId"),
     customerId = requiredField("customerId"),
     customer,
+    quotaAmount,
     registerId = requiredField("registerId"),
   } = requiredInfo()
 ) {
   let paidQuotas = [];
   let nQuotanumber;
   let change = [];
+  let fAmount = amount;
 
   liquidateLoan == "si" ? (liquidateLoan = true) : (liquidateLoan = false);
 
@@ -60,7 +63,8 @@ export function setPaymentObject(
       amount,
       loanQuotas,
       payNextQuotas,
-      liquidateLoan
+      liquidateLoan,
+      globalDiscount
     );
 
     paidQuotas = quotas.paidQuotas;
@@ -87,7 +91,8 @@ export function setPaymentObject(
       amount,
       loanQuotas,
       payNextQuotas,
-      liquidateLoan
+      liquidateLoan,
+      globalDiscount
     );
 
     paidQuotas = quotas.paidQuotas;
@@ -102,7 +107,8 @@ export function setPaymentObject(
       paymentType: getPaymentMethod(paymentMethod),
       liquidateLoan,
       ncf,
-      amount,
+      receivedAmount: fAmount,
+      amount: liquidateLoan == true ? amount + globalDiscount : amount,
       payNextQuotas,
       commentary,
       createdBy,
@@ -112,12 +118,29 @@ export function setPaymentObject(
       customerId,
       customer,
       registerId,
+      quotaAmount,
       pendingAmount:
-        loanQuotas.reduce((a, quota) => a + quota.currentAmount, 0) -
-        (amount - change),
-      totalPaid: amount - change,
+        liquidateLoan == true
+          ? parseFloat(
+              (
+                loanQuotas.reduce((a, quota) => a + quota.currentAmount, 0) -
+                (amount - change) -
+                globalDiscount
+              ).toFixed(2)
+            )
+          : parseFloat(
+              (
+                loanQuotas.reduce((a, quota) => a + quota.currentAmount, 0) -
+                (amount - change)
+              ).toFixed(2)
+            ),
+      totalPaid: parseFloat(
+        liquidateLoan == true
+          ? amount + globalDiscount - change
+          : amount - change
+      ),
       totalMora: parseFloat(
-        paidQuotas.reduce((acc, quota) => acc + parseFloat(quota.mora), 0)
+        paidQuotas.reduce((acc, quota) => acc + parseFloat(quota.fixedMora), 0)
       ),
       change,
     },
@@ -135,7 +158,8 @@ function getPaidQuotas(
   amount,
   loanQuotas,
   payNextQuotas,
-  liquidateLoan
+  liquidateLoan,
+  globalDiscount
 ) {
   let paidQuotas = [];
   let change = 0;
@@ -145,11 +169,15 @@ function getPaidQuotas(
       loanQuotas.reduce((acc, quota) => acc + quota.currentAmount, 0)
     );
     console.log("TOTAL", sumQuotas);
-    if (amount < sumQuotas) {
+    if (amount < sumQuotas && liquidateLoan == true) {
       throw new Error("El monto a pagar debe ser mayor a " + sumQuotas);
     }
     console.log(sumQuotas);
     quotaNumber = loanQuotas.length;
+  }
+
+  if (liquidateLoan == true) {
+    amount = amount + globalDiscount;
   }
 
   if (amount == 0) {
@@ -160,31 +188,83 @@ function getPaidQuotas(
   for (let index = 0; index < quotaNumber; index++) {
     /*Validar si monto es suficiente para saldar quota,
       de lo contrario se abona*/
-    console.log(quotaNumber, index);
+    //console.log(quotaNumber, index);
 
     if (amount >= loanQuotas[index].currentAmount) {
-      loanQuotas[index].totalPaid = loanQuotas[index].currentAmount;
+      //
+      //console.log("camount", loanQuotas[index].currentAmount, "amount", amount);
+      loanQuotas[index].totalPaid = parseFloat(
+        (loanQuotas[index].currentAmount - loanQuotas[index].mora).toFixed(2)
+      );
       loanQuotas[index].statusType = "PAID";
       loanQuotas[index].isPaid = true;
+      if (loanQuotas[index].mora != 0) {
+        loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
+        loanQuotas[index].mora = 0;
+      }
+
       paidQuotas.push(loanQuotas[index]);
       console.log("hi");
       amount = amount - loanQuotas[index].currentAmount;
     } else {
       if (index == 0) {
-        loanQuotas[index].totalPaid = amount;
+        console.log("amount", amount, "mora", loanQuotas[index].mora);
+        if (amount <= loanQuotas[index].mora) {
+          if (loanQuotas[index].mora != 0) {
+            loanQuotas[index].mora = parseFloat(
+              (loanQuotas[index].mora - amount).toFixed(2)
+            );
+            loanQuotas[index].totalPaidMora = amount;
+          } else {
+            loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
+          }
+        } else {
+          if (loanQuotas[index].mora != 0) {
+            loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
+
+            loanQuotas[index].totalPaid = parseFloat(
+              (amount - loanQuotas[index].mora).toFixed(2)
+            );
+
+            loanQuotas[index].mora = 0;
+          } else {
+            loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
+          }
+        }
+
         loanQuotas[index].statusType = "COMPOST";
         loanQuotas[index].isPaid = false;
         paidQuotas.push(loanQuotas[index]);
         amount = 0;
       } else {
         if (payNextQuotas == true) {
-          loanQuotas[index].totalPaid = amount;
+          if (amount <= loanQuotas[index].mora) {
+            if (amount >= loanQuotas[index].mora != 0) {
+              loanQuotas[index].mora = parseFloat(
+                (loanQuotas[index].mora - amount).toFixed(2)
+              );
+              loanQuotas[index].totalPaidMora = amount;
+            }
+          } else {
+            if (amount <= loanQuotas[index].mora) {
+              loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
+
+              loanQuotas[index].totalPaid = parseFloat(
+                (amount - loanQuotas[index].mora).toFixed(2)
+              );
+
+              loanQuotas[index].mora = 0;
+            } else {
+              loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
+            }
+          }
+
           loanQuotas[index].statusType = "COMPOST";
           loanQuotas[index].isPaid = false;
           paidQuotas.push(loanQuotas[index]);
           amount = 0;
         } else {
-          change = amount;
+          change = parseFloat(amount.toFixed(2));
           if (index == quotaNumber) {
             amount = 0;
           }
@@ -194,7 +274,7 @@ function getPaidQuotas(
   }
 
   if (amount > 0) {
-    change = amount;
+    change = parseFloat(amount.toFixed(2));
   }
 
   return {
@@ -226,35 +306,55 @@ function getPaymentMethod(m) {
 //--------------------------------- Math Fancy Functions----------------------------------------
 
 export function significantFigure(num) {
-  num = num.toString();
+  let decimal;
 
-  let styledNum = "";
+  if (num) {
+    num = num.toString();
 
-  switch (num.length) {
-    case 4:
-      styledNum = separatorPlace(num, 1);
-      break;
-    case 5:
-      styledNum = separatorPlace(num, 2);
-      break;
-    case 6:
-      styledNum = separatorPlace(num, 3);
-      break;
-    case 7:
-      styledNum = separatorPlace(num, 1, 4);
-      break;
-    case 8:
-      styledNum = separatorPlace(num, 2, 5);
-      break;
-    case 9:
-      styledNum = separatorPlace(num, 3, 6);
-      break;
-    default:
-      break;
+    if (num.split(".").length > 0) {
+      console.log("hola");
+      decimal = num.split(".")[1];
+      num = num.split(".")[0];
+    }
+
+    let styledNum = "";
+
+    switch (num.length) {
+      case 4:
+        styledNum = separatorPlace(num, 1);
+        break;
+      case 5:
+        styledNum = separatorPlace(num, 2);
+        break;
+      case 6:
+        styledNum = separatorPlace(num, 3);
+        break;
+      case 7:
+        styledNum = separatorPlace(num, 1, 4);
+        break;
+      case 8:
+        styledNum = separatorPlace(num, 2, 5);
+        break;
+      case 9:
+        styledNum = separatorPlace(num, 3, 6);
+        break;
+      default:
+        styledNum = num;
+        break;
+    }
+
+    console.log("FANCY FUNCTION", styledNum, typeof styledNum);
+
+    if (decimal) {
+      styledNum = styledNum + `.${decimal.toString()}`;
+    } else {
+      styledNum = styledNum + ".00";
+    }
+
+    return styledNum;
+  } else {
+    return 0;
   }
-
-  console.log(styledNum, typeof styledNum);
-  return styledNum;
 }
 
 function separatorPlace(num, fPos, sPos) {

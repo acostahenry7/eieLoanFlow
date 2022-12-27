@@ -118,6 +118,27 @@ export default function UserData(props) {
                 icon={'alt-route'}
                 /> */}
       </View>
+      <View style={{ marginTop: 20 }}>
+        <Text style={styles.menuDivisionTitle}>Sincronización de Datos</Text>
+        <UserDataMenuItem
+          field={"Obtener datos desde el servidor"}
+          navigation={navigation}
+          nextScreen={"Sync"}
+          options={{
+            bodyKey: "download",
+          }}
+          icon={"cloud-download"}
+        />
+        <UserDataMenuItem
+          field={"Subir datos al servidor"}
+          navigation={navigation}
+          nextScreen={"Sync"}
+          options={{
+            bodyKey: "upload",
+          }}
+          icon={"cloud-upload"}
+        />
+      </View>
       <Text
         style={{
           color: "red",

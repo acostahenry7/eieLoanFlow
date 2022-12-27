@@ -35,7 +35,7 @@ import tw from "twrnc";
 import FadeInOut from "react-native-fade-in-out";
 import RenderHtml from "react-native-render-html";
 import ModalDropdown from "react-native-modal-dropdown";
-import NetInfo from "@react-native-community/netinfo";
+import { useNetInfo } from "@react-native-community/netinfo";
 import CheckBox from "@react-native-community/checkbox";
 import { formatFullName } from "../utils/stringFuctions";
 
@@ -72,15 +72,7 @@ export default function HomeScreen(props) {
     navigation.navigate(page);
   };
 
-  console.log(windowDimensions);
-
-  const [netInfo, setNetInfo] = useState("");
-
-  useEffect(() => {
-    NetInfo.addEventListener((state) => {
-      setNetInfo(state.isInternetReachable.toString());
-    });
-  }, []);
+  // const netInfo = useNetInfo();
 
   const formik = useFormik({
     initialValues: { commentary: "" },
@@ -186,7 +178,6 @@ export default function HomeScreen(props) {
         );
 
         if (customerList) {
-          console.log("CUSTOMER LIST", customerList);
           let arr = [];
           customerList.customers.map((item) => {
             arr.push({
@@ -212,16 +203,13 @@ export default function HomeScreen(props) {
 
   useEffect(() => {
     (() => {
-      console.log("SELECTED", selectedCustomers);
       let arr = [];
       customers.map((customer, index) => {
         let obj = selectedCustomers.find(
           (scustomer) => scustomer.customer_id == customer.customer_id
         );
 
-        console.log("OBJECT", obj, index);
         if (isEmpty(obj)) {
-          console.log("found");
           //customers[index].selected = true;
         } else {
           customers[index].selected = true;
@@ -270,7 +258,6 @@ export default function HomeScreen(props) {
   let searchedCustomers = [];
   useEffect(async () => {
     (async () => {
-      console.log("hi");
       if (auth?.login == "admin") {
         setIsLoading(true);
         const response = await getCustomerApi("", currentCollector.employee_id);
@@ -308,20 +295,28 @@ export default function HomeScreen(props) {
       (item) => item.customer_id == customer.customer_id
     );
     let bool = false;
-    console.log("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA", exists);
     if (isEmpty(exists)) {
       setSelectedCustomers([...selectedCustomers, customer]);
       bool = true;
     } else {
       bool = false;
     }
-    console.log("BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB", bool);
     return bool;
   };
 
   return (
+    // <View>
+    //   <Text>{netInfo.type}</Text>
+    //   <View
+    //     style={{
+    //       width: 50,
+    //       height: 50,
+    //       backgroundColor: netInfo.isConnected ? "green" : "red",
+    //     }}
+    //   ></View>
+    // </View>
     <SafeAreaView style={{}}>
-      {/* <Text>{netInfo}</Text> */}
+      {/* <Text> {netInfo}</Text> */}
       <Modal visible={false}>
         <RenderHtml contentWidth={100} source={source} />
       </Modal>
@@ -1029,7 +1024,6 @@ export default function HomeScreen(props) {
 
       <Icon
         onPress={() => {
-          console.log("hi");
           setmodalVisibility(true);
         }}
         name="qrcode"

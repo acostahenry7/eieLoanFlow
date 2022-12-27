@@ -17,7 +17,7 @@ export default function NavigationTab() {
   return (
     <Tab.Navigator
       initialRouteName="Settings"
-      //screenOptions={{ unmountOnBlur: true }}
+      screenOptions={{ unmountOnBlur: true }}
     >
       <Tab.Screen
         name="GpsRoot"
@@ -41,6 +41,7 @@ export default function NavigationTab() {
             tabBarIcon: ({ color, size }) => (
               <Icon name="dollar-sign" color={color} size={size} />
             ),
+            unmountOnBlur: true,
           }}
         />
       ) : undefined}

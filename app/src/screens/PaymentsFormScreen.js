@@ -29,21 +29,22 @@ export default function PaymentsFormScreen(props) {
     navigation,
   } = props;
   const { auth } = useAuth();
-  ////console.log("PARAMS FROM PAYMENT", params);
-  const { customer, loans, loan, quotas, register } = params;
+  const { customer, loans, loan, quotas, register, globalDiscount, charges } =
+    params;
   const [loanQuotas, setLoanQuotas] = useState(getQuotaNumber(loan, quotas));
-  const [amount, setAmount] = useState(null);
-  const [isPayLoanSelected, setIsPayLoanSelected] = useState(false);
+  //const [amount, setAmount] = useState(null);
+  //const [isPayLoanSelected, setIsPayLoanSelected] = useState(false);
   const [receiptVisibility, setReceiptVisibility] = useState(false);
   const [receiptDetails, setReceiptDetails] = useState({});
   const [isChecked, setIsChecked] = useState(false);
   const [selectedPrinter, setSelectedPrinter] = useState();
-  const [currentQuotaNumber, setCurrentQuotaNumber] = useState([]);
+  //const [currentQuotaNumber, setCurrentQuotaNumber] = useState([]);
   const [receiptQuotas, setReceiptQuotas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [pendingAmount, setPendingAmount] = useState("");
+  const [payLoan, setPayLoan] = useState(false);
+  const [isPaymentButtonStatus, setIsPaymentButtonDisabled] = useState(false);
+  //const [pendingAmount, setPendingAmount] = useState("");
 
-  ////console.log(quotas);
   //Bluetooth
   var loanNumbers = [];
   loans.map((loan) => {
@@ -52,12 +53,12 @@ export default function PaymentsFormScreen(props) {
 
   let initialQuotas = [];
 
+  //console.log("HEY THIS IS THE LOAN ", loans);
+
   const formik = useFormik({
-    initialValues: initialValues(params.loan, loans, quotas),
+    initialValues: initialValues(params.loan, loans, quotas, charges),
     validateOnChange: false,
     onSubmit: async (values) => {
-      let quotaOrder = 0;
-
       var {
         loanNumber,
         quotasNumber,
@@ -67,238 +68,21 @@ export default function PaymentsFormScreen(props) {
         comment,
       } = values;
 
-      let receivedAmount = Math.round(parseFloat(amount));
-      //console.log("AMOUNT", amount);
+      let receivedAmount = parseFloat(amount);
+      console.log("FLOAT", receivedAmount);
 
-      var totalPaid = 0;
-
-      let amortization = [];
-      var paymentDistribution;
-      let cashBack = 0;
-
-      isChecked == true
-        ? (paymentDistribution = true)
-        : (paymentDistribution = false);
+      // isChecked == true
+      //   ? (paymentDistribution = true)
+      //   : (paymentDistribution = false);
 
       //payLoan == 'si' ? paymentDistribution = true : paymentDistribution = paymentDistribution
       amount = parseInt(amount);
-
-      var i = 0;
-      var counter = 1;
-
-      // while (i < quotasNumber) {
-      //   ////console.log(quotas[loanNumber][i].quota_number);
-
-      //   if (amount > 0) {
-      //     var statusType = "PAID";
-
-      //     //Es un abono
-      //     if (amount < parseInt(quotas[loanNumber][i].current_fee)) {
-      //       statusType = "COMPOST";
-      //     }
-
-      //     if (statusType != "COMPOST") {
-      //       amortization.push({
-      //         quota_number: quotas[loanNumber][i].quota_number,
-      //         date: ((date) => {
-      //           var str = quotas[loanNumber][i].payment_date.split("T")[0];
-
-      //           date = str.split("-").reverse().join("/");
-
-      //           return date;
-      //         })(),
-      //         amount: parseInt(quotas[loanNumber][i].current_fee),
-      //         quotaId: quotas[loanNumber][i].amortization_id,
-      //         totalPaid: parseInt(quotas[loanNumber][i].current_fee),
-      //         statusType,
-      //         mora: quotas[loanNumber][i].mora,
-      //         discountMora: quotas[loanNumber][i].discount_mora,
-      //         discountInterest: quotas[loanNumber][i].discount_interest,
-      //         fixedAmount: quotas[loanNumber][i].fixed_amount,
-      //         paid: statusType == "PAID" ? true : false,
-      //         order: ++quotaOrder,
-      //       });
-      //       totalPaid += parseInt(quotas[loanNumber][i].current_fee);
-      //       amount -= quotas[loanNumber][i].current_fee;
-
-      //       if (counter <= parseInt(quotasNumber)) {
-      //         if (paymentDistribution == true) {
-      //           let x = i + 1;
-
-      //           while (amount != 0) {
-      //             if (!isEmpty(quotas[loanNumber][x])) {
-      //               // ////console.log(quotas[loanNumber][x]);
-      //               if (amount >= quotas[loanNumber][x].current_fee) {
-      //                 statusType = "PAID";
-      //                 ////console.log("NO ME DIGAS", quotas[loanNumber][x]);
-      //                 amortization.push({
-      //                   quota_number: quotas[loanNumber][x].quota_number,
-      //                   date: ((date) => {
-      //                     var str =
-      //                       quotas[loanNumber][x].payment_date.split("T")[0];
-
-      //                     date = str.split("-").reverse().join("/");
-
-      //                     return date;
-      //                   })(),
-      //                   amount: parseInt(quotas[loanNumber][x].current_fee),
-      //                   quotaId: quotas[loanNumber][x].amortization_id,
-      //                   totalPaid: parseInt(quotas[loanNumber][x].current_fee),
-      //                   statusType,
-      //                   mora: quotas[loanNumber][x].mora,
-      //                   discountMora: quotas[loanNumber][x].discount_mora,
-      //                   discountInterest:
-      //                     quotas[loanNumber][x].discount_interest,
-      //                   fixedAmount: quotas[loanNumber][x].fixed_amount,
-      //                   paid: statusType == "PAID" ? true : false,
-      //                   order: ++quotaOrder,
-      //                 });
-
-      //                 totalPaid += parseInt(quotas[loanNumber][i].current_fee);
-      //                 amount -= parseInt(quotas[loanNumber][x].current_fee);
-      //               } else {
-      //                 statusType = "COMPOST";
-      //                 ////console.log("NO ME DIGAS", quotas[loanNumber][x]);
-      //                 amortization.push({
-      //                   quota_number: quotas[loanNumber][x].quota_number,
-      //                   date: ((date) => {
-      //                     var str =
-      //                       quotas[loanNumber][x].payment_date.split("T")[0];
-
-      //                     date = str.split("-").reverse().join("/");
-
-      //                     return date;
-      //                   })(),
-      //                   amount: parseInt(quotas[loanNumber][x].current_fee),
-      //                   quotaId: quotas[loanNumber][x].amortization_id,
-      //                   totalPaid: amount,
-      //                   statusType,
-      //                   mora: quotas[loanNumber][x].mora,
-      //                   discountMora: quotas[loanNumber][x].discount_mora,
-      //                   discountInterest:
-      //                     quotas[loanNumber][x].discount_interest,
-      //                   fixedAmount: quotas[loanNumber][x].fixed_amount,
-      //                   paid: statusType == "PAID" ? true : false,
-      //                   order: ++quotaOrder,
-      //                 });
-      //                 totalPaid += amount;
-      //                 amount = 0;
-      //                 cashBack = amount;
-      //                 //console.log("CASHBACK 1", cashBack);
-      //               }
-      //             } else {
-      //               amount = 0;
-
-      //               cashBack = amount;
-      //               //console.log("CASHBACK 2", cashBack);
-      //             }
-
-      //             x++;
-      //           }
-
-      //           //amount -= quotas[loanNumber][i].current_fee
-      //         } else {
-      //           cashBack = amount;
-      //           //console.log("CASHBACK 3", cashBack);
-      //         }
-      //       } else {
-      //         cashBack = amount;
-      //         //console.log("CASHBACK 4", counter, cashBack);
-      //       }
-      //     } else {
-      //       paymentDistribution = true;
-      //       ////console.log('here');
-
-      //       if (paymentDistribution == true) {
-      //         amortization.push({
-      //           //quota_number: ,
-
-      //           date: ((date) => {
-      //             var str = quotas[loanNumber][i].payment_date.split("T")[0];
-
-      //             date = str.split("-").reverse().join("/");
-
-      //             return date;
-      //           })(),
-      //           quota_number: quotas[loanNumber][i].quota_number,
-      //           amount: parseInt(quotas[loanNumber][i].current_fee),
-      //           quotaId: quotas[loanNumber][i].amortization_id,
-      //           totalPaid: amount,
-      //           statusType,
-      //           mora: quotas[loanNumber][i].mora,
-      //           discountMora: quotas[loanNumber][i].discount_mora,
-      //           discountInterest: quotas[loanNumber][i].discount_interest,
-      //           fixedAmount: quotas[loanNumber][i].fixed_amount,
-      //           paid: statusType == "PAID" ? true : false,
-      //           order: ++quotaOrder,
-      //         });
-
-      //         totalPaid += amount;
-      //         amount -= quotas[loanNumber][i].current_fee;
-      //       } else {
-      //         cashBack = amount;
-      //         //console.log("CASHBACK 5", cashBack);
-      //         ////console.log(cashBack, "TE RESTANNN");
-      //       }
-      //     }
-
-      //     // parseInt(amount) - parseInt(quotas[loanNumber][i].current_fee));
-      //   }
-      //   ++i;
-      //   counter++;
-      // }
-
-      //var data = {};
 
       const currentPendingAmount = getAmount(
         quotas[loanNumber].length,
         loanNumber,
         quotas
       );
-
-      ////console.log("HEY I AM YOUR REGISTER", register);
-      // data.payment = {
-      //   loanId: loans.filter((loan) => loan.number == loanNumber)[0].loanId,
-
-      //   ncf: "",
-      //   customerId: params.customer_id,
-      //   paymentMethod,
-
-      //   totalMora: parseFloat(
-      //     amortization.reduce((acc, quota) => acc + parseFloat(quota.mora), 0)
-      //   ),
-
-      //   pendingAmount: currentPendingAmount,
-      //   paymentType: (function () {
-      //     switch (paymentMethod) {
-      //       case "Efectivo":
-      //         paymentMethod = "CASH";
-      //         break;
-      //       case "Transferencia":
-      //         paymentMethod = "TRANSFER";
-      //         break;
-      //       case "Cheque":
-      //         paymentMethod = "CHECK";
-      //         break;
-      //       default:
-      //         break;
-      //     }
-
-      //     return paymentMethod;
-      //   })(),
-      //   createdBy: auth.login,
-      //   receivedAmount,
-      //   cashBack: (() => {
-      //     return Math.round(cashBack);
-      //   })(),
-      //   lastModifiedBy: auth.login,
-      //   employeeId: auth.employee_id,
-      //   customer,
-      //   outletId: auth.outlet_id,
-      //   comment: comment,
-      //   registerId: register.register_id,
-      //   payOfLoan: payLoan == "si" ? true : false,
-      // };
 
       let data;
       try {
@@ -310,15 +94,18 @@ export default function PaymentsFormScreen(props) {
           loanQuotas: (() => {
             let loanQuotas = [];
             quotas[loanNumber].map((quota) => {
-              //console.log("QUOTA DATE", quota.date);
+              console.log(quota.mora);
               loanQuotas.push({
                 quotaId: quota.amortization_id,
                 quotaNumber: quota.quota_number,
                 amount: parseInt(quota.fixed_amount),
-                currentAmount: parseInt(quota.current_fee),
+                currentAmount: parseFloat(quota.current_fee),
                 date: quota.date,
-                mora: quota.mora,
+                mora: parseFloat(quota.mora),
+                fixedMora: parseFloat(quota.mora),
+                totalPaidMora: quota.total_paid_mora,
                 discountMora: quota.discount_mora,
+                fixedDiscountMora: quota.discount_mora,
                 discountInterest: quota.discount_interest,
                 currentPaid: quota.current_paid,
                 totalPaid: 0,
@@ -329,8 +116,9 @@ export default function PaymentsFormScreen(props) {
             return loanQuotas;
           })(),
           liquidateLoan: payLoan,
+          globalDiscount,
           ncf: "",
-          amount: amount || 0,
+          amount: receivedAmount || 0,
           payNextQuotas: isChecked ? true : false,
           commentary: comment,
           createdBy: auth.login,
@@ -340,11 +128,37 @@ export default function PaymentsFormScreen(props) {
           customerId: params.customer_id,
           totalMora: 0,
           registerId: register.register_id,
+          quotaAmount: (() => {
+            let quotaAmount = loans.find((item) => item.number == loanNumber);
+
+            return quotaAmount.quotasNum;
+          })(),
         });
+
+        let discount = data.amortization.reduce(
+          (acc, quota) =>
+            acc +
+            parseFloat(quota.discountInterest) +
+            parseFloat(quota.fixedDiscountMora),
+          0
+        );
+
+        if (data.payment.liquidateLoan == true) {
+          discount += globalDiscount;
+        }
+
+        console.log(
+          "MY DATA",
+          data
+          // amount,
+          // data.payment,
+          // data.amortization.filter(
+          //   (quota) => quota.isPaid == true && quota.totalPaid == 2500
+          // ).length
+        );
 
         setReceiptQuotas(data.amortization);
         setIsLoading(true);
-        console.log("DATAAAA", data);
         const response = await createPaymentaApi(data);
 
         let testing = {
@@ -355,13 +169,7 @@ export default function PaymentsFormScreen(props) {
           cashBack: data.payment.change,
           totalPaid: data.payment.totalPaid,
           pendingAmount: data.payment.pendingAmount,
-          discount: data.amortization.reduce(
-            (acc, quota) =>
-              acc +
-              parseInt(quota.discountInterest) +
-              parseInt(quota.discountMora),
-            0
-          ),
+          discount: discount,
           mora: data.payment.totalMora,
           section: response.loanDetails?.section,
           receiptNumber: response.receipt?.receipt_number,
@@ -370,11 +178,15 @@ export default function PaymentsFormScreen(props) {
           firstName: params.first_name,
           lastName: params.last_name,
           receivedAmount,
+          fixedQuotas: (() => {
+            let quotaAmount = loans.find((item) => item.number == loanNumber);
+
+            return quotaAmount.quotasNum;
+          })(),
           amortization: data.amortization,
           quotaNumbers: (() => {
             let result = [];
             data.amortization.map((quota, index) => {
-              //console.log("From receipt", quota);
               //result.push(quota.quotaNumber.toString());
             });
 
@@ -398,16 +210,19 @@ export default function PaymentsFormScreen(props) {
           copyText: "",
         };
 
+        setReceiptDetails(testing);
+        setReceiptVisibility(true);
+
+        // console.log("RECEIPT DATA", testing.discount);
+
         if (response) {
           setReceiptDetails(testing);
 
           let zpl = genereateZPLTemplate(testing);
-          //console.log("TESTING HI", testing);
           await setReceiptZPL(zpl, response.receipt?.receipt_id);
 
           setReceiptVisibility(true);
           setIsLoading(false);
-          ////console.log("KKKKKKK", cashBack);
         } else {
           Alert.alert("Error", "No se pudo realizar el pago correctamente!");
           setReceiptVisibility(true);
@@ -418,18 +233,82 @@ export default function PaymentsFormScreen(props) {
       }
 
       setIsLoading(false);
-
-      //data.amortization = amortization;
-      ////console.log(amortization);
-
-      //const response = await createPaymentaApi(data);
-
-      ////console.log("Receipt", receiptDetails);
     },
   });
 
   return (
     <View style={styles.selectItemContainer}>
+      <Modal visible={payLoan} transparent={true} animationType="fade">
+        <View style={styles.modalView}>
+          <View
+            style={{
+              padding: 20,
+              backgroundColor: "rgba(255,255,255,0.9)",
+              borderRadius: 4,
+              borderColor: "#bf514c",
+              borderWidth: 3,
+            }}
+          >
+            <View style={{ maxWidth: 335 }}>
+              <View style={{ flexDirection: "row" }}>
+                <Text style={{ fontSize: 16, textAlign: "justify" }}>
+                  Usted está a punto de saldar el préstamo, la acción a realizar
+                  es{" "}
+                  <Text
+                    style={{ fontWeight: "bold", fontSize: 16, color: "red" }}
+                  >
+                    IRREVERSIBLE
+                  </Text>
+                </Text>
+              </View>
+
+              <Text style={{ marginTop: 20, fontSize: 16 }}>
+                El monto a pagar es de RD$
+                <Text style={{ fontWeight: "bold", fontSize: 16 }}>
+                  {quotas[formik.values.loanNumber].reduce(
+                    (acc, quota) => acc + parseFloat(quota.current_fee),
+                    0
+                  )}
+                </Text>
+              </Text>
+              <Text
+                style={{ marginTop: 20, fontSize: 16, textAlign: "justify" }}
+              >
+                {" "}
+                ¿Confirma haber recibido este monto del cliente?
+              </Text>
+              <View
+                style={{
+                  marginTop: 25,
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <View style={{}}>
+                  <Button
+                    title="Cancelar"
+                    color={"#bf514c"}
+                    onPress={() => {
+                      setPayLoan(false);
+                      formik.setFieldValue("payLoan", "no");
+                    }}
+                  />
+                </View>
+
+                <View style={{}}>
+                  <Button
+                    title="Aceptar"
+                    onPress={() => {
+                      setPayLoan(false);
+                    }}
+                  />
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
       {isLoading && (
         <Modal transparent={true} animationType="fade">
           <View style={styles.modalView}>
@@ -467,6 +346,7 @@ export default function PaymentsFormScreen(props) {
             defaultVal={formik.values.quotasNumber}
             fieldKey="quotasNumber"
             quotas={quotas}
+            globalDiscount={globalDiscount}
             //loans={loans}
           />
         </View>
@@ -479,6 +359,8 @@ export default function PaymentsFormScreen(props) {
             defaultVal={formik.values.payLoan}
             fieldKey="payLoan"
             quotas={quotas}
+            globalDiscount={globalDiscount}
+            setPayLoan={setPayLoan}
           />
         </View>
         <View style={styles.formGroup}>
@@ -499,7 +381,7 @@ export default function PaymentsFormScreen(props) {
               value={formik.values.amount}
               onChangeText={(text) => formik.setFieldValue("amount", text)}
               fieldKey="amount"
-              keyboardType="number-pad"
+              keyboardType="decimal-pad"
             />
             <Text
               style={{
@@ -534,7 +416,14 @@ export default function PaymentsFormScreen(props) {
           </Text>
         </View>
         <View style={styles.formGroup}>
-          <Button title="Pagar" onPress={formik.handleSubmit} />
+          <Button
+            disabled={isPaymentButtonStatus}
+            title="Pagar"
+            onPress={(e) => {
+              setIsPaymentButtonDisabled(true);
+              formik.handleSubmit();
+            }}
+          />
         </View>
       </ScrollView>
       <Receipt
@@ -559,6 +448,8 @@ function SelectItem(props) {
     setLoanQuotas,
     loans,
     quotas,
+    globalDiscount,
+    setPayLoan,
   } = props;
 
   return (
@@ -571,6 +462,7 @@ function SelectItem(props) {
         switch (fieldKey) {
           case "loanNumber":
             setLoanQuotas(getQuotaNumber(value, quotas));
+            console.log("AHAHAHAAHAHAHAH", value);
             formik.setFieldValue(fieldKey, value);
             formik.setFieldValue("quotasNumber", "1");
             formik.setFieldValue("payLoan", "no");
@@ -583,10 +475,18 @@ function SelectItem(props) {
             formik.setFieldValue(fieldKey, value);
             let payment = 0;
             //payment = getQuotaAmount(formik.values.loanNumber, loans) * value
-            formik.setFieldValue(
-              "amount",
+            let amount = parseInt(
               getAmount(value, formik.values.loanNumber, quotas)
             );
+
+            if (
+              formik.values.payLoan == "si" &&
+              value == quotas[formik.values.loanNumber].length
+            ) {
+              amount -= globalDiscount;
+            }
+
+            formik.setFieldValue("amount", amount.toString());
             break;
           case "payLoan":
             formik.setFieldValue(fieldKey, value);
@@ -596,14 +496,17 @@ function SelectItem(props) {
                 "quotasNumber",
                 getQuotaNumber(formik.values.loanNumber, quotas).length
               );
-              formik.setFieldValue(
-                "amount",
+
+              let amount =
                 getAmount(
                   quotas[formik.values.loanNumber].length,
                   formik.values.loanNumber,
                   quotas
-                )
-              );
+                ) - (globalDiscount || 0);
+
+              formik.setFieldValue("amount", amount.toString());
+
+              setPayLoan(true);
             } else {
               formik.setFieldValue("quotasNumber", "1");
               formik.setFieldValue(
@@ -634,12 +537,26 @@ function SelectItem(props) {
   );
 }
 
-const initialValues = (loan, loans, quotas) => {
+const initialValues = (loan, loans, quotas, charges = []) => {
   //loan=undefined;
 
   let i = 0;
   let quotaAmount = getAmount("1", loan, quotas);
 
+  console.log("mannnnnn, the chrages", charges);
+  if (charges?.length > 0) {
+    let result = charges?.find((item) => item.loan_number == loan);
+
+    if (result) {
+      quotaAmount = result?.amount;
+    }
+
+    // let result = charges
+    //   ?.find((item) => item.loan_number == loan)
+    //   .amount?.toString();
+    // //console.log("MAN THIS IS THE CHHARGES", result);
+    // quotaAmount = result;
+  }
   return {
     loanNumber: loan || "Seleccione un préstamo",
     quotasNumber: (loan && "1") || "Seleccione cantidad de Cuotas",

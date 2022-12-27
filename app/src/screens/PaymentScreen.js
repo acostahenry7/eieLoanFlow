@@ -81,14 +81,13 @@ export default function PaymentScreen(props) {
   const [isCustomer, setIsCustomer] = useState(false);
   const [isOpenedComment, setIsOpenedComment] = useState(false);
   const [error, setError] = useState("");
+  const [globalDiscount, setGlobalDiscount] = useState(0);
+  const [charges, setCharges] = useState([]);
 
   useEffect(() => {
     (async () => {
-      console.log("SI ESTOY POR ACA");
       const response = await getRegisterStatusApi(auth?.user_id);
-      console.log("Res", response);
       if (response?.status == false) {
-        console.log("AAAAAAAAAAAAAAAAAAAAAAAABBBBBBBBBBBBB");
         setIsRegisterOpened(false);
       } else {
         setRegisterInfo(response.register);
@@ -108,7 +107,6 @@ export default function PaymentScreen(props) {
       setOpenCashier(!openCashier);
 
       const response = await getRegisterStatusApi(auth?.user_id);
-      console.log("Res", response);
       if (response?.status == false) {
         setIsRegisterOpened(false);
       }
@@ -122,7 +120,6 @@ export default function PaymentScreen(props) {
           }
         }
       } else {
-        console.log("No puedes, has sido desconectado");
       }
 
       setIsLoading(false);
@@ -137,7 +134,7 @@ export default function PaymentScreen(props) {
     validateOnChange: false,
     onSubmit: async (values) => {
       let data = {
-        amount: values.amount,
+        amount: values.amount || 0,
         description: values.description,
         userId: auth.user_id,
         outletId: auth.outlet_id,
@@ -146,10 +143,12 @@ export default function PaymentScreen(props) {
       };
 
       const register = await createRegisterApi(data);
-      console.log("WHAT COMES IN REGISTER", register);
-      setRegisterInfo(register);
-
-      setIsRegisterOpened(true);
+      if (register.err) {
+        Alert.alert("Error", register.err);
+      } else {
+        setRegisterInfo(register);
+        setIsRegisterOpened(true);
+      }
     },
   });
 
@@ -168,8 +167,6 @@ export default function PaymentScreen(props) {
       } else {
         setOpenedCashier(true);
       }
-
-      //console.log(response);
     })();
   }, [auth]);
 
@@ -177,7 +174,6 @@ export default function PaymentScreen(props) {
     (() => {
       if (params && params.origin == "customerInfo") {
         setLoan(params?.loanNumber?.toString());
-        console.log("Params", params);
         formik.setFieldValue("searchKey", params?.loanNumber?.toString());
         formik.handleSubmit();
       }
@@ -200,10 +196,13 @@ export default function PaymentScreen(props) {
         employeeId: auth.employee_id,
       });
 
-      console.log("what", response);
-
       if (!isEmpty(response)) {
         setIsCustomer(true);
+        console.log("mannnnnn, the charges again", response.charges);
+        if (response.charges?.length > 0) {
+          console.log("mannnnnn, the charges again", response);
+          setCharges(response.charges);
+        }
 
         for (var item of response?.customer) {
           currentCustomer.push({
@@ -235,16 +234,13 @@ export default function PaymentScreen(props) {
         }
       }
 
-      //console.log(currentQuotas);
       setLoans(currentLoans);
       setCustomer(...currentCustomer);
       setQuotas(response?.quotas);
-
-      console.log("hey", currentCustomer[0]);
-
-      //console.log(customer);
+      setGlobalDiscount(response?.globalDiscount);
     } catch (error) {
       console.log(error);
+      //Alert.alert(error.message)
     }
   };
 
@@ -289,9 +285,11 @@ export default function PaymentScreen(props) {
                           navigation={navigation}
                           loans={loans}
                           loan={loan}
+                          charges={charges}
                           quotas={quotas}
                           isOpenedComment={isOpenedComment}
                           setIsOpenedComment={setIsOpenedComment}
+                          globalDiscount={globalDiscount}
                         />
                       ) : (
                         <Text style={{ ...styles.error }}>{error}</Text>
@@ -429,6 +427,7 @@ function PaymentCustomerCard(props) {
   const {
     customer,
     loans,
+    charges,
     isCustomer,
     setIsCustomer,
     navigation,
@@ -437,11 +436,11 @@ function PaymentCustomerCard(props) {
     register,
     setIsOpenedComment,
     isOpenedComment,
+    globalDiscount,
   } = props;
 
-  console.log("MY QUOTAS", loan);
   let pendingAmount = quotas[loan]?.reduce(
-    (acc, item) => acc + parseInt(item.fixed_amount),
+    (acc, item) => acc + parseInt(item.current_fee),
     0
   );
 
@@ -488,8 +487,10 @@ function PaymentCustomerCard(props) {
                       ...customer,
                       loans,
                       loan,
+                      charges,
                       quotas,
                       register,
+                      globalDiscount,
                     })
                   }
                   text="Cobrar"
@@ -530,41 +531,71 @@ function PaymentCustomerCard(props) {
         }}
       >
         <View>
-          <Text style={styles.cITitle}>Situación Crediticia del Cliente</Text>
-          <View style={{ marginTop: 15 }}>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={styles.cItext}>Cantidad de cuotas pendientes:</Text>
-              <Text style={styles.cIValue}> {quotas[loan].length}</Text>
-            </View>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={styles.cItext}>Monto por cuota:</Text>
-              <Text style={styles.cIValue}>
-                {" "}
-                RD$ {significantFigure(quotas[loan][1].fixed_amount)}.00
+          {quotas[loan]?.length > 0 ? (
+            <View>
+              <Text style={styles.cITitle}>
+                Situación Crediticia del Cliente
               </Text>
+              <Text style={{ color: "red" }}>Préstamo: {loan}</Text>
+              <View style={{ marginTop: 15 }}>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.cItext}>
+                    Cantidad de cuotas pendientes:
+                  </Text>
+                  <Text style={styles.cIValue}> {quotas[loan]?.length}</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.cItext}>Monto por cuota:</Text>
+                  <Text style={styles.cIValue}>
+                    {" "}
+                    RD${" "}
+                    {significantFigure(
+                      quotas[loan][1]?.quota_amount ||
+                        quotas[loan][0].quota_amount
+                    )}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.cItext}>Monto total Pendiente:</Text>
+                  <Text style={styles.cIValue}>
+                    {" "}
+                    RD$ {significantFigure(pendingAmount)}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.cItext}>Monto total en atraso:</Text>
+                  <Text style={styles.cIValue}>
+                    {" "}
+                    RD${" "}
+                    {significantFigure(
+                      quotas[loan]
+                        .filter((item) => item.status_type == "DEFEATED")
+                        .reduce(
+                          (acc, item) => acc + parseInt(item.current_fee),
+                          0
+                        )
+                    ) || 0}
+                  </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.cItext}>
+                    Descuento global al saldar préstamo:{" "}
+                  </Text>
+                  <Text
+                    style={{ ...styles.cIValue, textAlignVertical: "bottom" }}
+                  >
+                    {significantFigure(globalDiscount) == 0
+                      ? "- - - - - - - - - -"
+                      : `RD$ ${
+                          hasDecimal(significantFigure(globalDiscount))
+                            ? significantFigure(globalDiscount)
+                            : significantFigure(globalDiscount) + ".00"
+                        }`}
+                  </Text>
+                </View>
+              </View>
             </View>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={styles.cItext}>Monto total Pendiente:</Text>
-              <Text style={styles.cIValue}>
-                {" "}
-                RD$ {significantFigure(pendingAmount)}
-                .00
-              </Text>
-            </View>
-            <View style={{ flexDirection: "row" }}>
-              <Text style={styles.cItext}>Monto total en atraso:</Text>
-              <Text style={styles.cIValue}>
-                {" "}
-                RD${" "}
-                {significantFigure(
-                  quotas[loan]
-                    .filter((item) => item.status_type == "DEFEATED")
-                    .reduce((acc, item) => acc + parseInt(item.fixed_amount), 0)
-                )}
-                .00
-              </Text>
-            </View>
-          </View>
+          ) : undefined}
         </View>
       </View>
     </View>
@@ -577,6 +608,11 @@ function validationSchema() {
   return {
     //searchKey: Yup.number().required("Este campo no puede estar vacío")
   };
+}
+
+function hasDecimal(num) {
+  console.log("has decimal", !!(parseFloat(num) % 1));
+  return !!(parseFloat(num) % 1);
 }
 
 const styles = StyleSheet.create({
