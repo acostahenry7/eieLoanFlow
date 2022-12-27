@@ -1,3 +1,5 @@
+//Test NOTE
+
 //Discount Functions
 export function getTotalDiscount(object) {
   let result = 0;
