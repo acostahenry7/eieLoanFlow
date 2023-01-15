@@ -98,16 +98,16 @@ export default function PaymentsFormScreen(props) {
               loanQuotas.push({
                 quotaId: quota.amortization_id,
                 quotaNumber: quota.quota_number,
-                amount: parseInt(quota.fixed_amount),
+                amount: parseFloat(quota.fixed_amount),
                 currentAmount: parseFloat(quota.current_fee),
                 date: quota.date,
                 mora: parseFloat(quota.mora),
                 fixedMora: parseFloat(quota.mora),
                 totalPaidMora: quota.total_paid_mora,
-                discountMora: quota.discount_mora,
+                discountMora: parseFloat(quota.discount_mora),
                 fixedDiscountMora: quota.discount_mora,
                 discountInterest: quota.discount_interest,
-                currentPaid: quota.current_paid,
+                currentPaid: parseFloat(quota.current_paid),
                 totalPaid: 0,
                 statusType: "ACTIVE",
                 isPaid: false,
@@ -214,7 +214,7 @@ export default function PaymentsFormScreen(props) {
         setReceiptVisibility(true);
 
         // console.log("RECEIPT DATA", testing.discount);
-
+        //let response = {};
         if (response) {
           setReceiptDetails(testing);
 
@@ -475,7 +475,7 @@ function SelectItem(props) {
             formik.setFieldValue(fieldKey, value);
             let payment = 0;
             //payment = getQuotaAmount(formik.values.loanNumber, loans) * value
-            let amount = parseInt(
+            let amount = parseFloat(
               getAmount(value, formik.values.loanNumber, quotas)
             );
 
@@ -504,7 +504,7 @@ function SelectItem(props) {
                   quotas
                 ) - (globalDiscount || 0);
 
-              formik.setFieldValue("amount", amount.toString());
+              formik.setFieldValue("amount", amount);
 
               setPayLoan(true);
             } else {
@@ -589,9 +589,9 @@ function getAmount(number, loan, quotas) {
     i++;
   }
 
-  //let amount = parseInt(loan.balance) / parseInt(loan.quotasNum)
+  console.log("totalAmount", amount.toFixed(2));
 
-  return amount.toString();
+  return amount.toFixed(2);
 }
 
 const styles = StyleSheet.create({

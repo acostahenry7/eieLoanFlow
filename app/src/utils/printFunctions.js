@@ -84,8 +84,8 @@ export function genereateZPLTemplate(object) {
     noteHeight = 0;
     // receiptDetail.push(
     //   `^FO${width},${top},^ADN,26,12^FD${entry.quota_number}     ${date}    ${
-    //     Math.trunc(entry.amount) + ".00"
-    //   }  ${entry.mora}  ${Math.trunc(entry.totalPaid) + ".00"}^FS`
+    //     Math.trunc(entry.amount)
+    //   }  ${entry.mora}  ${Math.trunc(entry.totalPaid)  }^FS`
     // );
 
     for (const [key, value] of Object.entries(entry)) {
@@ -158,36 +158,32 @@ export function genereateZPLTemplate(object) {
               ${receiptDetail}
               ${zTitle("Total Mora:", 200, top + 30)}
               ${zTitle(
-                "RD$ " + getTotalMora(object.amortization) + ".00",
+                "RD$ " + getTotalMora(object.amortization),
                 365,
                 top + 30
               )}
               ${zTitle("SubTotal:", 200, top + 60)}
               ${zTitle(
-                "RD$ " + getSubTotal(object.amortization) + ".00",
+                "RD$ " + getSubTotal(object.amortization),
                 365,
                 top + 60
               )}
               ${zTitle("Descuento:", 200, top + 90)}
               ${zTitle(
-                "RD$ " + getTotalDiscount(object.amortization) + ".00",
+                "RD$ " + getTotalDiscount(object.amortization),
                 365,
                 top + 90
               )}
               ${zTitle("Total:", 200, top + 120)}
-              ${zTitle(
-                "RD$ " + getTotal(object.amortization) + ".00",
-                365,
-                top + 120
-              )}
+              ${zTitle("RD$ " + getTotal(object.amortization), 365, top + 120)}
               ${zTitle("Monto Recibido:", 200, top + 150)}
-              ${zTitle("RD$ " + object.receivedAmount + ".00", 365, top + 150)}
+              ${zTitle("RD$ " + object.receivedAmount, 365, top + 150)}
               ${zTitle("Total Pagado  :", 200, top + 180)}
-              ${zTitle("RD$ " + object.totalPaid + ".00", 365, top + 180)}
+              ${zTitle("RD$ " + object.totalPaid, 365, top + 180)}
               ${zTitle("Saldo Pendiente:", 200, top + 210)}
-              ${zTitle("RD$ " + object.pendingAmount + ".00", 365, top + 210)}
+              ${zTitle("RD$ " + object.pendingAmount, 365, top + 210)}
               ${zTitle("Cambio:", 200, top + 240)}
-              ${zTitle("RD$ " + object.cashBack + ".00", 365, top + 240)}
+              ${zTitle("RD$ " + object.cashBack, 365, top + 240)}
               ${zTitle(
                 "Nota: No somos responsables de dinero entregado sin recibo",
                 40,
@@ -240,11 +236,11 @@ const getSubTotal = (arr) => {
 
   arr.map((item) => {
     //console.log(item);
-    sum += parseFloat(item.amount) + parseInt(item.mora);
+    sum += parseFloat(item.amount) + parseFloat(item.fixedMora);
   });
 
   //console.log(sum);
-  return sum.toString();
+  return sum.toFixed(2);
 };
 
 const getTotal = (arr) => {
@@ -254,7 +250,7 @@ const getTotal = (arr) => {
     //console.log(item);
     sum +=
       parseFloat(item.amount) +
-      parseInt(item.mora) -
+      parseInt(item.fixedMora) -
       parseFloat(item.discountMora) -
       parseFloat(item.discountInterest);
   });
@@ -294,8 +290,9 @@ function getTotalMora(arr) {
   var sum = 0;
 
   arr.map((item) => {
-    sum += parseInt(item.mora);
+    sum += parseFloat(item.fixedMora);
   });
 
-  return sum.toString();
+  console.log("######################################", sum);
+  return sum.toFixed(2);
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -20,6 +20,7 @@ import {
 
 import { loginApi } from "../api/auth/login";
 import useAuth from "../hooks/useAuth";
+import { getDeviceName, getMacAddress } from "react-native-device-info";
 
 export default function LoginForm(props) {
   const { login, logout } = useAuth();
@@ -31,6 +32,13 @@ export default function LoginForm(props) {
   const [configMenuVisible, setConfigMenuVisible] = useState(false);
   const [configForm, setConfigForm] = useState(false);
 
+  useEffect(() => {
+    (async () => {
+      let devMac = await getMacAddress();
+      console.log(devMac);
+    })();
+  });
+
   const formik = useFormik({
     initialValues: { username: "", password: "" },
     validationSchema: Yup.object(validationSchema()),
@@ -39,7 +47,17 @@ export default function LoginForm(props) {
       setError("");
       setIsLoading(true);
       const { username, password } = values;
-      const response = await loginApi(username, password);
+
+      let devMac = await getMacAddress();
+      let devName = await getDeviceName();
+
+      let deviceInfo = {
+        description: devName,
+        mac: devMac,
+        status_type: "BLOCKED",
+      };
+
+      const response = await loginApi(username, password, deviceInfo);
       setIsLoading(false);
 
       formik.setFieldValue("username", "");
@@ -54,7 +72,7 @@ export default function LoginForm(props) {
               "Esta utilizando una versión desactualizada de al app. Favor acturalizar a la version más reciente."
             );
           } else {
-            setError("El usuario o la contraseña son incorrectos!");
+            setError(response.error);
           }
         }
       } else {

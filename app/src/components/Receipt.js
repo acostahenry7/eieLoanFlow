@@ -240,12 +240,20 @@ export default function Receipt(props) {
                         </View>
                         <View style={{ width: "20%" }}>
                           <Text style={{ fontWeight: "bold" }}>
-                            {significantFigure(
-                              (
-                                parseFloat(quota.totalPaid) +
-                                parseFloat(quota.totalPaidMora)
-                              ).toFixed(2)
-                            )}
+                            {quota.statusType != "COMPOST"
+                              ? significantFigure(
+                                  (
+                                    parseFloat(quota.totalPaid) +
+                                    parseFloat(quota.fixedMora) -
+                                    quota.currentPaid
+                                  ).toFixed(2)
+                                )
+                              : significantFigure(
+                                  (
+                                    parseFloat(quota.totalPaid) +
+                                    parseFloat(quota.totalPaidMora)
+                                  ).toFixed(2)
+                                )}
                           </Text>
                         </View>
                       </View>
@@ -356,7 +364,7 @@ export default function Receipt(props) {
                       {significantFigure(receiptDetails.totalPaid?.toFixed(2))}
                     </Text>
                   </View>
-                  <View style={styles.totalSection}>
+                  {/* <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>
                       Saldo Pendiente:
                     </Text>
@@ -366,7 +374,7 @@ export default function Receipt(props) {
                         receiptDetails?.pendingAmount?.toFixed(2)
                       )}
                     </Text>
-                  </View>
+                  </View> */}
                   <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Cambio:</Text>
                     <Text style={styles.totalSectionBody}>

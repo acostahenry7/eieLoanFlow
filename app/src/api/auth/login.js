@@ -3,10 +3,11 @@ import {
   saveConnectionUrlApi,
 } from "../server/connection";
 
-export async function loginApi(username, password) {
+export async function loginApi(username, password, deviceInfo) {
   const data = {
     username,
     password,
+    deviceInfo,
     version: "1.1",
   };
 

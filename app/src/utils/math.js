@@ -195,9 +195,14 @@ function getPaidQuotas(
     if (amount >= loanQuotas[index].currentAmount) {
       //This is a test note
       //console.log("camount", loanQuotas[index].currentAmount, "amount", amount);
+      parseFloat(loanQuotas[index].totalPaidMora);
       loanQuotas[index].totalPaid = parseFloat(
-        (loanQuotas[index].currentAmount - loanQuotas[index].mora).toFixed(2)
+        loanQuotas[index].currentPaid +
+          loanQuotas[index].amount -
+          loanQuotas[index].discountMora
       );
+      // parseFloat(loanQuotas[index].totalPaidMora) -
+      // parseFloat(loanQuotas[index].discountMora);
       loanQuotas[index].statusType = "PAID";
       loanQuotas[index].isPaid = true;
       if (loanQuotas[index].mora != 0) {
@@ -222,10 +227,13 @@ function getPaidQuotas(
           }
         } else {
           if (loanQuotas[index].mora != 0) {
-            loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
+            console.log("brakepoint", loanQuotas[index].mora);
+            loanQuotas[index].totalPaidMora = parseFloat(
+              loanQuotas[index].mora
+            );
 
             loanQuotas[index].totalPaid = parseFloat(
-              (amount - loanQuotas[index].mora).toFixed(2)
+              (amount - loanQuotas[index].totalPaidMora).toFixed(2)
             );
 
             loanQuotas[index].mora = 0;
@@ -241,14 +249,14 @@ function getPaidQuotas(
       } else {
         if (payNextQuotas == true) {
           if (amount <= loanQuotas[index].mora) {
-            if (amount >= loanQuotas[index].mora != 0) {
+            if (loanQuotas[index].mora != 0) {
               loanQuotas[index].mora = parseFloat(
                 (loanQuotas[index].mora - amount).toFixed(2)
               );
-              loanQuotas[index].totalPaidMora = amount;
+              loanQuotas[index].totalPaidMora = parseFloat(amount.toFixed(2));
             }
           } else {
-            if (amount <= loanQuotas[index].mora) {
+            if (loanQuotas[index].mora != 0) {
               loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
 
               loanQuotas[index].totalPaid = parseFloat(

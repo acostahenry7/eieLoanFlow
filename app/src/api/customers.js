@@ -6,23 +6,23 @@ import { API_HOST } from "../utils/constants";
 
 export async function getCustomerApi(nextUrl, employeeId) {
   try {
-    let connection = await API_HOST;
+    //let connection = await API_HOST;
     let result;
 
     //console.log("****************************", connection);
 
-    if (connection == "payments") {
-      const response = await AsyncStorage.getItem("customers");
-      result = await JSON.parse(response);
-    } else {
-      if (!employeeId) employeeId = "0";
-      const url = `${await getSavedConnectionUrlApi()}/customers/main/${employeeId}?limit=999999&offset=1`;
-      const response = await fetch(nextUrl || url);
+    // if (connection == "payments") {
+    //   const response = await AsyncStorage.getItem("customers");
+    //   result = await JSON.parse(response);
+    // } else {
+    if (!employeeId) employeeId = "0";
+    const url = `${await getSavedConnectionUrlApi()}/customers/main/${employeeId}?limit=999999&offset=1`;
+    const response = await fetch(nextUrl || url);
 
-      result = await response.json();
-    }
+    result = await response.json();
+    //}
 
-    console.log("Mannnnnn***************", result);
+    //c; //onsole.log("Mannnnnn***************", result);
 
     return result;
   } catch (error) {

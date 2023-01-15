@@ -8,6 +8,7 @@ import { Alert } from "react-native";
 import { getSavedPrintersApi } from "./Printers";
 import { getTotalDiscount } from "../../utils/math";
 import { extractIconText } from "../../utils/stringFuctions";
+import { genereateZPLTemplate } from "../../utils/printFunctions";
 
 // Bluetooth Printing API
 export async function printByBluetooth(object, origin) {
@@ -47,166 +48,7 @@ async function generateReceipt(object, origin) {
 
   console.log("ASAAAAAAAAAAAAAAAAAAAAAAAA", origin);
   if (origin == "payment") {
-    console.log(object.cashBack);
-
-    let receiptAmortization = [];
-
-    object.amortization.map((item) => {
-      receiptAmortization.push({
-        quota_number: item.quotaNumber,
-        date: item.date.split("T")[0].split("-").reverse().join("/"),
-        fixedAmount: item.amount,
-        mora: item.mora,
-        totalPaid: item.totalPaid,
-      });
-    });
-
-    let labelLength = object.amortization.length * 90 + 1200;
-
-    console.log("-----------", receiptAmortization);
-
-    let date = (() => {
-      //Date
-      const date = new Date().getDate();
-      const month = new Date().getMonth() + 1;
-      const year = new Date().getFullYear();
-
-      const fullDate = `${date}/${month}/${year}`;
-      return fullDate.toString();
-    })();
-
-    let receiptHeader =
-      "^FO40,725,^ADN,26,12^FDNo.Cuota  Fecha Cuota  Monto   Mora   Pagado^FS";
-    let receiptDetail = [];
-    let bodyItem = [];
-    let receiptBody = [];
-
-    let quotasQuantity = object.amortization.length;
-    //console.log("Cantidad de Cuotas", quotasQuantity);
-
-    let width = 40;
-    let top = 750;
-    var noteHeight;
-    var c = 1;
-    var x = 40;
-    let suffix;
-    receiptAmortization.map((entry, index) => {
-      noteHeight = 0;
-      // receiptDetail.push(
-      //   `^FO${width},${top},^ADN,26,12^FD${entry.quota_number}     ${date}    ${
-      //     Math.trunc(entry.amount) + ".00"
-      //   }  ${entry.mora}  ${Math.trunc(entry.totalPaid) + ".00"}^FS`
-      // );
-
-      for (const [key, value] of Object.entries(entry)) {
-        // key.toString() == "amount" ||
-        // key.toString() == "mora" ||
-        //key.toString() == "totalPaid" ? (suffix = ".00") : (suffix = "");
-
-        if (c == 4 || c == 5) x = x - 20;
-        receiptDetail.push(`^FO${x},${top},^ADN,26,12^FD${value}^FS`);
-
-        x += parseFloat(value.toString().length) * 7 + 80;
-
-        console.log("CURRENT LENGTH", value.toString().length);
-        if (c == Object.keys(entry).length) {
-          console.log("IM AM TESTING NOW", index);
-          receiptDetail.push(
-            `^FO${60},${top + 25},^ADN,26,12^FDDesc. Mora: ${
-              object.amortization[index].discountMora
-            } ^FS`
-          );
-
-          receiptDetail.push(
-            `^FO${300},${top + 25},^ADN,26,12^FDDesc. Interes: ${
-              object.amortization[index].discountInterest
-            }  ^FS`
-          );
-
-          console.log("HEY DONE ALREADY");
-          top += 10;
-          x = 40;
-          c = 0;
-        }
-
-        c++;
-      }
-
-      top += 70;
-
-      if (index + 1 == quotasQuantity) {
-        console.log("from valitadion quantity");
-        noteHeight = top + 40;
-        console.log(noteHeight);
-      }
-    });
-
-    receiptDetail = receiptDetail.join();
-
-    zpl = `^XA
-              ^LL${labelLength}
-              ^FO35,60^IME:BANNER.PCX^FS
-              ${zTitle(object.outlet, 230, 250)}
-              ${zTitle(object.rnc, 230, 275)};
-              ${zSection("Recibo", 245, 320)}
-              ${zTitle("Numero Recibo", 40, 375)}
-              ${zTitle(object.receiptNumber, 40, 400, 25, 30)}
-              ${zTitle("Fecha de Pago: ", 260, 375)}
-              ${zTitle(object.date, 260, 400)}
-              ${zTitle("Prestamo: ", 40, 460)}
-              ${zTitle(object.loanNumber, 40, 485)}
-              ${zTitle("Cliente: ", 260, 460)}
-              ${zTitle(object.firstName + " " + object.lastName, 260, 485)}
-              ${zTitle("Tipo de Pago: ", 40, 545)}
-              ${zTitle(object.paymentMethod, 40, 570)}
-              ${zTitle("Zona: ", 260, 545)}
-              ${zTitle(object.section, 260, 570)}
-              ${zTitle("Cajero: ", 40, 630)}
-              ${zTitle(object.login, 40, 655)}
-              ${zSection("Transacciones", 200, 690)}
-              ${receiptHeader}
-              ${receiptDetail}
-              ${zTitle("Total Mora:", 200, top + 30)}
-              ${zTitle(
-                "RD$ " + getTotalMora(object.amortization) + ".00",
-                365,
-                top + 30
-              )}
-              ${zTitle("SubTotal:", 200, top + 60)}
-              ${zTitle(
-                "RD$ " + getSubTotal(object.amortization) + ".00",
-                365,
-                top + 60
-              )}
-              ${zTitle("Descuento:", 200, top + 90)}
-              ${zTitle(
-                "RD$ " + getTotalDiscount(object.amortization) + ".00",
-                365,
-                top + 90
-              )}
-              ${zTitle("Total:", 200, top + 120)}
-              ${zTitle(
-                "RD$ " + getTotal(object.amortization) + ".00",
-                365,
-                top + 120
-              )}
-              ${zTitle("Monto Recibido:", 200, top + 150)}
-              ${zTitle("RD$ " + object.receivedAmount + ".00", 365, top + 150)}
-              ${zTitle("Total Pagado  :", 200, top + 180)}
-              ${zTitle("RD$ " + object.totalPaid + ".00", 365, top + 180)}
-              ${zTitle("Saldo Pendiente:", 200, top + 210)}
-              ${zTitle("RD$ " + object.pendingAmount + ".00", 365, top + 210)}
-              ${zTitle("Cambio:", 200, top + 240)}
-              ${zTitle("RD$ " + object.cashBack + ".00", 365, top + 240)}
-              ${zTitle(
-                "Nota: No somos responsables de dinero entregado sin recibo",
-                40,
-                top + 300,
-                18,
-                20
-              )}
-              ${zTitle(object.copyText, 100, top + 350, 25, 30)}
-              ^XZ`;
+    zpl = genereateZPLTemplate(object);
   } else {
     zpl = object.appZPL;
   }
@@ -326,11 +168,11 @@ const getSubTotal = (arr) => {
 
   arr.map((item) => {
     console.log(item);
-    sum += parseFloat(item.amount) + parseInt(item.mora);
+    sum += parseFloat(item.amount) + parseFloat(item.fixedMora);
   });
 
   console.log(sum);
-  return sum.toString();
+  return sum.toFixed(2);
 };
 
 const getTotal = (arr) => {
@@ -340,7 +182,7 @@ const getTotal = (arr) => {
     console.log(item);
     sum +=
       parseFloat(item.amount) +
-      parseInt(item.mora) -
+      parseInt(item.fixedMora) -
       parseFloat(item.discountMora) -
       parseFloat(item.discountInterest);
   });
@@ -425,8 +267,8 @@ function getTotalMora(arr) {
   var sum = 0;
 
   arr.map((item) => {
-    sum += parseInt(item.mora);
+    sum += parseFloat(item.fixedMora);
   });
 
-  return sum.toString();
+  return sum.toFixed(2);
 }
