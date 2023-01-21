@@ -209,6 +209,7 @@ function getPaidQuotas(
         loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
         loanQuotas[index].mora = 0;
       }
+      loanQuotas[index].payMoraOnly = false;
 
       paidQuotas.push(loanQuotas[index]);
       console.log("hi");
@@ -222,6 +223,7 @@ function getPaidQuotas(
               (loanQuotas[index].mora - amount).toFixed(2)
             );
             loanQuotas[index].totalPaidMora = amount;
+            loanQuotas[index].payMoraOnly = true;
           } else {
             loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
           }
@@ -237,6 +239,7 @@ function getPaidQuotas(
             );
 
             loanQuotas[index].mora = 0;
+            loanQuotas[index].payMoraOnly = false;
           } else {
             loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
           }
@@ -254,6 +257,7 @@ function getPaidQuotas(
                 (loanQuotas[index].mora - amount).toFixed(2)
               );
               loanQuotas[index].totalPaidMora = parseFloat(amount.toFixed(2));
+              loanQuotas[index].payMoraOnly = true;
             }
           } else {
             if (loanQuotas[index].mora != 0) {
@@ -262,7 +266,7 @@ function getPaidQuotas(
               loanQuotas[index].totalPaid = parseFloat(
                 (amount - loanQuotas[index].mora).toFixed(2)
               );
-
+              loanQuotas[index].payMoraOnly = false;
               loanQuotas[index].mora = 0;
             } else {
               loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));

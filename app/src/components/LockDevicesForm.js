@@ -11,15 +11,21 @@ import {
 import React, { useState } from "react";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { Formik, useFormik } from "formik";
+import { setDeviceMacApi } from "../api/auth/accessControl";
 
 export default function LockDevicesForm(props) {
   const [visible, setVisible] = useState(props.visible);
 
+  console.log("hey", props);
   const form = useFormik({
     initialValues: { mac: "" },
     validateOnChange: false,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       console.log(values.mac);
+      let res = await setDeviceMacApi({
+        id: props.device.app_access_control_id,
+        mac: values.mac || props.device.mac_address,
+      });
       Alert.alert("Warning!", "Device added");
       setVisible(false);
       props.setFormVisible(false);

@@ -13,6 +13,7 @@ import {
   unlockUserApi,
   listDevicesApi,
   changeDeviceStatusApi,
+  unregisterDeviceApi,
 } from "../api/auth/accessControl";
 import Loading from "../components/Loading";
 import LockDevicesForm from "../components/LockDevicesForm";
@@ -22,7 +23,9 @@ export default function AccessManagement() {
   let [data, setData] = useState([]);
   let [devices, setDevices] = useState([]);
   let [isDevFormVisible, setIsDevFormVisible] = useState(false);
+  let [device, setDevice] = useState({});
   let [isLoading, setIsLoading] = useState(false);
+  let [isMacFormLoading, setIsMacFormLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -47,9 +50,9 @@ export default function AccessManagement() {
 
   const unlockUser = async (username) => {
     setIsLoading(true);
-    //let res = await unlockUserApi(username);
+    let res = await unlockUserApi(username);
     let response = await listLockedUsersApi();
-
+    console.log("hi");
     setData(response);
     setIsLoading(false);
   };
@@ -60,17 +63,14 @@ export default function AccessManagement() {
         <LockDevicesForm
           visible={isDevFormVisible}
           setFormVisible={setIsDevFormVisible}
+          device={device}
         />
       )}
       {isLoading && <Loading />}
+      {isMacFormLoading && <Loading />}
       <View>
         <View style={{ ...styles.section, marginBottom: 30 }}>
           <Text style={styles.sectionTitle}>Usuarios bloqueados</Text>
-          <TouchableWithoutFeedback
-            onPress={() => Alert.alert("Error", "Option not available!")}
-          >
-            <Text style={styles.icon}>+</Text>
-          </TouchableWithoutFeedback>
         </View>
 
         {data.map((item, index) => (
@@ -97,71 +97,100 @@ export default function AccessManagement() {
       <View>
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Devices</Text>
-
-          <TouchableWithoutFeedback onPress={() => setIsDevFormVisible(true)}>
-            <Text style={styles.icon}>+</Text>
-          </TouchableWithoutFeedback>
         </View>
         <ScrollView style={{ paddingHorizontal: 15, paddingVertical: 15 }}>
-          {devices.map((device) => (
-            <View
-              style={{
-                backgroundColor: "whitesmoke",
-                padding: 10,
-                borderColor: "rgba(0,0,0,0.3)",
-                borderWidth: 0.5,
-                borderRadius: 5,
-                elevation: 4,
-                flexDirection: "row",
-                justifyContent: "space-around",
-                alignItems: "center",
-              }}
-            >
-              <View status={{ flexDirection: "column" }}>
-                <Text>
-                  <Text style={{ fontWeight: "bold" }}>Dispostivo: </Text>
-                  {device.description}
-                </Text>
-                <Text>
-                  <Text style={{ fontWeight: "bold" }}>Mac: </Text>
-                  {device.mac_address}
-                </Text>
+          {devices.map((device, index) => (
+            <View key={index}>
+              <Entypo
+                name="circle-with-cross"
+                size={30}
+                color={"darkred"}
+                style={{
+                  textAlign: "right",
+                  width: "100%",
+                  elevation: 5,
+                }}
+                onPress={async () => {
+                  try {
+                    let res = await unregisterDeviceApi(
+                      device.app_access_control_id
+                    );
+                    await listDevices();
+                    Alert.alert("Listo", res?.message);
+                  } catch (error) {
+                    Alert.alert("Error", error);
+                  }
+                }}
+              />
 
-                <Text>
-                  <Text style={{ fontWeight: "bold" }}>Estado Acceso: </Text>
-                  {device.status_type == "ALLOWED" ? "Permitido" : "Denegado"}
-                </Text>
+              <View
+                style={{
+                  zIndex: 1,
+                  marginTop: -15,
+                  backgroundColor: "whitesmoke",
+                  marginVertical: 10,
+                  padding: 10,
+                  borderColor: "rgba(0,0,0,0.3)",
+                  borderWidth: 0.5,
+                  borderRadius: 5,
+                  elevation: 4,
+                  flexDirection: "row",
+                  justifyContent: "space-around",
+                  alignItems: "center",
+                }}
+              >
+                <View status={{ flexDirection: "column" }}>
+                  <Text style={{ width: 200 }}>
+                    <Text style={{ fontWeight: "bold" }}>Dispostivo: </Text>
+                    {device.description}
+                  </Text>
+                  <Text>
+                    <Text style={{ fontWeight: "bold" }}>Mac: </Text>
+                    {device.mac_address}
+                  </Text>
+
+                  <Text>
+                    <Text style={{ fontWeight: "bold" }}>Estado Acceso: </Text>
+                    {device.status_type == "ALLOWED" ? "Permitido" : "Denegado"}
+                  </Text>
+                </View>
+                <View>
+                  <View style={{ flexDirection: "row" }}>
+                    <Entypo
+                      name="block"
+                      style={styles.devicesIcons}
+                      size={25}
+                      color="red"
+                      onPress={async () => {
+                        let res = await changeDeviceStatusApi({
+                          id: device.app_access_control_id,
+                          status: "BLOCKED",
+                        });
+                        await listDevices();
+                        Alert.alert("Listo", res?.message + "bloqueado.");
+                      }}
+                    />
+                    <Entypo
+                      name="check"
+                      style={{ ...styles.devicesIcons, marginLeft: 5 }}
+                      size={25}
+                      color="green"
+                      onPress={async () => {
+                        let res = await changeDeviceStatusApi({
+                          id: device.app_access_control_id,
+                          status: "ALLOWED",
+                        });
+                        //setDevice(device);
+                        setIsMacFormLoading(true);
+                        await listDevices();
+                        setIsMacFormLoading(false);
+
+                        Alert.alert("Listo", res?.message + "permitido.");
+                      }}
+                    />
+                  </View>
+                </View>
               </View>
-
-              <Entypo
-                name="block"
-                style={styles.devicesIcons}
-                size={28}
-                color="red"
-                onPress={async () => {
-                  let res = await changeDeviceStatusApi({
-                    id: device.app_access_control_id,
-                    status: "BLOCKED",
-                  });
-                  await listDevices();
-                  Alert.alert("Listo", res?.message + "bloqueado.");
-                }}
-              />
-              <Entypo
-                name="check"
-                style={styles.devicesIcons}
-                size={28}
-                color="green"
-                onPress={async () => {
-                  let res = await changeDeviceStatusApi({
-                    id: device.app_access_control_id,
-                    status: "ALLOWED",
-                  });
-
-                  await listDevices();
-                  Alert.alert("Listo", res?.message + "permitido.");
-                }}
-              />
             </View>
           ))}
         </ScrollView>

@@ -8,7 +8,7 @@ export async function loginApi(username, password, deviceInfo) {
     username,
     password,
     deviceInfo,
-    version: "1.1",
+    version: "1.3",
   };
 
   const options = {

@@ -21,6 +21,7 @@ import {
 import { loginApi } from "../api/auth/login";
 import useAuth from "../hooks/useAuth";
 import { getDeviceName, getMacAddress } from "react-native-device-info";
+import { PermissionsAndroid } from "react-native";
 
 export default function LoginForm(props) {
   const { login, logout } = useAuth();
@@ -34,10 +35,11 @@ export default function LoginForm(props) {
 
   useEffect(() => {
     (async () => {
-      let devMac = await getMacAddress();
-      console.log(devMac);
+      let res = await PermissionsAndroid.requestMultiple([
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      ]);
     })();
-  });
+  }, []);
 
   const formik = useFormik({
     initialValues: { username: "", password: "" },

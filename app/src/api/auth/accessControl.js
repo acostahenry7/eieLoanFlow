@@ -55,3 +55,33 @@ export async function changeDeviceStatusApi(data) {
     return result;
   } catch (error) {}
 }
+
+export async function unregisterDeviceApi(deviceId) {
+  try {
+    let response = await fetch(
+      `${await getSavedConnectionUrlApi()}/auth/unregisterDevice/${deviceId}`
+    );
+    let result = response.json();
+
+    return result;
+  } catch (error) {
+    throw error;
+  }
+}
+
+export async function setDeviceMacApi(data) {
+  console.log(data);
+  try {
+    let response = await fetch(
+      `${await getSavedConnectionUrlApi()}/auth/deviceMac`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      }
+    );
+
+    let result = response.json();
+    return result;
+  } catch (error) {}
+}

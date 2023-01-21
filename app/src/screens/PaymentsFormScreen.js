@@ -94,7 +94,6 @@ export default function PaymentsFormScreen(props) {
           loanQuotas: (() => {
             let loanQuotas = [];
             quotas[loanNumber].map((quota) => {
-              console.log(quota.mora);
               loanQuotas.push({
                 quotaId: quota.amortization_id,
                 quotaNumber: quota.quota_number,
@@ -109,8 +108,10 @@ export default function PaymentsFormScreen(props) {
                 discountInterest: quota.discount_interest,
                 currentPaid: parseFloat(quota.current_paid),
                 totalPaid: 0,
-                statusType: "ACTIVE",
+                statusType: quota.status_type,
                 isPaid: false,
+                payMoraOnly: false,
+                latestStatus: quota.status_type,
               });
             });
             return loanQuotas;
