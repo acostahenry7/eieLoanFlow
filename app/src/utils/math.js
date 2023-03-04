@@ -46,6 +46,8 @@ export function setPaymentObject(
     outletId = requiredField("outletId"),
     customerId = requiredField("customerId"),
     customer,
+    isACharge,
+    chargeId,
     quotaAmount,
     registerId = requiredField("registerId"),
   } = requiredInfo()
@@ -199,14 +201,18 @@ function getPaidQuotas(
       loanQuotas[index].totalPaid = parseFloat(
         loanQuotas[index].currentPaid +
           loanQuotas[index].amount -
-          loanQuotas[index].discountMora
+          loanQuotas[index].discountMora -
+          loanQuotas[index].discountInterest
       );
       // parseFloat(loanQuotas[index].totalPaidMora) -
       // parseFloat(loanQuotas[index].discountMora);
+      loanQuotas[index].executeProcessMora = false;
       loanQuotas[index].statusType = "PAID";
       loanQuotas[index].isPaid = true;
       if (loanQuotas[index].mora != 0) {
-        loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
+        loanQuotas[index].totalPaidMora =
+          parseFloat(loanQuotas[index].totalPaidMora) +
+          parseFloat(loanQuotas[index].fixedMora);
         loanQuotas[index].mora = 0;
       }
       loanQuotas[index].payMoraOnly = false;
@@ -326,8 +332,9 @@ export function significantFigure(num) {
     num = num.toString();
 
     if (num.split(".").length > 0) {
-      console.log("hola");
+      console.log("HEY CAN BE SPLITED WHERE NUM = ", num);
       decimal = num.split(".")[1];
+      console.log("HEY DECIMAL WHERE NUM = ", decimal);
       num = num.split(".")[0];
     }
 
@@ -365,9 +372,14 @@ export function significantFigure(num) {
       styledNum = styledNum + ".00";
     }
 
+    console.log("FINAL STYLED NUM", styledNum);
     return styledNum;
   } else {
-    return 0;
+    if (num == 0) {
+      return "0.00";
+    } else {
+      return 0;
+    }
   }
 }
 

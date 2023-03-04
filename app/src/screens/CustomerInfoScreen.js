@@ -18,6 +18,7 @@ import useAuth from "../hooks/useAuth";
 import Loading from "../components/Loading";
 import CustomerIcon from "../components/CustomerIcon";
 import EIECamera from "../components/Camera";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 export default function CustomerInfoScreen(props) {
   const {
@@ -27,6 +28,7 @@ export default function CustomerInfoScreen(props) {
   var statusColor;
 
   const { auth } = useAuth();
+  const netInfo = useNetInfo();
 
   console.log(params);
   const [customer, setCustomer] = useState(null);
@@ -40,23 +42,32 @@ export default function CustomerInfoScreen(props) {
     auth
       ? (async () => {
           //setIsLoading(true);
+
           try {
-            const response = await getCustomerInfo({
-              id: params.id,
-              employeeId: auth.employee_id,
-            });
-            setIsLoading(false);
-            const { customerInfo, customerLoans } = response;
-            console.log(response);
-            setCustomer(customerInfo);
-            setLoans([...customerLoans]);
+            if (netInfo.isConnected != null) {
+              console.log("user info is connected");
+              const response = await getCustomerInfo(
+                {
+                  id: params.id,
+                  employeeId: auth.employee_id,
+                },
+                netInfo.isConnected
+              );
+              setIsLoading(false);
+              const { customerInfo, customerLoans } = response;
+              console.log(response);
+              setCustomer(customerInfo);
+              setLoans([...customerLoans]);
+            } else {
+              console.log("user info");
+            }
           } catch (error) {
             console.log(error);
             navigation.goBack();
           }
         })()
       : navigation.goBack();
-  }, [params, auth, testTrigger]);
+  }, [params, auth, testTrigger, netInfo]);
 
   const restrict = (str) => {
     const arr = str.split(" ");
@@ -217,7 +228,7 @@ export default function CustomerInfoScreen(props) {
                     {customer.province}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
-                    {capitalize(restrict(customer.municipality))}
+                    {capitalize(customer.municipality)}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
                     {capitalize(customer.section)}

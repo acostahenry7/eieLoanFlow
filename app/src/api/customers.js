@@ -4,10 +4,36 @@ import { API_HOST } from "../utils/constants";
 
 //const employeeId = 'c2ed74d8-107c-4ef2-a5fb-6d6fadea5d1b'
 
-export async function getCustomerApi(nextUrl, employeeId) {
+export async function getCustomerApi(nextUrl, employeeId, netStatus) {
   try {
-    //let connection = await API_HOST;
+    const { connectionStatus, connectionTarget } = await API_HOST();
     let result;
+
+    if (netStatus === false) {
+      let res = await AsyncStorage.getItem("customers");
+
+      if (res) {
+        let formatedRes = await JSON.parse(res);
+        result = formatedRes.filter(
+          (item) => item.employeeId == employeeId
+        )[0] || {
+          employeeId,
+          customers: [],
+        };
+      } else {
+        throw new Error(
+          "No existen registros locales! Porfvor sincronize la data."
+        );
+      }
+    } else {
+      console.log(employeeId);
+      if (!employeeId) employeeId = "0";
+      const url = `${connectionTarget}/customers/main/${employeeId}?limit=999999&offset=1`;
+      console.log(connectionTarget);
+      const response = await fetch(nextUrl || url);
+
+      result = await response.json();
+    }
 
     //console.log("****************************", connection);
 
@@ -15,14 +41,8 @@ export async function getCustomerApi(nextUrl, employeeId) {
     //   const response = await AsyncStorage.getItem("customers");
     //   result = await JSON.parse(response);
     // } else {
-    if (!employeeId) employeeId = "0";
-    const url = `${await getSavedConnectionUrlApi()}/customers/main/${employeeId}?limit=999999&offset=1`;
-    const response = await fetch(nextUrl || url);
 
-    result = await response.json();
     //}
-
-    //c; //onsole.log("Mannnnnn***************", result);
 
     return result;
   } catch (error) {
@@ -30,17 +50,40 @@ export async function getCustomerApi(nextUrl, employeeId) {
   }
 }
 
-export async function getCustomerInfo(data) {
+export async function getCustomerInfo(data, netStatus) {
+  console.log("hi");
   const options = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),
   };
 
+  let result = {};
+
+  console.log("NETWORK STATUS FROM CUSTOMER INFO", netStatus);
+
   try {
-    const url = `${await getSavedConnectionUrlApi()}/customers/each`;
-    const response = await fetch(url, options);
-    const result = await response.json();
+    if (netStatus == false) {
+      console.log("hi2");
+      let res = await AsyncStorage.getItem("customers");
+      let formatedRes = await JSON.parse(res);
+      let customerList = formatedRes.filter(
+        (item) => item.employeeId == data.employeeId
+      )[0].customers || {
+        employeeId: data.employeeId,
+        customers: [],
+      };
+
+      result.customerInfo = customerList.filter(
+        (customer) => customer.customer_id == data.id
+      )[0];
+
+      result.customerLoans = [];
+    } else {
+      const url = `${await getSavedConnectionUrlApi()}/customers/each`;
+      const response = await fetch(url, options);
+      result = await response.json();
+    }
 
     return result;
   } catch (error) {

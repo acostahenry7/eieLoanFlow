@@ -22,6 +22,7 @@ import { loginApi } from "../api/auth/login";
 import useAuth from "../hooks/useAuth";
 import { getDeviceName, getMacAddress } from "react-native-device-info";
 import { PermissionsAndroid } from "react-native";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 export default function LoginForm(props) {
   const { login, logout } = useAuth();
@@ -32,6 +33,7 @@ export default function LoginForm(props) {
   const [visible, setVisible] = useState(true);
   const [configMenuVisible, setConfigMenuVisible] = useState(false);
   const [configForm, setConfigForm] = useState(false);
+  const netInfo = useNetInfo();
 
   useEffect(() => {
     (async () => {
@@ -59,36 +61,49 @@ export default function LoginForm(props) {
         status_type: "BLOCKED",
       };
 
-      const response = await loginApi(username, password, deviceInfo);
+      const response = await loginApi(
+        username,
+        password,
+        deviceInfo,
+        netInfo.isConnected
+      );
       setIsLoading(false);
 
       formik.setFieldValue("username", "");
       formik.setFieldValue("password", "");
 
-      if (response.error) {
-        if (response.errorCode == 1) {
-          Alert.alert("Error de Conexión", response.error);
+      if (netInfo.isConnected == false) {
+        if (response.error) {
+          setError(response.error);
         } else {
-          if (response.error == "MMVERSION") {
-            setError(
-              "Esta utilizando una versión desactualizada de al app. Favor acturalizar a la version más reciente."
-            );
-          } else {
-            setError(response.error);
-          }
+          login(response);
         }
       } else {
-        if (response.successfullLogin == true) {
-          console.log("Mi user logged", response);
-          login(response.userData);
-          navigation.navigate("Home");
-        } else {
-          if (response.error == "MMVERSION") {
-            setError(
-              "Esta utilizando una versión desactualizada de al app. Favor acturalizar a la version más reciente."
-            );
+        if (response.error) {
+          if (response.errorCode == 1) {
+            Alert.alert("Error de Conexión", response.error);
           } else {
-            setError("El usuario o la contraseña son incorrectos!");
+            if (response.error == "MMVERSION") {
+              setError(
+                "Esta utilizando una versión desactualizada de al app. Favor acturalizar a la version más reciente."
+              );
+            } else {
+              setError(response.error);
+            }
+          }
+        } else {
+          if (response.successfullLogin == true) {
+            console.log("Mi user logged", response);
+            login(response.userData);
+            navigation.navigate("Home");
+          } else {
+            if (response.error == "MMVERSION") {
+              setError(
+                "Esta utilizando una versión desactualizada de al app. Favor acturalizar a la version más reciente."
+              );
+            } else {
+              setError("El usuario o la contraseña son incorrectos!");
+            }
           }
         }
       }

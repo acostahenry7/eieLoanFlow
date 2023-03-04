@@ -1,4 +1,4 @@
-import { getTotalDiscount } from "./math";
+import { getTotalDiscount, significantFigure } from "./math";
 
 //Section divisor
 export function zSection(title, x, y, p) {
@@ -41,9 +41,9 @@ export function genereateZPLTemplate(object) {
     receiptAmortization.push({
       quota_number: item.quotaNumber,
       date: item.date.split("T")[0].split("-").reverse().join("/"),
-      fixedAmount: item.amount,
-      mora: item.mora,
-      totalPaid: item.totalPaid,
+      fixedAmount: significantFigure(item.amount),
+      mora: significantFigure(item.mora),
+      totalPaid: significantFigure(item.totalPaid + item.totalPaidMora),
     });
   });
 
@@ -66,7 +66,7 @@ export function genereateZPLTemplate(object) {
   })();
 
   let receiptHeader =
-    "^FO40,725,^ADN,26,12^FDNo.Cuota  Fecha Cuota  Monto   Mora   Pagado^FS";
+    "^FO0,725,^ADN,26,12^FDNo.Cuota  Fecha Cuota  Monto    Mora    Pagado^FS";
   let receiptDetail = [];
   let bodyItem = [];
   let receiptBody = [];
@@ -78,10 +78,12 @@ export function genereateZPLTemplate(object) {
   let top = 750;
   var noteHeight;
   var c = 1;
-  var x = 40;
+  var x = 0;
   let suffix;
+  let sum = 0;
   receiptAmortization.map((entry, index) => {
     noteHeight = 0;
+
     // receiptDetail.push(
     //   `^FO${width},${top},^ADN,26,12^FD${entry.quota_number}     ${date}    ${
     //     Math.trunc(entry.amount)
@@ -89,6 +91,7 @@ export function genereateZPLTemplate(object) {
     // );
 
     for (const [key, value] of Object.entries(entry)) {
+      console.log("RECEIPT DETAIL NO FIGURED", value);
       // key.toString() == "amount" ||
       // key.toString() == "mora" ||
       //key.toString() == "totalPaid" ? (suffix = ".00") : (suffix = "");
@@ -96,7 +99,26 @@ export function genereateZPLTemplate(object) {
       if (c == 4 || c == 5) x = x - 20;
       receiptDetail.push(`^FO${x},${top},^ADN,26,12^FD${value}^FS`);
 
-      x += parseFloat(value.toString().length) * 7 + 80;
+      switch (c) {
+        case 1:
+          sum = 100;
+          break;
+        case 2:
+          sum = 90;
+          break;
+        case 3:
+          sum = 85;
+          break;
+        case 4:
+          sum = 75;
+          break;
+
+        default:
+          sum = 70;
+          break;
+      }
+
+      x += parseFloat(value.toString().length) * 7 + sum;
 
       //console.log("CURRENT LENGTH", value.toString().length);
       if (c == Object.keys(entry).length) {
@@ -139,20 +161,21 @@ export function genereateZPLTemplate(object) {
               ${zTitle(object.outlet, 230, 250)}
               ${zTitle(object.rnc, 230, 275)};
               ${zSection("Recibo", 245, 320)}
-              ${zTitle("Numero Recibo", 40, 375)}
-              ${zTitle(object.receiptNumber, 40, 400, 25, 30)}
+              ${zTitle("Numero Recibo", 0, 375)}
+              ${zTitle(object.receiptNumber, 0, 400, 25, 30)}
               ${zTitle("Fecha de Pago: ", 260, 375)}
               ${zTitle(object.date, 260, 400)}
-              ${zTitle("Prestamo: ", 40, 460)}
-              ${zTitle(object.loanNumber, 40, 485)}
+              ${zTitle("Prestamo: ", 0, 460)}
+              ${zTitle(object.loanNumber, 0, 485)}
               ${zTitle("Cliente: ", 260, 460)}
               ${zTitle(object.firstName + " " + object.lastName, 260, 485)}
-              ${zTitle("Tipo de Pago: ", 40, 545)}
-              ${zTitle(object.paymentMethod, 40, 570)}
+              ${zTitle("Tipo de Pago: ", 0, 545)}
+              ${zTitle(object.paymentMethod, 0, 570)}
               ${zTitle("Zona: ", 260, 545)}
-              ${zTitle(object.section, 260, 570)}
-              ${zTitle("Cajero: ", 40, 630)}
-              ${zTitle(object.login, 40, 655)}
+              ${zTitle(object.section.split("-")[0], 260, 570)}
+              ${zTitle(object.section.split("-")[1], 254, 600)}
+              ${zTitle("Cajero: ", 0, 630)}
+              ${zTitle(object.login, 0, 655)}
               ${zSection("Transacciones", 200, 690)}
               ${receiptHeader}
               ${receiptDetail}
@@ -170,7 +193,8 @@ export function genereateZPLTemplate(object) {
               )}
               ${zTitle("Descuento:", 200, top + 90)}
               ${zTitle(
-                "RD$ " + getTotalDiscount(object.amortization),
+                "RD$ " +
+                  significantFigure(getTotalDiscount(object.amortization)),
                 365,
                 top + 90
               )}
@@ -186,12 +210,11 @@ export function genereateZPLTemplate(object) {
               ${zTitle("RD$ " + object.cashBack, 365, top + 240)}
               ${zTitle(
                 "Nota: No somos responsables de dinero entregado sin recibo",
-                40,
-                top + 300,
+                30,
+                top + 350,
                 18,
                 20
               )}
-              ${zTitle("-----COPIA DE RECIBO-----", 100, top + 350, 25, 30)}
               ^XZ`;
 
   return zpl;

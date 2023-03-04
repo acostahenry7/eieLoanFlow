@@ -3,6 +3,7 @@ import {
   getSavedConnectionUrlApi,
   saveConnectionUrlApi,
 } from "../api/server/connection";
+
 //export const  API_HOST = "http://186.6.7.194:26015"
 //export const  API_HOST = "http://10.0.0.5:3000"
 //export const  API_HOST = "http://10.0.0.99:3000"
@@ -11,15 +12,22 @@ import {
 
 let isInternetCon = true;
 
-export const API_HOST = (async () => {
+export const API_HOST = async () => {
   if (isInternetCon == true) {
     const response = await getSavedConnectionUrlApi();
-    return response || "";
+    console.log(response);
+    return {
+      connectionTarget: response,
+      connectionStatus: isInternetCon,
+    };
   } else {
-    const response = "payments";
-    return response || "";
+    const response = ["customers", "payments"];
+    return {
+      connectionTarget: [...response],
+      connectionStatus: isInternetCon,
+    };
   }
-})();
+};
 
 export const PRINTER_STORAGE = "printers";
 

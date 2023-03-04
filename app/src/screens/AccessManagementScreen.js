@@ -35,8 +35,8 @@ export default function AccessManagement() {
   }, []);
 
   const listDevices = async () => {
-    let devices = await listDevicesApi();
-    await setDevices(devices);
+    let deviceList = await listDevicesApi();
+    await setDevices(deviceList);
   };
 
   const unlock = async (username) => {
@@ -58,7 +58,14 @@ export default function AccessManagement() {
   };
 
   return (
-    <View style={{ backgroundColor: "white", minHeight: "100%" }}>
+    <View
+      style={{
+        backgroundColor: "white",
+        minHeight: "100%",
+        maxHeight: "100%",
+        paddingBottom: 20,
+      }}
+    >
       {isDevFormVisible && (
         <LockDevicesForm
           visible={isDevFormVisible}
@@ -98,7 +105,14 @@ export default function AccessManagement() {
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Devices</Text>
         </View>
-        <ScrollView style={{ paddingHorizontal: 15, paddingVertical: 15 }}>
+        <ScrollView
+          contentContainerStyle={{ paddingBottom: 35 }}
+          style={{
+            paddingHorizontal: 15,
+            paddingVertical: 15,
+            height: "88%",
+          }}
+        >
           {devices.map((device, index) => (
             <View key={index}>
               <Entypo

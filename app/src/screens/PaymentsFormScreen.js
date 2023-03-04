@@ -56,7 +56,13 @@ export default function PaymentsFormScreen(props) {
   //console.log("HEY THIS IS THE LOAN ", loans);
 
   const formik = useFormik({
-    initialValues: initialValues(params.loan, loans, quotas, charges),
+    initialValues: initialValues(
+      params.loan,
+      loans,
+      quotas,
+      charges,
+      navigation
+    ),
     validateOnChange: false,
     onSubmit: async (values) => {
       var {
@@ -64,6 +70,8 @@ export default function PaymentsFormScreen(props) {
         quotasNumber,
         payLoan,
         paymentMethod,
+        isACharge,
+        chargeId,
         amount,
         comment,
       } = values;
@@ -89,6 +97,8 @@ export default function PaymentsFormScreen(props) {
         data = setPaymentObject({
           loanId: loans.filter((loan) => loan.number == loanNumber)[0].loanId,
           loanNumber,
+          isACharge,
+          chargeId,
           quotaNumber: quotasNumber,
           paymentMethod,
           loanQuotas: (() => {
@@ -102,16 +112,18 @@ export default function PaymentsFormScreen(props) {
                 date: quota.date,
                 mora: parseFloat(quota.mora),
                 fixedMora: parseFloat(quota.mora),
+                fixedTotalPaidMora: parseFloat(quota.total_paid_mora),
                 totalPaidMora: quota.total_paid_mora,
                 discountMora: parseFloat(quota.discount_mora),
                 fixedDiscountMora: quota.discount_mora,
-                discountInterest: quota.discount_interest,
+                discountInterest: parseFloat(quota.discount_interest),
                 currentPaid: parseFloat(quota.current_paid),
                 totalPaid: 0,
                 statusType: quota.status_type,
                 isPaid: false,
                 payMoraOnly: false,
                 latestStatus: quota.status_type,
+                executeProcessMora: true,
               });
             });
             return loanQuotas;
@@ -136,6 +148,10 @@ export default function PaymentsFormScreen(props) {
           })(),
         });
 
+        setReceiptQuotas(data.amortization);
+        setIsLoading(true);
+        const response = await createPaymentaApi(data);
+
         let discount = data.amortization.reduce(
           (acc, quota) =>
             acc +
@@ -147,20 +163,6 @@ export default function PaymentsFormScreen(props) {
         if (data.payment.liquidateLoan == true) {
           discount += globalDiscount;
         }
-
-        console.log(
-          "MY DATA",
-          data
-          // amount,
-          // data.payment,
-          // data.amortization.filter(
-          //   (quota) => quota.isPaid == true && quota.totalPaid == 2500
-          // ).length
-        );
-
-        setReceiptQuotas(data.amortization);
-        setIsLoading(true);
-        const response = await createPaymentaApi(data);
 
         let testing = {
           loanNumber,
@@ -229,6 +231,8 @@ export default function PaymentsFormScreen(props) {
           setReceiptVisibility(true);
           setIsLoading(false);
         }
+
+        setIsLoading(false);
       } catch (error) {
         Alert.alert("Error", error.message.toString());
       }
@@ -239,6 +243,7 @@ export default function PaymentsFormScreen(props) {
 
   return (
     <View style={styles.selectItemContainer}>
+      {/*Loan Payment Modal*/}
       <Modal visible={payLoan} transparent={true} animationType="fade">
         <View style={styles.modalView}>
           <View
@@ -427,13 +432,15 @@ export default function PaymentsFormScreen(props) {
           />
         </View>
       </ScrollView>
-      <Receipt
-        receiptDetails={receiptDetails}
-        receiptVisibility={receiptVisibility}
-        quotas={receiptQuotas}
-        navigation={navigation}
-        origin="payment"
-      />
+      {formik.values.isACharge == false && (
+        <Receipt
+          receiptDetails={receiptDetails}
+          receiptVisibility={receiptVisibility}
+          quotas={receiptQuotas}
+          navigation={navigation}
+          origin="payment"
+        />
+      )}
     </View>
   );
 }
@@ -499,13 +506,15 @@ function SelectItem(props) {
               );
 
               let amount =
-                getAmount(
-                  quotas[formik.values.loanNumber].length,
-                  formik.values.loanNumber,
-                  quotas
+                parseFloat(
+                  getAmount(
+                    quotas[formik.values.loanNumber].length,
+                    formik.values.loanNumber,
+                    quotas
+                  )
                 ) - (globalDiscount || 0);
 
-              formik.setFieldValue("amount", amount);
+              formik.setFieldValue("amount", amount.toString());
 
               setPayLoan(true);
             } else {
@@ -538,18 +547,33 @@ function SelectItem(props) {
   );
 }
 
-const initialValues = (loan, loans, quotas, charges = []) => {
+const initialValues = (loan, loans, quotas, charges = [], navigation) => {
   //loan=undefined;
 
   let i = 0;
   let quotaAmount = getAmount("1", loan, quotas);
 
   console.log("mannnnnn, the chrages", charges);
+
+  let isACharge = false;
+  let chargeId = "";
   if (charges?.length > 0) {
     let result = charges?.find((item) => item.loan_number == loan);
 
     if (result) {
+      isACharge = true;
+      chargeId = result?.charge_id;
       quotaAmount = result?.amount;
+    }
+
+    if (isACharge == true) {
+      navigation.navigate("PaymentsRoot", {
+        screen: "Payments",
+        params: {
+          loanNumber: loanNumber,
+          origin: "customerInfo",
+        },
+      });
     }
 
     // let result = charges
@@ -563,6 +587,8 @@ const initialValues = (loan, loans, quotas, charges = []) => {
     quotasNumber: (loan && "1") || "Seleccione cantidad de Cuotas",
     paymentMethod: "Efectivo",
     payLoan: "no",
+    isACharge,
+    chargeId,
     amount: quotaAmount,
     comment: "",
   };
