@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
-    "start": "expo start --dev-client",
+    "start": "export SET NODE_OPTIONS=--openssl-legacy-provider && expo start --dev-client",
     "android": "expo run:android",
     "ios": "expo run:ios",
     "web": "expo start --web",
@@ -63,6 +63,7 @@
     "react-native-render-html": "^6.3.4",
     "react-native-safe-area-context": "^3.3.2",
     "react-native-screens": "^3.10.2",
+    "react-native-sqlite-storage": "^6.0.1",
     "react-native-svg": "^12.1.1",
     "react-native-web": "0.17.1",
     "react-native-webview": "^11.22.3",

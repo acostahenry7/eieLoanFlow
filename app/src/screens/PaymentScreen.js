@@ -34,9 +34,11 @@ import { goToPage } from "../utils/navigation";
 import useAuth from "../hooks/useAuth";
 import { createRegisterApi } from "../api/payments";
 import { significantFigure } from "../utils/math";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 export default function PaymentScreen(props) {
   const isFocused = useIsFocused();
+  const netInfo = useNetInfo();
 
   var {
     route: { params },
@@ -86,12 +88,19 @@ export default function PaymentScreen(props) {
 
   useEffect(() => {
     (async () => {
-      const response = await getRegisterStatusApi(auth?.user_id);
-      if (response?.status == false) {
-        setIsRegisterOpened(false);
-      } else {
-        setRegisterInfo(response.register);
-        setIsRegisterOpened(true);
+      try {
+        const response = await getRegisterStatusApi(
+          auth?.user_id,
+          netInfo?.isConnected
+        );
+        if (response?.status == false) {
+          setIsRegisterOpened(false);
+        } else {
+          setRegisterInfo(response.register);
+          setIsRegisterOpened(true);
+        }
+      } catch (error) {
+        console.log(error);
       }
     })();
   }, []);
@@ -106,24 +115,31 @@ export default function PaymentScreen(props) {
       setIsLoading(true);
       setOpenCashier(!openCashier);
 
-      const response = await getRegisterStatusApi(auth?.user_id);
-      if (response?.status == false) {
-        setIsRegisterOpened(false);
-      }
-
-      if (isRegisterOpened == true) {
-        if (value.searchKey != "") {
-          await retriveCustomer(value.searchKey);
-        } else {
-          if (params) {
-            await retriveCustomer(params.loanNumber?.toString());
-          }
+      try {
+        const response = await getRegisterStatusApi(
+          auth?.user_id,
+          netInfo?.isConnected
+        );
+        if (response?.status == false) {
+          setIsRegisterOpened(false);
         }
-      } else {
-      }
 
-      setIsLoading(false);
-      setLoan(value.searchKey);
+        if (isRegisterOpened == true) {
+          if (value.searchKey != "") {
+            await retriveCustomer(value.searchKey);
+          } else {
+            if (params) {
+              await retriveCustomer(params.loanNumber?.toString());
+            }
+          }
+          setIsLoading(false);
+          setLoan(value.searchKey);
+        } else {
+        }
+      } catch (error) {
+        console.log(error);
+        setIsLoading(false);
+      }
 
       formik.setFieldValue("searchKey", "");
     },
@@ -158,14 +174,21 @@ export default function PaymentScreen(props) {
 
   useEffect(() => {
     (async () => {
-      const response = await getRegisterStatusApi(auth?.user_id);
-      if (response?.status == false) {
-        //const register = await createRegisterApi(data)
-        const register = true;
-        setOpenedCashier(true);
-        setRegisterInfo(register);
-      } else {
-        setOpenedCashier(true);
+      try {
+        const response = await getRegisterStatusApi(
+          auth?.user_id,
+          netInfo?.isConnected
+        );
+        if (response?.status == false) {
+          //const register = await createRegisterApi(data)
+          const register = true;
+          setOpenedCashier(true);
+          setRegisterInfo(register);
+        } else {
+          setOpenedCashier(true);
+        }
+      } catch (error) {
+        console.log(error);
       }
     })();
   }, [auth]);
@@ -194,6 +217,7 @@ export default function PaymentScreen(props) {
       const response = await getClientByloan({
         searchKey: key,
         employeeId: auth.employee_id,
+        netStatus: netInfo?.isConnected,
       });
 
       if (!isEmpty(response)) {

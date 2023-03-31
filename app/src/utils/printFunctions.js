@@ -38,12 +38,19 @@ export function genereateZPLTemplate(object) {
   let receiptAmortization = [];
 
   object.amortization.map((item) => {
+    console.log(
+      "$$$$$$$$$$$",
+      parseFloat(item.totalPaid),
+      parseFloat(item.totalPaidMora)
+    );
     receiptAmortization.push({
       quota_number: item.quotaNumber,
       date: item.date.split("T")[0].split("-").reverse().join("/"),
       fixedAmount: significantFigure(item.amount),
-      mora: significantFigure(item.mora),
-      totalPaid: significantFigure(item.totalPaid + item.totalPaidMora),
+      mora: significantFigure(item.fixedMora),
+      totalPaid: significantFigure(
+        parseFloat(item.totalPaid) + parseFloat(item.totalPaidMora)
+      ),
     });
   });
 
@@ -137,7 +144,7 @@ export function genereateZPLTemplate(object) {
 
         //console.log("HEY DONE ALREADY");
         top += 10;
-        x = 40;
+        x = 0;
         c = 0;
       }
 
@@ -199,15 +206,31 @@ export function genereateZPLTemplate(object) {
                 top + 90
               )}
               ${zTitle("Total:", 200, top + 120)}
-              ${zTitle("RD$ " + getTotal(object.amortization), 365, top + 120)}
+              ${zTitle(
+                "RD$ " + significantFigure(getTotal(object.amortization)),
+                365,
+                top + 120
+              )}
               ${zTitle("Monto Recibido:", 200, top + 150)}
-              ${zTitle("RD$ " + object.receivedAmount, 365, top + 150)}
+              ${zTitle(
+                "RD$ " + significantFigure(object.receivedAmount),
+                365,
+                top + 150
+              )}
               ${zTitle("Total Pagado  :", 200, top + 180)}
-              ${zTitle("RD$ " + object.totalPaid, 365, top + 180)}
-              ${zTitle("Saldo Pendiente:", 200, top + 210)}
-              ${zTitle("RD$ " + object.pendingAmount, 365, top + 210)}
+              ${zTitle(
+                "RD$ " + significantFigure(object.totalPaid),
+                365,
+                top + 180
+              )}
+
+             
               ${zTitle("Cambio:", 200, top + 240)}
-              ${zTitle("RD$ " + object.cashBack, 365, top + 240)}
+              ${zTitle(
+                "RD$ " + significantFigure(object.cashBack),
+                365,
+                top + 240
+              )}
               ${zTitle(
                 "Nota: No somos responsables de dinero entregado sin recibo",
                 30,
@@ -273,13 +296,13 @@ const getTotal = (arr) => {
     //console.log(item);
     sum +=
       parseFloat(item.amount) +
-      parseInt(item.fixedMora) -
+      parseFloat(item.fixedMora) -
       parseFloat(item.discountMora) -
       parseFloat(item.discountInterest);
   });
 
   //console.log(sum);
-  return sum.toString();
+  return sum.toFixed(2);
 };
 
 const totalPaid = (arr) => {
@@ -319,3 +342,11 @@ function getTotalMora(arr) {
   console.log("######################################", sum);
   return sum.toFixed(2);
 }
+
+//              ${zTitle("Saldo Pendiente:", 200, top + 210)}
+
+// ${*zTitle(
+//   "RD$ " + significantFigure(object.pendingAmount),
+//   365,
+//   top + 210
+// )}

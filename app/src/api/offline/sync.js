@@ -1,6 +1,7 @@
 import { API_HOST } from "../../utils/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { isObject } from "lodash";
+import { syncTable } from "../../utils/db/index";
 
 //This function retreives the data required and stores it offline.
 export async function pullUserDataApi(employeeId, netStatus) {
@@ -31,49 +32,49 @@ export async function getUserBufferdData(employeeId, netStatus) {
     //
 
     let cloudData = await pullUserDataApi(employeeId, netStatus);
-    console.log("######", typeof cloudData);
 
-    if (!cloudData) {
-      throw new Error("Error retrieving data from ther server");
-    }
+    let results = await syncTable("customers", cloudData);
 
-    console.log(cloudData);
-    let localCustomers = await AsyncStorage.getItem("customers");
-    let currentData = JSON.parse(localCustomers);
+    // if (!cloudData) {
+    //   throw new Error("Error retrieving data from ther server");
+    // }
 
-    let newData = [];
-    if (Array.isArray(currentData)) {
-      if (currentData.length > 0) {
-        currentData.map((item) => {
-          if (item.employeeId == employeeId) {
-            item.customers = [...cloudData?.customers];
-          }
-          newData.push(item);
-        });
-      }
-    } else {
-      await AsyncStorage.setItem(
-        "customers",
-        JSON.stringify([
-          {
-            employeeId,
-            customers: [...cloudData?.customers],
-          },
-        ])
-      );
-    }
+    // console.log(cloudData);
+    // let localCustomers = await AsyncStorage.getItem("customers");
+    // let currentData = JSON.parse(localCustomers);
 
-    let res = await AsyncStorage.getItem("customers");
-    let formatedRes = await JSON.parse(res);
+    // let newData = [];
+    // // if (Array.isArray(currentData)) {
+    // //   if (currentData.length > 0) {
+    // //     cloudData?.customers?.map((item, i) => {
+    // //       newData.push(item);
+    // //     });
+    // //     await AsyncStorage.setItem("customers", JSON.stringify(newData));
+    // //   }
+    // // } else {
+    // await AsyncStorage.setItem(
+    //   "customers",
+    //   JSON.stringify([
+    //     {
+    //       employeeId,
+    //       //customers: [],
+    //       customers: [...cloudData?.customers],
+    //     },
+    //   ])
+    // );
+    // //}
 
-    let results = formatedRes.filter(
-      (item) => item.employeeId == employeeId
-    )[0] || {
-      employeeId,
-      customers: [],
-    };
+    // let res = await AsyncStorage.getItem("customers");
+    // let formatedRes = await JSON.parse(res);
 
-    console.log("$$$$$$$$$$$$$$$$$$$$$", results);
+    // let results = formatedRes.filter(
+    //   (item) => item.employeeId == employeeId
+    // )[0] || {
+    //   employeeId,
+    //   customers: [],
+    // };
+
+    // console.log("$$$$$$$$$$$$$$$$$$$$$", results);
 
     return results;
   } catch (error) {
@@ -81,24 +82,64 @@ export async function getUserBufferdData(employeeId, netStatus) {
   }
 }
 
-export async function syncLoans(employeeId) {
+export async function syncLoans(employeeId, userId) {
   try {
     const { connectionTarget, connectionStatus } = await API_HOST();
 
     let res = await fetch(
       `${connectionTarget}/sync/amortization/${employeeId}`
     );
-    let result = await res.json();
+    let loanData = await res.json();
+    console.log("FROM SYN LOANS", loanData);
 
-    await AsyncStorage.setItem("loans", JSON.stringify(result));
+    let loans = await syncTable("loans", loanData);
+    let quotas = await syncTable("quotas", loanData);
+    let globalDiscount = await syncTable("globalDiscount", loanData);
 
-    let syncSTatus = await AsyncStorage.getItem("loans");
+    // console.log(result);
 
-    return syncSTatus;
+    // await AsyncStorage.setItem("loans", JSON.stringify(result));
+
+    // let syncSTatus = await AsyncStorage.getItem("loans");
+
+    // let register = await fetch(`${connectionTarget}/register/${userId}`);
+    // register = await register.json();
+
+    // await AsyncStorage.setItem("register", JSON.stringify(register));
+
+    // console.log(syncSTatus);
+
+    // return syncSTatus;
   } catch (error) {
     console.log(error);
   }
 }
+
+// export async function syncAmortization(userId) {
+//   try {
+//     const { connectionTarget, connectionStatus } = await API_HOST();
+//     //Get cashier status
+//     let register = await fetch(
+//       `${await getSavedConnectionUrlApi()}/register/${userId}`
+//     );
+//     register = await register.json();
+
+//     await AsyncStorage.setItem("register", JSON.stringify(register));
+
+//     let payments = await fetch(
+//       `${await getSavedConnectionUrlApi()}/sync/payments`,
+//       {
+//         searchKey
+//       }
+//     );
+//     payments = await payments.json();
+
+//     await AsyncStorage.setItem("payments", JSON.stringify(payments))
+
+//   } catch (error) {
+//     throw error;
+//   }
+// }
 
 export async function lastSyncTimes(entity, time) {
   let syncTimes = await JSON.parse(await AsyncStorage.getItem("times"));

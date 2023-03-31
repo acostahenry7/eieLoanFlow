@@ -1,6 +1,8 @@
 import { getSavedConnectionUrlApi } from "./server/connection";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_HOST } from "../utils/constants";
+import { uniqBy } from "lodash";
+import { dbConnect } from "../utils/db/index";
 
 //const employeeId = 'c2ed74d8-107c-4ef2-a5fb-6d6fadea5d1b'
 
@@ -8,17 +10,43 @@ export async function getCustomerApi(nextUrl, employeeId, netStatus) {
   try {
     const { connectionStatus, connectionTarget } = await API_HOST();
     let result;
+    let loans = [];
+    let customers = [];
 
     if (netStatus === false) {
-      let res = await AsyncStorage.getItem("customers");
+      let db = await dbConnect();
 
-      if (res) {
-        let formatedRes = await JSON.parse(res);
-        result = formatedRes.filter(
-          (item) => item.employeeId == employeeId
-        )[0] || {
-          employeeId,
-          customers: [],
+      await db.transaction(async (t) => {
+        await t.executeSql(
+          `SELECT * FROM customers WHERE employee_id = '${employeeId}'`,
+          [],
+          (t, res) => {
+            for (let i = 0; i < res.rows.length; i++) {
+              console.log("CUSTOMER RAW", res.rows.item(i));
+              customers.push(res.rows.item(i));
+            }
+          }
+        );
+      });
+
+      await db.transaction(async (t) => {
+        await t.executeSql(
+          `SELECT * FROM loans WHERE employee_id = '${employeeId}'`,
+          [],
+          (t, res) => {
+            for (let i = 0; i < res.rows.length; i++) {
+              console.log("LOAN RAW", res.rows.item(i));
+              loans.push(res.rows.item(i));
+            }
+          }
+        );
+      });
+
+      if (customers.length > 0) {
+        result = {
+          employeeId: employeeId,
+          customers: uniqBy(customers, "customer_id"),
+          loans: loans,
         };
       } else {
         throw new Error(
@@ -26,7 +54,6 @@ export async function getCustomerApi(nextUrl, employeeId, netStatus) {
         );
       }
     } else {
-      console.log(employeeId);
       if (!employeeId) employeeId = "0";
       const url = `${connectionTarget}/customers/main/${employeeId}?limit=999999&offset=1`;
       console.log(connectionTarget);
@@ -34,15 +61,6 @@ export async function getCustomerApi(nextUrl, employeeId, netStatus) {
 
       result = await response.json();
     }
-
-    //console.log("****************************", connection);
-
-    // if (connection == "payments") {
-    //   const response = await AsyncStorage.getItem("customers");
-    //   result = await JSON.parse(response);
-    // } else {
-
-    //}
 
     return result;
   } catch (error) {
@@ -63,22 +81,31 @@ export async function getCustomerInfo(data, netStatus) {
   console.log("NETWORK STATUS FROM CUSTOMER INFO", netStatus);
 
   try {
+    let db = await dbConnect();
     if (netStatus == false) {
-      console.log("hi2");
-      let res = await AsyncStorage.getItem("customers");
-      let formatedRes = await JSON.parse(res);
-      let customerList = formatedRes.filter(
-        (item) => item.employeeId == data.employeeId
-      )[0].customers || {
-        employeeId: data.employeeId,
-        customers: [],
-      };
-
-      result.customerInfo = customerList.filter(
-        (customer) => customer.customer_id == data.id
-      )[0];
-
+      await db.transaction(async (t) => {
+        await t.executeSql(
+          `SELECT * FROM customers WHERE customer_id = '${data.id}'`,
+          [],
+          (t, res) => {
+            for (let i = 0; i < res.rows.length; i++) {
+              result.customerInfo = res.rows.item(0);
+            }
+          }
+        );
+      });
       result.customerLoans = [];
+      await db.transaction(async (t) => {
+        await t.executeSql(
+          `SELECT * FROM loans where customer_id = '${data.id}'`,
+          [],
+          (t, res) => {
+            for (let i = 0; i < res.rows.length; i++) {
+              result.customerLoans.push(res.rows.item(i));
+            }
+          }
+        );
+      });
     } else {
       const url = `${await getSavedConnectionUrlApi()}/customers/each`;
       const response = await fetch(url, options);

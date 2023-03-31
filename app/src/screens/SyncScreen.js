@@ -8,16 +8,17 @@ import {
   TouchableWithoutFeedback,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-import DataTable, { COL_TYPES } from "react-native-datatable-component";
 import {
   getUserBufferdData,
   lastSyncTimes,
   syncLoans,
+  syncAmortization,
 } from "../api/offline/sync";
 import useAuth from "../hooks/useAuth";
 import { useNetInfo } from "@react-native-community/netinfo";
 import Father from "react-native-vector-icons/Feather";
 import moment from "moment";
+import Loading from "../components/Loading";
 
 export default function SyncScreen(props) {
   const {
@@ -30,36 +31,39 @@ export default function SyncScreen(props) {
   let [customerSyncTime, setCustomerSyncTime] = useState(new Date().toString());
 
   const [data, setData] = useState({ customers: [], loans: [] });
+  const [isLoading, setIsLoading] = useState(false);
 
-  const downloadData = async () => {
-    console.log("hi");
-    try {
-      console.log(auth);
-      let user = await getUserBufferdData(
-        auth?.employee_id,
-        netInfo.isConnected
-      );
-      if (!user) {
-        console.log("Error, unable to retrieve data from server");
-      } else {
-        let date = await lastSyncTimes("user");
-        setCustomerSyncTime(moment(date).fromNow());
-        setData(user);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const downloadData = async () => {
+  //   console.log("hi");
+  //   try {
+  //     //console.log(auth);
+  //     let user = await getUserBufferdData(
+  //       auth?.employee_id,
+  //       netInfo.isConnected
+  //     );
+  //     if (!user) {
+  //       console.log("Error, unable to retrieve data from server");
+  //     } else {
+  //       let date = await lastSyncTimes("user");
+  //       //setCustomerSyncTime(moment(date).fromNow());
+  //       setData(user);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  useEffect(() => {
-    (async () => {
-      console.log("IS CONNECTED", netInfo.isConnected);
-      netInfo.isConnected && (await downloadData());
-    })();
-  }, [netInfo]);
+  // useEffect(() => {
+  //   (async () => {
+  //     console.log("IS CONNECTED", netInfo.isConnected);
+  //     netInfo.isConnected && (await downloadData());
+  //   })();
+  // }, [netInfo]);
 
   return (
     <View>
+      {isLoading && <Loading text="Sincronizando. Porfaor espere..." />}
+
       {!netInfo.isConnected ? (
         <View
           style={{
@@ -80,7 +84,7 @@ export default function SyncScreen(props) {
         </View>
       ) : (
         <View>
-          <View>
+          {/* <View>
             <Text>
               {bodyKey == "download"
                 ? "Descargue los datos actualizados desde el servidor."
@@ -90,53 +94,85 @@ export default function SyncScreen(props) {
               title="Sincronizar Usuarios"
               onPress={async () => {
                 if (bodyKey == "download") {
+                  
                   await downloadData();
                 } else {
                   await uploadData();
                 }
               }}
             />
-          </View>
+          </View> */}
           <ScrollView>
             <View style={styles.tableContainer}>
-              <Text style={styles.sectionTitle}>Customers</Text>
-              <Text>{customerSyncTime.toString()}</Text>
-              {/* <DataTable
-                data={data.customers || []}
-                colNames={["first_name", "last_name"]}
-                backgroundColor={"blue"}
-                noOfPages={Math.floor(data.customers?.length / 5) || 1}
-              /> */}
+              <Text style={styles.sectionTitle}>Clientes</Text>
+              <TouchableWithoutFeedback>
+                <Text
+                  style={styles.actionBtn}
+                  onPress={async () => {
+                    try {
+                      setIsLoading(true);
+                      await getUserBufferdData(
+                        auth?.employee_id,
+                        netInfo.isConnected,
+                        auth?.user_id
+                      );
+                      setIsLoading(false);
+                    } catch (error) {
+                      console.log(error);
+                      setIsLoading(false);
+                    }
+                  }}
+                >
+                  Sincronizar Usuarios
+                </Text>
+              </TouchableWithoutFeedback>
             </View>
 
-            <TouchableWithoutFeedback>
-              <Text
-                onPress={async () => {
-                  let res = await syncLoans(auth?.employee_id);
-                  console.log(res);
-                }}
-              >
-                Sincronizar Préstamos
-              </Text>
-            </TouchableWithoutFeedback>
             <View style={styles.tableContainer}>
               <Text style={styles.sectionTitle}>Prestamos</Text>
-              {/* <DataTable
-            data={data.loans}
-            colNames={["number", "name"]}
-            backgroundColor={"blue"}
-            noOfPages={Math.floor(data.customers?.length / 5) || 1}
-          /> */}
+              <TouchableWithoutFeedback>
+                <Text
+                  style={styles.actionBtn}
+                  onPress={async () => {
+                    try {
+                      setIsLoading(true);
+                      let res = await syncLoans(
+                        auth?.employee_id,
+                        auth?.user_id
+                      );
+                      console.log("HAHAHAH", res);
+                      setIsLoading(false);
+                    } catch (error) {
+                      console.log(error);
+                      setIsLoading(false);
+                    }
+                  }}
+                >
+                  Sincronizar Préstamos
+                </Text>
+              </TouchableWithoutFeedback>
             </View>
             {/* <View style={styles.tableContainer}>
-          <Text style={styles.sectionTitle}>Prestamos</Text>
-          <DataTable
-            data={data}
-            colNames={["name", "age"]}
-            backgroundColor={"blue"}
-            noOfPages={data..length / 5}
-          />
-        </View> */}
+              <Text style={styles.sectionTitle}>Amortización</Text>
+              <TouchableWithoutFeedback>
+                <Text
+                  style={styles.actionBtn}
+                  onPress={async () => {
+                    try {
+                      setIsLoading(true);
+                      let res = await syncAmortization(auth?.user_id);
+                      console.log("HAHAHAH", res);
+                      setIsLoading(false);
+                    } catch (error) {
+                      console.log(error);
+                      setIsLoading(false);
+                    }
+                  }}
+                >
+                  Sincronizar Amortización
+                </Text>
+              </TouchableWithoutFeedback>
+            </View> */}
           </ScrollView>
         </View>
       )}
@@ -165,5 +201,14 @@ const styles = StyleSheet.create({
   tableContainer: {
     paddingTop: 20,
     maxHeight: 400,
+  },
+
+  actionBtn: {
+    marginHorizontal: 10,
+    elevation: 4,
+    borderRadius: 5,
+    backgroundColor: "#4682b4",
+    padding: 10,
+    color: "white",
   },
 });

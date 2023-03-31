@@ -86,22 +86,17 @@ export default function CustomerScreen(props) {
           atrasos: 0,
           cuotas: 10,
           cuota: "$RD 1200",
-          loan_status: (() => {
-            var results, status;
-            response.loans?.map((item) => {
-              if (customer.customer_id == item.customer_id) {
-                results = "ARREARS";
-                status = "done";
-                return;
-              }
-            });
+          loan_status:
+            (() => {
+              var result;
 
-            if (status == "done") {
-              return results;
-            } else {
-              return "NORMAL";
-            }
-          })(),
+              response.loans?.map((item, i) => {
+                if (customer.customer_id == item.customer_id) {
+                  result = item.loan_situation;
+                }
+              });
+              return result;
+            })() || customer.loan_situation,
         });
       }
 

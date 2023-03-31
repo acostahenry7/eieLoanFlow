@@ -414,9 +414,9 @@ export default function Receipt(props) {
                       );
                       //console.log("Pay", response);
                       if (response == true) {
-                        // navigation.navigate("Payments", {
-                        //   loanNumber: receiptDetails.loanNumber,
-                        // });
+                        navigation.navigate("Payments", {
+                          loanNumber: receiptDetails.loanNumber,
+                        });
                       } else {
                         Alert.alert(
                           "Error de Impresión",
