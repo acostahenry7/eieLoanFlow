@@ -134,6 +134,7 @@ export default function PaymentScreen(props) {
           }
           setIsLoading(false);
           setLoan(value.searchKey);
+          console.log(response);
         } else {
         }
       } catch (error) {
@@ -224,8 +225,10 @@ export default function PaymentScreen(props) {
         setIsCustomer(true);
         console.log("mannnnnn, the charges again", response.charges);
         if (response.charges?.length > 0) {
-          console.log("mannnnnn, the charges again", response);
+          // console.log("mannnnnn, the charges again", response);
           setCharges(response.charges);
+        } else {
+          setCharges([]);
         }
 
         for (var item of response?.customer) {
@@ -463,10 +466,9 @@ function PaymentCustomerCard(props) {
     globalDiscount,
   } = props;
 
-  let pendingAmount = quotas[loan]?.reduce(
-    (acc, item) => acc + parseInt(item.current_fee),
-    0
-  );
+  let pendingAmount = quotas[loan]
+    ?.reduce((acc, item) => acc + parseFloat(item.quota_amount), 0)
+    .toFixed(2);
 
   return !isCustomer ? (
     <View>
@@ -574,8 +576,8 @@ function PaymentCustomerCard(props) {
                     {" "}
                     RD${" "}
                     {significantFigure(
-                      quotas[loan][1]?.quota_amount ||
-                        quotas[loan][0].quota_amount
+                      quotas[loan][1]?.amount_of_fee ||
+                        quotas[loan][0].amount_of_fee
                     )}
                   </Text>
                 </View>
@@ -595,9 +597,10 @@ function PaymentCustomerCard(props) {
                       quotas[loan]
                         .filter((item) => item.status_type == "DEFEATED")
                         .reduce(
-                          (acc, item) => acc + parseInt(item.current_fee),
+                          (acc, item) => acc + parseFloat(item.quota_amount),
                           0
                         )
+                        .toFixed(2)
                     ) || 0}
                   </Text>
                 </View>
@@ -610,11 +613,7 @@ function PaymentCustomerCard(props) {
                   >
                     {significantFigure(globalDiscount) == 0
                       ? "- - - - - - - - - -"
-                      : `RD$ ${
-                          hasDecimal(significantFigure(globalDiscount))
-                            ? significantFigure(globalDiscount)
-                            : significantFigure(globalDiscount) + ".00"
-                        }`}
+                      : `RD$ ${significantFigure(globalDiscount)}`}
                   </Text>
                 </View>
               </View>
@@ -635,7 +634,7 @@ function validationSchema() {
 }
 
 function hasDecimal(num) {
-  console.log("has decimal", !!(parseFloat(num) % 1));
+  // console.log("has decimal", !!(parseFloat(num) % 1));
   return !!(parseFloat(num) % 1);
 }
 

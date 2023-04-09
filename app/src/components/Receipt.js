@@ -35,13 +35,14 @@ export default function Receipt(props) {
 
   if (origin == "payment") {
     receiptDetails.amortization = [...quotas];
+    // console.log("RAW RECEIPT", receiptDetails);
   }
   //console.log("From receipt", receiptDetails);
 
   const time = (time) => {
     var res = time?.split(".");
 
-    res ? (time = res[0]) : (time = 0);
+    res ? (time = res[0]) : (time = "");
 
     return time;
   };
@@ -52,9 +53,9 @@ export default function Receipt(props) {
 
     arr.map((item) => {
       //console.log(item);
-      subtotal == true ? (param = item.amount) : (param = item.totalPaid);
+      subtotal == true ? (param = item.amount) : (param = item.quota_amount);
 
-      console.log("PARAM", param);
+      // console.log("PARAM", param);
       sum += parseFloat(param);
     });
 
@@ -190,7 +191,8 @@ export default function Receipt(props) {
                   nestedScrollEnabled={true}
                 >
                   <View style={{ flexDirection: "row" }}>
-                    <Text style={{ width: "17%", fontWeight: "bold" }}>
+                    <Text style={{ fontWeight: "bold" }}>#Cuotas</Text>
+                    {/* <Text style={{ width: "17%", fontWeight: "bold" }}>
                       No. Cuota:
                     </Text>
                     <Text style={{ width: "30%", fontWeight: "bold" }}>
@@ -204,9 +206,18 @@ export default function Receipt(props) {
                     </Text>
                     <Text style={{ width: "20%", fontWeight: "bold" }}>
                       Pagado:
-                    </Text>
+                    </Text> */}
                   </View>
-                  {quotas?.map((quota, index) => (
+                  <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                    {quotas.map((i, index) => (
+                      <Text key={index}>
+                        {i.quotaNumber}
+                        {index != quotas.length - 1 ? ", " : undefined}
+                      </Text>
+                    ))}
+                    {/* <Text>{quotas.length}</Text> */}
+                  </View>
+                  {/* {quotas?.map((quota, index) => (
                     <View key={index}>
                       <View style={{ flexDirection: "row", marginTop: 10 }}>
                         <View style={{ width: "17%" }}>
@@ -297,19 +308,16 @@ export default function Receipt(props) {
                         </View>
                       </View>
                     </View>
-                  ))}
+                  ))} */}
                 </ScrollView>
                 <View style={{ marginTop: 15 }}>
                   <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Total Mora:</Text>
                     <Text style={styles.totalSectionBody}>
-                      RD${" "}
-                      {hasDecimal(receiptDetails.mora)
-                        ? significantFigure(receiptDetails.mora.toFixed(2))
-                        : receiptDetails.mora + ".00"}
+                      {significantFigure(receiptDetails.mora?.toFixed(2))}
                     </Text>
                   </View>
-                  <View style={styles.totalSection}>
+                  {/* <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>SubTotal:</Text>
                     <Text style={styles.totalSectionBody}>
                       RD${" "}
@@ -325,25 +333,19 @@ export default function Receipt(props) {
                             ).toFixed(2)
                           )}
                     </Text>
-                  </View>
-                  <View style={styles.totalSection}>
+                  </View> */}
+                  {/* <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Descuentos:</Text>
                     <Text style={styles.totalSectionBody}>
                       RD${" "}
                       {significantFigure(receiptDetails.discount?.toFixed(2))}
                     </Text>
-                  </View>
+                  </View> */}
                   <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Total:</Text>
                     <Text style={styles.totalSectionBody}>
                       RD$
-                      {significantFigure(
-                        (
-                          totalPaid(quotas, true) +
-                          receiptDetails.mora -
-                          receiptDetails.discount
-                        ).toFixed(2)
-                      )}
+                      {significantFigure(receiptDetails.total?.toFixed(2))}
                     </Text>
                   </View>
                   <View style={styles.totalSection}>
@@ -563,6 +565,6 @@ function getTotalMora(arr) {
 }
 
 function hasDecimal(num) {
-  console.log("has decimal", !!(parseFloat(num) % 1));
+  // console.log("has decimal", !!(parseFloat(num) % 1));
   return !!(parseFloat(num) % 1);
 }

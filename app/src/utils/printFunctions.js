@@ -4,10 +4,10 @@ import { getTotalDiscount, significantFigure } from "./math";
 export function zSection(title, x, y, p) {
   x = x?.toString();
   y = y?.toString();
-  p = p?.toString() || "35";
+  p = p?.toString() || "0";
 
   return `
-      ^FO${p},${y - 5}^GB500,25,2^FS
+      ^FO${p},${y - 5}^GB570,25,2^FS
       ^FO${x},${y},^ADN,26,11^FD${title}^FS
       `;
 }
@@ -45,7 +45,7 @@ export function genereateZPLTemplate(object) {
     );
     receiptAmortization.push({
       quota_number: item.quotaNumber,
-      date: item.date.split("T")[0].split("-").reverse().join("/"),
+      //date: item.date.split("T")[0].split("-").reverse().join("/"),
       fixedAmount: significantFigure(item.amount),
       mora: significantFigure(item.fixedMora),
       totalPaid: significantFigure(
@@ -58,7 +58,7 @@ export function genereateZPLTemplate(object) {
   // const printerSerial = response[0].address;
 
   let printedStatus = false;
-  let labelLength = object.amortization.length * 90 + 1200;
+  let labelLength = object.amortization.length * 1 + 1120;
 
   ////console.log(labelLength);
 
@@ -72,8 +72,7 @@ export function genereateZPLTemplate(object) {
     return fullDate.toString();
   })();
 
-  let receiptHeader =
-    "^FO0,725,^ADN,26,12^FDNo.Cuota  Fecha Cuota  Monto    Mora    Pagado^FS";
+  let receiptHeader = "^FO0,725,^ADN,26,12^FD# Cuotas^FS";
   let receiptDetail = [];
   let bodyItem = [];
   let receiptBody = [];
@@ -81,81 +80,33 @@ export function genereateZPLTemplate(object) {
   let quotasQuantity = object.amortization.length;
   ////console.log("Cantidad de Cuotas", quotasQuantity);
 
-  let width = 40;
+  let width = 0;
   let top = 750;
-  var noteHeight;
-  var c = 1;
-  var x = 0;
-  let suffix;
-  let sum = 0;
+  var left = width;
+  let c = 0;
+
   receiptAmortization.map((entry, index) => {
-    noteHeight = 0;
-
-    // receiptDetail.push(
-    //   `^FO${width},${top},^ADN,26,12^FD${entry.quota_number}     ${date}    ${
-    //     Math.trunc(entry.amount)
-    //   }  ${entry.mora}  ${Math.trunc(entry.totalPaid)  }^FS`
-    // );
-
-    for (const [key, value] of Object.entries(entry)) {
-      console.log("RECEIPT DETAIL NO FIGURED", value);
-      // key.toString() == "amount" ||
-      // key.toString() == "mora" ||
-      //key.toString() == "totalPaid" ? (suffix = ".00") : (suffix = "");
-
-      if (c == 4 || c == 5) x = x - 20;
-      receiptDetail.push(`^FO${x},${top},^ADN,26,12^FD${value}^FS`);
-
-      switch (c) {
-        case 1:
-          sum = 100;
-          break;
-        case 2:
-          sum = 90;
-          break;
-        case 3:
-          sum = 85;
-          break;
-        case 4:
-          sum = 75;
-          break;
-
-        default:
-          sum = 70;
-          break;
-      }
-
-      x += parseFloat(value.toString().length) * 7 + sum;
-
-      //console.log("CURRENT LENGTH", value.toString().length);
-      if (c == Object.keys(entry).length) {
-        //console.log("IM AM TESTING NOW", index);
-        receiptDetail.push(
-          `^FO${60},${top + 25},^ADN,26,12^FDDesc. Mora: ${
-            object.amortization[index].discountMora
-          } ^FS`
-        );
-
-        receiptDetail.push(
-          `^FO${300},${top + 25},^ADN,26,12^FDDesc. Interes: ${
-            object.amortization[index].discountInterest
-          }  ^FS`
-        );
-
-        //console.log("HEY DONE ALREADY");
-        top += 10;
-        x = 0;
-        c = 0;
-      }
-
-      c++;
+    if (index == quotasQuantity - 1) {
+      receiptDetail.push(
+        `^FO${left},${top},^ADN,26,12^FD${entry.quota_number} ^FS`
+      );
+    } else {
+      receiptDetail.push(
+        `^FO${left},${top},^ADN,26,12^FD${entry.quota_number}, ^FS`
+      );
     }
 
-    top += 70;
+    left += 40;
+    c++;
+    if (c == 12) {
+      top += 25;
+      left = 0;
+      c = 0;
+    }
 
     if (index + 1 == quotasQuantity) {
       //console.log("from valitadion quantity");
-      noteHeight = top + 40;
+      top += 70;
       //console.log(noteHeight);
     }
   });
@@ -179,8 +130,8 @@ export function genereateZPLTemplate(object) {
               ${zTitle("Tipo de Pago: ", 0, 545)}
               ${zTitle(object.paymentMethod, 0, 570)}
               ${zTitle("Zona: ", 260, 545)}
-              ${zTitle(object.section.split("-")[0], 260, 570)}
-              ${zTitle(object.section.split("-")[1], 254, 600)}
+              ${zTitle(object.section?.split("-")[0], 260, 570) || ""}
+              ${zTitle(object.section?.split("-")[1], 254, 600) || ""}
               ${zTitle("Cajero: ", 0, 630)}
               ${zTitle(object.login, 0, 655)}
               ${zSection("Transacciones", 200, 690)}
@@ -188,53 +139,82 @@ export function genereateZPLTemplate(object) {
               ${receiptDetail}
               ${zTitle("Total Mora:", 200, top + 30)}
               ${zTitle(
-                "RD$ " + getTotalMora(object.amortization),
+                "RD$ " + significantFigure(object.totalMora?.toFixed(2)),
                 365,
                 top + 30
               )}
-              ${zTitle("SubTotal:", 200, top + 60)}
+
+              ${zTitle("Total:", 200, top + 60)}
               ${zTitle(
-                "RD$ " + getSubTotal(object.amortization),
+                "RD$ " + significantFigure(object.total?.toFixed(2)),
                 365,
                 top + 60
               )}
-              ${zTitle("Descuento:", 200, top + 90)}
+              ${zTitle("Monto Recibido:", 200, top + 90)}
               ${zTitle(
-                "RD$ " +
-                  significantFigure(getTotalDiscount(object.amortization)),
+                "RD$ " + significantFigure(object.receivedAmount?.toFixed(2)),
                 365,
                 top + 90
               )}
-              ${zTitle("Total:", 200, top + 120)}
+              ${zTitle("Total Pagado  :", 200, top + 120)}
               ${zTitle(
-                "RD$ " + significantFigure(getTotal(object.amortization)),
+                "RD$ " + significantFigure(object.totalPaid?.toFixed(2)),
                 365,
                 top + 120
               )}
-              ${zTitle("Monto Recibido:", 200, top + 150)}
-              ${zTitle(
-                "RD$ " + significantFigure(object.receivedAmount),
-                365,
-                top + 150
-              )}
-              ${zTitle("Total Pagado  :", 200, top + 180)}
-              ${zTitle(
-                "RD$ " + significantFigure(object.totalPaid),
-                365,
-                top + 180
-              )}
 
-             
-              ${zTitle("Cambio:", 200, top + 240)}
+              ${zTitle("Cambio:", 200, top + 150)}
               ${zTitle(
                 "RD$ " + significantFigure(object.cashBack),
                 365,
-                top + 240
+                top + 150
               )}
               ${zTitle(
                 "Nota: No somos responsables de dinero entregado sin recibo",
                 30,
-                top + 350,
+                top + 240,
+                18,
+                20
+              )}
+              ^XZ`;
+
+  return zpl;
+}
+
+export function genereateZPLChargesTemplate(object) {
+  console.log("IS HERE IN GENERATE ZPL CHARGE");
+  let labelLength = 800;
+
+  let width = 0;
+  let top = 750;
+
+  let zpl = `^XA
+              ^LL${labelLength}
+              ^FO35,60^IME:BANNER.PCX^FS
+              ${zTitle(object.outlet, 230, 250)}
+              ${zTitle(object.rnc, 230, 275)};
+              ${zSection("Recibo", 245, 320)}
+              ${zTitle("Numero Recibo", 0, 375)}
+              ${zTitle(object.receiptNumber, 0, 400, 25, 30)}
+              ${zTitle("Fecha de Pago: ", 260, 375)}
+              ${zTitle(object.date, 260, 400)}
+              ${zTitle("Prestamo: ", 0, 460)}
+              ${zTitle(object.loanNumber, 0, 485)}
+              ${zTitle("Cliente: ", 260, 460)}
+              ${zTitle(object.firstName + " " + object.lastName, 260, 485)}
+              ${zTitle("Tipo de Pago: ", 0, 545)}
+              ${zTitle(object.paymentMethod, 0, 570)}
+              ${zTitle("Cajero: ", 0, 630)}
+              ${zTitle(object.login, 0, 655)}
+              ${zSection("Gastos", 245, 690)}
+              ${zTitle("Descripcion", 0, 720)}
+              ${zText(object.description, 0, 750)}
+              ${zTitle("Monto", 350, 720)}
+              ${zText(object.amount, 350, 750)}
+              ${zTitle(
+                "Nota: No somos responsables de dinero entregado sin recibo",
+                30,
+                top + 240,
                 18,
                 20
               )}
@@ -294,14 +274,10 @@ const getTotal = (arr) => {
 
   arr.map((item) => {
     //console.log(item);
-    sum +=
-      parseFloat(item.amount) +
-      parseFloat(item.fixedMora) -
-      parseFloat(item.discountMora) -
-      parseFloat(item.discountInterest);
+    sum += parseFloat(item.quota_amount);
   });
 
-  //console.log(sum);
+  sum = Math.round((sum + Number.EPSILON) * 100) / 100;
   return sum.toFixed(2);
 };
 
@@ -339,14 +315,6 @@ function getTotalMora(arr) {
     sum += parseFloat(item.fixedMora);
   });
 
-  console.log("######################################", sum);
+  // console.log("######################################", sum);
   return sum.toFixed(2);
 }
-
-//              ${zTitle("Saldo Pendiente:", 200, top + 210)}
-
-// ${*zTitle(
-//   "RD$ " + significantFigure(object.pendingAmount),
-//   365,
-//   top + 210
-// )}

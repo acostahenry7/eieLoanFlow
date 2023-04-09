@@ -8,7 +8,10 @@ import { Alert } from "react-native";
 import { getSavedPrintersApi } from "./Printers";
 import { getTotalDiscount } from "../../utils/math";
 import { extractIconText } from "../../utils/stringFuctions";
-import { genereateZPLTemplate } from "../../utils/printFunctions";
+import {
+  genereateZPLTemplate,
+  genereateZPLChargesTemplate,
+} from "../../utils/printFunctions";
 
 // Bluetooth Printing API
 export async function printByBluetooth(object, origin) {
@@ -36,6 +39,7 @@ async function generateReceipt(object, origin) {
   let zpl = "";
   let printedStatus = false;
   const response = await getSavedPrintersApi();
+  console.log(response);
   if (response == null) {
     console.log("error");
     return {
@@ -47,10 +51,18 @@ async function generateReceipt(object, origin) {
   const printerSerial = response[0].address;
 
   console.log("ASAAAAAAAAAAAAAAAAAAAAAAAA", origin);
-  if (origin == "payment") {
-    zpl = genereateZPLTemplate(object);
-  } else {
-    zpl = object.appZPL;
+
+  switch (origin) {
+    case "payment":
+      zpl = genereateZPLTemplate(object);
+      break;
+    case "charges":
+      console.log("hi");
+      zpl = genereateZPLChargesTemplate(object);
+      break;
+
+    default:
+      break;
   }
 
   //   let zpl = `! 0 200 200 210 1\r\n
@@ -113,6 +125,8 @@ function buildHeader(arr, x, y) {
 
 function buildBody(arr, x, y) {
   var body = "";
+
+  console.log("FROM CUSTOM PRINT", arr);
 
   arr.map((item, index) => {
     body += `${zText(

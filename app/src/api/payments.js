@@ -29,7 +29,7 @@ export async function getClientByloan(data) {
       const response = await fetch(url, options);
       const result = await response.json();
 
-      console.log("PREPARING ONLINE DATA", result);
+      // console.log("PREPARING ONLINE DATA", result);
       return result;
     } catch (error) {
       console.log(error);
@@ -82,6 +82,23 @@ export async function createPaymentaApi(data) {
 
   try {
     const url = `${await getSavedConnectionUrlApi()}/payment/create`;
+    const response = await fetch(url, options);
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export async function createChargePaymentApi(data) {
+  const options = {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data),
+  };
+
+  try {
+    const url = `${await getSavedConnectionUrlApi()}/payment/charge/create`;
     const response = await fetch(url, options);
     const result = await response.json();
     return result;
