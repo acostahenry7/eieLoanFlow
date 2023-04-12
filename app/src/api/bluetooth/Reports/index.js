@@ -22,7 +22,7 @@ export async function reportPrinting(data) {
   try {
     result = await RNZebraBluetoothPrinter.print(printerSerial, zpl);
   } catch (error) {
-    console.log(error);
+    throw error;
   }
 
   return result;

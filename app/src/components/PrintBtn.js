@@ -5,6 +5,7 @@ import {
   TouchableWithoutFeedback,
   Modal,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import React, { useState } from "react";
 import { customPrintData } from "../api/bluetooth/Print";
@@ -70,11 +71,18 @@ export default function PrintBtn(props) {
             }}
             onPress={async () => {
               setIsLoading(true);
-              await reportPrinting({
-                data,
-                header,
-                reportDescription: description,
-              });
+              try {
+                await reportPrinting({
+                  data,
+                  header,
+                  reportDescription: description,
+                });
+              } catch (error) {
+                Alert.alert(
+                  "Error accediendo al printer. Diríjase a Dispositivos y añada una."
+                );
+              }
+
               setIsLoading(false);
               console.log("hi");
             }}

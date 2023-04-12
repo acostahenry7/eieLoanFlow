@@ -191,6 +191,17 @@ function AdminManagement({ navigation }) {
         />
         <Text>Administrar códigos QR</Text>
       </TouchableWithoutFeedback>
+      <TouchableWithoutFeedback
+        onPress={() => navigation.navigate("accessMagament")}
+        style={styles.menuDivision}
+      >
+        <Icon
+          name="qr-code"
+          size={30}
+          style={{ marginRight: 10, marginTop: -4 }}
+        />
+        <Text>Control de Acceso</Text>
+      </TouchableWithoutFeedback>
       <View style={styles.menuDivision}>
         <Icon
           name="settings-remote"

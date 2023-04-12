@@ -34,9 +34,11 @@ import { goToPage } from "../utils/navigation";
 import useAuth from "../hooks/useAuth";
 import { createRegisterApi } from "../api/payments";
 import { significantFigure } from "../utils/math";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 export default function PaymentScreen(props) {
   const isFocused = useIsFocused();
+  const netInfo = useNetInfo();
 
   var {
     route: { params },
@@ -86,12 +88,19 @@ export default function PaymentScreen(props) {
 
   useEffect(() => {
     (async () => {
-      const response = await getRegisterStatusApi(auth?.user_id);
-      if (response?.status == false) {
-        setIsRegisterOpened(false);
-      } else {
-        setRegisterInfo(response.register);
-        setIsRegisterOpened(true);
+      try {
+        const response = await getRegisterStatusApi(
+          auth?.user_id,
+          netInfo?.isConnected
+        );
+        if (response?.status == false) {
+          setIsRegisterOpened(false);
+        } else {
+          setRegisterInfo(response.register);
+          setIsRegisterOpened(true);
+        }
+      } catch (error) {
+        console.log(error);
       }
     })();
   }, []);
@@ -106,24 +115,32 @@ export default function PaymentScreen(props) {
       setIsLoading(true);
       setOpenCashier(!openCashier);
 
-      const response = await getRegisterStatusApi(auth?.user_id);
-      if (response?.status == false) {
-        setIsRegisterOpened(false);
-      }
-
-      if (isRegisterOpened == true) {
-        if (value.searchKey != "") {
-          await retriveCustomer(value.searchKey);
-        } else {
-          if (params) {
-            await retriveCustomer(params.loanNumber?.toString());
-          }
+      try {
+        const response = await getRegisterStatusApi(
+          auth?.user_id,
+          netInfo?.isConnected
+        );
+        if (response?.status == false) {
+          setIsRegisterOpened(false);
         }
-      } else {
-      }
 
-      setIsLoading(false);
-      setLoan(value.searchKey);
+        if (isRegisterOpened == true) {
+          if (value.searchKey != "") {
+            await retriveCustomer(value.searchKey);
+          } else {
+            if (params) {
+              await retriveCustomer(params.loanNumber?.toString());
+            }
+          }
+          setIsLoading(false);
+          setLoan(value.searchKey);
+          console.log(response);
+        } else {
+        }
+      } catch (error) {
+        console.log(error);
+        setIsLoading(false);
+      }
 
       formik.setFieldValue("searchKey", "");
     },
@@ -158,14 +175,21 @@ export default function PaymentScreen(props) {
 
   useEffect(() => {
     (async () => {
-      const response = await getRegisterStatusApi(auth?.user_id);
-      if (response?.status == false) {
-        //const register = await createRegisterApi(data)
-        const register = true;
-        setOpenedCashier(true);
-        setRegisterInfo(register);
-      } else {
-        setOpenedCashier(true);
+      try {
+        const response = await getRegisterStatusApi(
+          auth?.user_id,
+          netInfo?.isConnected
+        );
+        if (response?.status == false) {
+          //const register = await createRegisterApi(data)
+          const register = true;
+          setOpenedCashier(true);
+          setRegisterInfo(register);
+        } else {
+          setOpenedCashier(true);
+        }
+      } catch (error) {
+        console.log(error);
       }
     })();
   }, [auth]);
@@ -194,14 +218,17 @@ export default function PaymentScreen(props) {
       const response = await getClientByloan({
         searchKey: key,
         employeeId: auth.employee_id,
+        netStatus: netInfo?.isConnected,
       });
 
       if (!isEmpty(response)) {
         setIsCustomer(true);
         console.log("mannnnnn, the charges again", response.charges);
         if (response.charges?.length > 0) {
-          console.log("mannnnnn, the charges again", response);
+          // console.log("mannnnnn, the charges again", response);
           setCharges(response.charges);
+        } else {
+          setCharges([]);
         }
 
         for (var item of response?.customer) {
@@ -439,10 +466,9 @@ function PaymentCustomerCard(props) {
     globalDiscount,
   } = props;
 
-  let pendingAmount = quotas[loan]?.reduce(
-    (acc, item) => acc + parseInt(item.current_fee),
-    0
-  );
+  let pendingAmount = quotas[loan]
+    ?.reduce((acc, item) => acc + parseFloat(item.quota_amount), 0)
+    .toFixed(2);
 
   return !isCustomer ? (
     <View>
@@ -550,8 +576,8 @@ function PaymentCustomerCard(props) {
                     {" "}
                     RD${" "}
                     {significantFigure(
-                      quotas[loan][1]?.quota_amount ||
-                        quotas[loan][0].quota_amount
+                      quotas[loan][1]?.amount_of_fee ||
+                        quotas[loan][0].amount_of_fee
                     )}
                   </Text>
                 </View>
@@ -571,9 +597,10 @@ function PaymentCustomerCard(props) {
                       quotas[loan]
                         .filter((item) => item.status_type == "DEFEATED")
                         .reduce(
-                          (acc, item) => acc + parseInt(item.current_fee),
+                          (acc, item) => acc + parseFloat(item.quota_amount),
                           0
                         )
+                        .toFixed(2)
                     ) || 0}
                   </Text>
                 </View>
@@ -586,11 +613,7 @@ function PaymentCustomerCard(props) {
                   >
                     {significantFigure(globalDiscount) == 0
                       ? "- - - - - - - - - -"
-                      : `RD$ ${
-                          hasDecimal(significantFigure(globalDiscount))
-                            ? significantFigure(globalDiscount)
-                            : significantFigure(globalDiscount) + ".00"
-                        }`}
+                      : `RD$ ${significantFigure(globalDiscount)}`}
                   </Text>
                 </View>
               </View>
@@ -611,7 +634,7 @@ function validationSchema() {
 }
 
 function hasDecimal(num) {
-  console.log("has decimal", !!(parseFloat(num) % 1));
+  // console.log("has decimal", !!(parseFloat(num) % 1));
   return !!(parseFloat(num) % 1);
 }
 

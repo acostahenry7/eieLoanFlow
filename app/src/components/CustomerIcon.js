@@ -8,16 +8,11 @@ export default function CustomerIcon(props) {
   const { size, imageSize, data, trigger } = props;
   var [uri, setUri] = useState(data?.image_url);
 
-  //console.log(data);
-
   useEffect(() => {
     (() => {
       setUri((uri += `?${Date.now()}`));
-      console.log("URIIII", uri);
     })();
   }, [trigger]);
-
-  console.log(data);
 
   return (
     <View style={{ ...styles.customIcon, width: size, height: size }}>

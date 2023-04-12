@@ -7,6 +7,7 @@ import QRImageScreen from "../screens/QRImageScreen";
 import PrinterScreen from "../screens/PrinterScreen";
 import ReportsScreen from "../screens/ReportsScreen";
 import SyncScreen from "../screens/SyncScreen";
+import AccessManagementScreen from "../screens/AccessManagementScreen";
 
 const Stack = createStackNavigator();
 
@@ -50,6 +51,13 @@ export default function AcountNavigation() {
         component={SyncScreen}
         options={{
           title: "Sincronización",
+        }}
+      />
+      <Stack.Screen
+        name="accessMagament"
+        component={AccessManagementScreen}
+        options={{
+          title: "Control de Acceso",
         }}
       />
     </Stack.Navigator>

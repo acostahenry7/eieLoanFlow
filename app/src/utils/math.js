@@ -46,6 +46,8 @@ export function setPaymentObject(
     outletId = requiredField("outletId"),
     customerId = requiredField("customerId"),
     customer,
+    isACharge,
+    chargeId,
     quotaAmount,
     registerId = requiredField("registerId"),
   } = requiredInfo()
@@ -60,7 +62,7 @@ export function setPaymentObject(
   //Validación para abonar restante
   if (payNextQuotas == false) {
     //Si no se desea abonar el resto
-    let quotas = getPaidQuotas(
+    let quotas = processPayment(
       quotaNumber,
       amount,
       loanQuotas,
@@ -88,7 +90,7 @@ export function setPaymentObject(
       return value;
     })(amount, loanQuotas);
 
-    let quotas = getPaidQuotas(
+    let quotas = processPayment(
       nQuotanumber,
       amount,
       loanQuotas,
@@ -96,6 +98,8 @@ export function setPaymentObject(
       liquidateLoan,
       globalDiscount
     );
+
+    console.log("#################################################", quotas);
 
     paidQuotas = quotas.paidQuotas;
     change = quotas.change;
@@ -121,35 +125,42 @@ export function setPaymentObject(
       customer,
       registerId,
       quotaAmount,
-      pendingAmount:
-        liquidateLoan == true
-          ? parseFloat(
-              (
-                loanQuotas.reduce((a, quota) => a + quota.currentAmount, 0) -
-                (amount - change) -
-                globalDiscount
-              ).toFixed(2)
-            )
-          : parseFloat(
-              (
-                loanQuotas.reduce((a, quota) => a + quota.currentAmount, 0) -
-                (amount - change)
-              ).toFixed(2)
-            ),
+      // pendingAmount:
+      //   liquidateLoan == true
+      //     ? parseFloat(
+      //         (
+      //           loanQuotas.reduce((a, quota) => a + quota.currentAmount, 0) -
+      //           (amount - change) -
+      //           globalDiscount
+      //         ).toFixed(2)
+      //       )
+      //     : parseFloat(
+      //         (
+      //           loanQuotas.reduce((a, quota) => a + quota.currentAmount, 0) -
+      //           (amount - change)
+      //         ).toFixed(2)
+      //       ),
+
       totalPaid: parseFloat(
+        liquidateLoan == true ? amount - change : amount - change
+      ),
+      total:
         liquidateLoan == true
-          ? amount + globalDiscount - change
-          : amount - change
-      ),
-      totalMora: parseFloat(
-        paidQuotas.reduce((acc, quota) => acc + parseFloat(quota.fixedMora), 0)
-      ),
+          ? paidQuotas.reduce(
+              (acc, quota) => acc + parseFloat(quota.quota_amount),
+              0
+            ) - globalDiscount
+          : paidQuotas.reduce(
+              (acc, quota) => acc + parseFloat(quota.quota_amount),
+              0
+            ),
+      totalMora: paidQuotas.reduce((acc, quota) => acc + quota.fixedMora, 0),
       change,
     },
     amortization: paidQuotas,
   };
 
-  console.log(paymentData);
+  // console.log("DATAAAAA%%%%", paymentData);
 
   return paymentData;
 }
@@ -170,11 +181,11 @@ function getPaidQuotas(
     let sumQuotas = parseInt(
       loanQuotas.reduce((acc, quota) => acc + quota.currentAmount, 0)
     );
-    console.log("TOTAL", sumQuotas);
+    // console.log("TOTAL", sumQuotas);
     if (amount < sumQuotas && liquidateLoan == true) {
       throw new Error("El monto a pagar debe ser mayor a " + sumQuotas);
     }
-    console.log(sumQuotas);
+    // console.log(sumQuotas);
     quotaNumber = loanQuotas.length;
   }
 
@@ -195,40 +206,55 @@ function getPaidQuotas(
     if (amount >= loanQuotas[index].currentAmount) {
       //This is a test note
       //console.log("camount", loanQuotas[index].currentAmount, "amount", amount);
+      parseFloat(loanQuotas[index].totalPaidMora);
       loanQuotas[index].totalPaid = parseFloat(
-        (loanQuotas[index].currentAmount - loanQuotas[index].mora).toFixed(2)
+        loanQuotas[index].currentPaid +
+          loanQuotas[index].amount -
+          loanQuotas[index].discountMora -
+          loanQuotas[index].discountInterest
       );
+      // parseFloat(loanQuotas[index].totalPaidMora) -
+      // parseFloat(loanQuotas[index].discountMora);
+      loanQuotas[index].executeProcessMora = false;
       loanQuotas[index].statusType = "PAID";
       loanQuotas[index].isPaid = true;
       if (loanQuotas[index].mora != 0) {
-        loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
+        loanQuotas[index].totalPaidMora =
+          parseFloat(loanQuotas[index].totalPaidMora) +
+          parseFloat(loanQuotas[index].fixedMora);
         loanQuotas[index].mora = 0;
       }
+      loanQuotas[index].payMoraOnly = false;
 
       paidQuotas.push(loanQuotas[index]);
-      console.log("hi");
+      // console.log("hi");
       amount = amount - loanQuotas[index].currentAmount;
     } else {
       if (index == 0) {
-        console.log("amount", amount, "mora", loanQuotas[index].mora);
+        // console.log("amount", amount, "mora", loanQuotas[index].mora);
         if (amount <= loanQuotas[index].mora) {
           if (loanQuotas[index].mora != 0) {
             loanQuotas[index].mora = parseFloat(
               (loanQuotas[index].mora - amount).toFixed(2)
             );
             loanQuotas[index].totalPaidMora = amount;
+            loanQuotas[index].payMoraOnly = true;
           } else {
             loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
           }
         } else {
           if (loanQuotas[index].mora != 0) {
-            loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
+            // console.log("brakepoint", loanQuotas[index].mora);
+            loanQuotas[index].totalPaidMora = parseFloat(
+              loanQuotas[index].mora
+            );
 
             loanQuotas[index].totalPaid = parseFloat(
-              (amount - loanQuotas[index].mora).toFixed(2)
+              (amount - loanQuotas[index].totalPaidMora).toFixed(2)
             );
 
             loanQuotas[index].mora = 0;
+            loanQuotas[index].payMoraOnly = false;
           } else {
             loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
           }
@@ -241,20 +267,21 @@ function getPaidQuotas(
       } else {
         if (payNextQuotas == true) {
           if (amount <= loanQuotas[index].mora) {
-            if (amount >= loanQuotas[index].mora != 0) {
+            if (loanQuotas[index].mora != 0) {
               loanQuotas[index].mora = parseFloat(
                 (loanQuotas[index].mora - amount).toFixed(2)
               );
-              loanQuotas[index].totalPaidMora = amount;
+              loanQuotas[index].totalPaidMora = parseFloat(amount.toFixed(2));
+              loanQuotas[index].payMoraOnly = true;
             }
           } else {
-            if (amount <= loanQuotas[index].mora) {
+            if (loanQuotas[index].mora != 0) {
               loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
 
               loanQuotas[index].totalPaid = parseFloat(
                 (amount - loanQuotas[index].mora).toFixed(2)
               );
-
+              loanQuotas[index].payMoraOnly = false;
               loanQuotas[index].mora = 0;
             } else {
               loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
@@ -283,6 +310,148 @@ function getPaidQuotas(
     paidQuotas,
     change,
   };
+}
+
+function processPayment(
+  amountOfQuotas,
+  amount,
+  quotas,
+  pn,
+  liquidateLoan,
+  globalDiscount
+) {
+  let i = 0;
+  let cb = 0;
+  let response = [];
+  let quota;
+
+  if (liquidateLoan == true) {
+    amount = amount + globalDiscount;
+
+    let sumQuotas = quotas.reduce(
+      (acc, quota) => acc + parseFloat(quota.quota_amount),
+      0
+    );
+
+    console.log(
+      "########################################################################",
+      amount,
+      sumQuotas
+    );
+    if (amount < sumQuotas) {
+      throw new Error("El monto debe ser al menos " + sumQuotas);
+    } else {
+      amountOfQuotas = quotas.length;
+    }
+  }
+
+  while (amount > 0) {
+    if (i < amountOfQuotas) {
+      [amount, quota] = paymentCurrentQuota(quotas[i], amount);
+      response.push(quota);
+
+      i++;
+    } else {
+      if (pn == true) {
+        // console.log(i);
+        let o = i;
+
+        while (amount > 0) {
+          if (quotas.length != o) {
+            [amount, quota] = paymentCurrentQuota(quotas[o], amount);
+            response.push(quota);
+            o++;
+          } else {
+            cb = amount;
+            amount = 0;
+          }
+        }
+      } else {
+        cb = Math.round((amount + Number.EPSILON) * 100) / 100;
+        amount = 0;
+      }
+    }
+  }
+
+  return { paidQuotas: response, change: cb };
+}
+
+function paymentCurrentQuota(quota, amount) {
+  // console.log(quota);
+
+  let interestWasPaid = false;
+
+  //Quota default status
+  quota.statusType = "COMPOST";
+  quota.paid = false;
+
+  // Check if mora can be paid
+  if (amount <= quota.mora) {
+    if (amount == quota.mora) {
+      quota.payMoraOnly = true;
+    }
+
+    quota.totalPaidMora =
+      Math.round((quota.totalPaidMora + amount + Number.EPSILON) * 100) / 100;
+    quota.mora = Math.round((quota.mora - amount + Number.EPSILON) * 100) / 100;
+    amount = 0;
+  } else {
+    quota.totalPaidMora = quota.totalPaidMora + quota.mora;
+    amount = Math.round((amount - quota.mora + Number.EPSILON) * 100) / 100;
+    quota.mora = 0;
+
+    // Check if interest can be paid
+    if (quota.totalPaid < quota.interest) {
+      if (amount <= quota.interest - quota.totalPaid) {
+        quota.totalPaid += amount;
+        amount = 0;
+      } else {
+        amount -= quota.interest - quota.totalPaid;
+        quota.totalPaid += quota.interest - quota.totalPaid;
+        // console.log("INTEREST", quota.totalPaid);
+      }
+    } else {
+      interestWasPaid = true;
+    }
+
+    // Check if capital can be paid
+    if (amount <= quota.capital - (quota.totalPaid - quota.interest)) {
+      // console.log(
+      //   "CAPITAL",
+      //   amount + quota.discount,
+      //   quota.capital - (quota.totalPaid - quota.interest)
+      // );
+      if (
+        amount + quota.discount >=
+        quota.capital - (quota.totalPaid - quota.interest)
+      ) {
+        quota.statusType = "PAID";
+        quota.paid = true;
+        quota.totalPaid += quota.capital - quota.discount;
+        // console.log(amount - quota.capital + quota.discount);
+        amount = amount - quota.capital + quota.discount;
+      } else {
+        quota.totalPaid += amount;
+        amount = 0;
+      }
+    } else {
+      quota.statusType = "PAID";
+      quota.paid = true;
+      if (interestWasPaid == true) {
+        amount -= quota.capital - (quota.totalPaid - quota.interest);
+        quota.totalPaid += quota.capital - (quota.totalPaid - quota.interest);
+      } else {
+        amount -= quota.capital;
+        quota.totalPaid += quota.capital;
+      }
+      quota.totalPaid -= quota.discount;
+      amount += quota.discount;
+    }
+  }
+
+  quota.totalPaid = Math.round((quota.totalPaid + Number.EPSILON) * 100) / 100;
+
+  return [amount, quota];
 }
 
 function getPaymentMethod(m) {
@@ -314,8 +483,9 @@ export function significantFigure(num) {
     num = num.toString();
 
     if (num.split(".").length > 0) {
-      console.log("hola");
+      //console.log("HEY CAN BE SPLITED WHERE NUM = ", num);
       decimal = num.split(".")[1];
+      //console.log("HEY DECIMAL WHERE NUM = ", decimal);
       num = num.split(".")[0];
     }
 
@@ -345,7 +515,7 @@ export function significantFigure(num) {
         break;
     }
 
-    console.log("FANCY FUNCTION", styledNum, typeof styledNum);
+    //console.log("FANCY FUNCTION", styledNum, typeof styledNum);
 
     if (decimal) {
       styledNum = styledNum + `.${decimal.toString()}`;
@@ -353,9 +523,14 @@ export function significantFigure(num) {
       styledNum = styledNum + ".00";
     }
 
+    //console.log("FINAL STYLED NUM", styledNum);
     return styledNum;
   } else {
-    return 0;
+    if (num == 0) {
+      return "0.00";
+    } else {
+      return 0;
+    }
   }
 }
 

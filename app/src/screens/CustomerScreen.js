@@ -1,23 +1,24 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, SafeAreaView } from "react-native";
+import { View, Text, SafeAreaView, Alert } from "react-native";
 import { getCustomerApi } from "../api/customers";
 import CustomerCard from "../components/CustomerCard";
 import CustomerList from "../components/CustomerList";
 import CustomerSearch from "../components/CustomerSearch";
 import useAuth from "../hooks/useAuth";
 import Loading from "../components/Loading";
+import { useNetInfo } from "@react-native-community/netinfo";
 
 export default function CustomerScreen(props) {
   const {
     route: { params },
   } = props;
-  console.log("customers params", params);
 
   const [customers, setCustomers] = useState([]);
   const [nextUrl, setNextUrl] = useState(null);
   const [searchStatus, searchValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { auth } = useAuth();
+  const netInfo = useNetInfo();
 
   useEffect(() => {
     (() => {
@@ -27,12 +28,18 @@ export default function CustomerScreen(props) {
 
   useEffect(() => {
     (async () => {
-      setIsLoading(true);
-      auth && auth?.login != "admin" ? await loadCustomers(auth) : undefined;
-      setIsLoading(false);
-      console.log("hi from customer");
+      try {
+        setIsLoading(true);
+        auth && auth?.login != "admin"
+          ? await loadCustomers(auth, netInfo.isConnected)
+          : undefined;
+        setIsLoading(false);
+        console.log("hi from customer");
+      } catch (error) {
+        console.log(error);
+      }
     })();
-  }, [auth]);
+  }, [auth, netInfo]);
 
   //console.log('searchStatus', searchStatus);
   let searchedCustomers = [];
@@ -54,13 +61,17 @@ export default function CustomerScreen(props) {
     searchedCustomers = customers;
   }
 
-  const loadCustomers = async (auth) => {
+  const loadCustomers = async (auth, netStatus) => {
     const customersInfo = {
       customersArray: [],
     };
 
     try {
-      const response = await getCustomerApi(nextUrl, auth?.employee_id);
+      const response = await getCustomerApi(
+        nextUrl,
+        auth?.employee_id,
+        netStatus
+      );
       setNextUrl(response.next);
       //console.log(response.results);
       for (var customer of response.customers) {
@@ -75,28 +86,23 @@ export default function CustomerScreen(props) {
           atrasos: 0,
           cuotas: 10,
           cuota: "$RD 1200",
-          loan_status: (() => {
-            var results, status;
-            response.loans?.map((item) => {
-              if (customer.customer_id == item.customer_id) {
-                results = "ARREARS";
-                status = "done";
-                return;
-              }
-            });
+          loan_status:
+            (() => {
+              var result;
 
-            if (status == "done") {
-              return results;
-            } else {
-              return "NORMAL";
-            }
-          })(),
+              response.loans?.map((item, i) => {
+                if (customer.customer_id == item.customer_id) {
+                  result = item.loan_situation;
+                }
+              });
+              return result;
+            })() || customer.loan_situation,
         });
       }
 
-      setCustomers([...customers, ...customersInfo.customersArray]);
+      setCustomers([...customersInfo.customersArray]);
     } catch (error) {
-      console.error(error);
+      console.log(error.message);
     }
   };
 
