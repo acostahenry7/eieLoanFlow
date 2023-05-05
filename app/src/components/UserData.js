@@ -6,6 +6,7 @@ import {
   Button,
   StyleSheet,
   Alert,
+  TouchableOpacity,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
@@ -37,6 +38,7 @@ export default function UserData(props) {
               textAlign: "center",
               height: 60,
               backgroundColor: "#00ced150",
+
               width: 60,
               borderRadius: 50,
               fontWeight: "bold",
@@ -156,22 +158,25 @@ export default function UserData(props) {
 
 function UserDataMenuItem({ icon, field, nextScreen, navigation, options }) {
   return (
-    <View style={styles.menuDivision}>
-      <Icon name={icon} size={30} style={{ marginRight: 10, marginTop: -4 }} />
-      <Text
-        style={{ width: "100%" }}
-        onPress={() => {
-          icon != "lock"
-            ? navigation.navigate(nextScreen, { params: options })
-            : Alert.alert(
-                "Modulo no Disponible",
-                "Actualmente se ecuentra en mantenimiento"
-              );
-        }}
-      >
-        {field}
-      </Text>
-    </View>
+    <TouchableOpacity
+      onPress={() => {
+        icon != "lock"
+          ? navigation.navigate(nextScreen, { params: options })
+          : Alert.alert(
+              "Modulo no Disponible",
+              "Actualmente se ecuentra en mantenimiento"
+            );
+      }}
+    >
+      <View style={styles.menuDivision}>
+        <Icon
+          name={icon}
+          size={30}
+          style={{ marginRight: 10, marginTop: -4 }}
+        />
+        <Text style={{ width: "100%" }}>{field}</Text>
+      </View>
+    </TouchableOpacity>
   );
 }
 

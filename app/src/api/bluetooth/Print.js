@@ -50,17 +50,18 @@ async function generateReceipt(object, origin) {
   }
   const printerSerial = response[0].address;
 
-  console.log("ASAAAAAAAAAAAAAAAAAAAAAAAA", origin);
-
   switch (origin) {
     case "payment":
       zpl = genereateZPLTemplate(object);
+      console.log(zpl);
       break;
     case "charges":
       console.log("hi");
       zpl = genereateZPLChargesTemplate(object);
       break;
-
+    case "receipt":
+      zpl = object.appZPL;
+      break;
     default:
       break;
   }
@@ -73,7 +74,6 @@ async function generateReceipt(object, origin) {
   var result;
   try {
     result = await RNZebraBluetoothPrinter.print(printerSerial, zpl);
-    result = true;
   } catch (error) {
     return {
       resType: "error",

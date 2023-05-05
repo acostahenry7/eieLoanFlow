@@ -1,4 +1,5 @@
 import { View, Text, Modal, ScrollView, Button } from "react-native";
+import { significantFigure } from "../utils/math";
 import React from "react";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import Loading from "../components/Loading";
@@ -17,7 +18,7 @@ export default function ReceiptCharges(props) {
   const time = (time) => {
     var res = time?.split(".");
 
-    res ? (time = res[0]) : (time = 0);
+    // res ? (time = res[0]) : (time = 0);
 
     return time;
   };
@@ -135,8 +136,14 @@ export default function ReceiptCharges(props) {
               style={{ marginTop: 20, maxHeight: 250 }}
               nestedScrollEnabled={true}
             >
-              <View style={{ flexDirection: "row" }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
                 <Text style={{ fontWeight: "bold" }}>Descripción</Text>
+                <Text style={{ fontWeight: "bold" }}>Monto</Text>
               </View>
               <View
                 style={{
@@ -146,11 +153,25 @@ export default function ReceiptCharges(props) {
                 }}
               >
                 <Text>{receiptDetails.description}</Text>
-                <Text>{receiptDetails.amount}</Text>
+                <Text>RD$ {significantFigure(receiptDetails.amount)}</Text>
                 {/* <Text>{quotas.length}</Text> */}
               </View>
             </ScrollView>
-            <View></View>
+            <View style={{ alignItems: "flex-end", marginTop: 35 }}>
+              <Text>
+                Total Pagado: RD${significantFigure(receiptDetails?.amount)}
+              </Text>
+              <Text>
+                Monto Recibido: RD$
+                {significantFigure(receiptDetails?.receivedAmount)}
+              </Text>
+              <Text>
+                Devuelta: RD$
+                {significantFigure(
+                  receiptDetails?.receivedAmount - receiptDetails.amount
+                )}
+              </Text>
+            </View>
           </View>
           <View style={{ marginTop: 15, flexDirection: "row", bottom: 0 }}>
             <Text

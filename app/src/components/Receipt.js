@@ -101,6 +101,7 @@ export default function Receipt(props) {
                 paddingHorizontal: 10,
               }}
             >
+              {isPrinting && <Loading text="Imprimiendo..." />}
               <View>
                 <Icon
                   name="close"
@@ -174,6 +175,14 @@ export default function Receipt(props) {
                       <Text style={{ fontWeight: "bold" }}>Zona:</Text>
                       <Text style={{}}>{receiptDetails?.section || ""}</Text>
                     </View>
+                    <View style={{ marginTop: 10, flexDirection: "column" }}>
+                      <Text style={{ fontWeight: "bold" }}>
+                        Cantidad de Cuotas:
+                      </Text>
+                      <Text style={{}}>
+                        {receiptDetails?.amountOfQuotas || ""}
+                      </Text>
+                    </View>
                   </View>
                 </View>
                 <Text
@@ -186,13 +195,13 @@ export default function Receipt(props) {
                 >
                   Transacciones
                 </Text>
-                <ScrollView
-                  style={{ marginTop: 20, maxHeight: 250 }}
-                  nestedScrollEnabled={true}
-                >
-                  <View style={{ flexDirection: "row" }}>
-                    <Text style={{ fontWeight: "bold" }}>#Cuotas</Text>
-                    {/* <Text style={{ width: "17%", fontWeight: "bold" }}>
+                {receiptDetails?.liquidateLoan == false ? (
+                  <ScrollView
+                    style={{ marginTop: 20, maxHeight: 250 }}
+                    nestedScrollEnabled={true}
+                  >
+                    <View style={{ flexDirection: "row" }}>
+                      {/* <Text style={{ width: "17%", fontWeight: "bold" }}>
                       No. Cuota:
                     </Text>
                     <Text style={{ width: "30%", fontWeight: "bold" }}>
@@ -207,17 +216,161 @@ export default function Receipt(props) {
                     <Text style={{ width: "20%", fontWeight: "bold" }}>
                       Pagado:
                     </Text> */}
-                  </View>
-                  <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
-                    {quotas.map((i, index) => (
-                      <Text key={index}>
-                        {i.quotaNumber}
-                        {index != quotas.length - 1 ? ", " : undefined}
-                      </Text>
-                    ))}
-                    {/* <Text>{quotas.length}</Text> */}
-                  </View>
-                  {/* {quotas?.map((quota, index) => (
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        marginTop: 10,
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Text style={{ fontWeight: "bold" }}>Cuotas Pagadas</Text>
+                      <View>
+                        <Text style={{ fontWeight: "bold" }}>Monto</Text>
+                      </View>
+                    </View>
+
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          flexWrap: "wrap",
+                          maxWidth: 240,
+                        }}
+                      >
+                        {quotas.map((i, index) => {
+                          let paidQ = quotas.filter(
+                            (o) => o.statusType == "PAID"
+                          );
+
+                          if (i.statusType == "PAID") {
+                            return (
+                              <Text key={index}>
+                                {i.quotaNumber}
+                                {index == paidQ.length - 2 && " y "}
+                                {index != quotas.length - 1 &&
+                                index != paidQ.length - 2
+                                  ? ", "
+                                  : undefined}
+                              </Text>
+                            );
+                          }
+                        })}
+
+                        {/* <Text>{quotas.length}</Text> */}
+                      </View>
+                      <View>
+                        {(() => {
+                          let amount = quotas
+                            .filter((i) => i.statusType == "PAID")
+                            .reduce(
+                              (acc, i) => acc + i.totalPaid - i.fixedTotalPaid,
+                              0
+                            );
+
+                          return (
+                            <Text>
+                              RD${" "}
+                              {amount > 0
+                                ? significantFigure(
+                                    (
+                                      ((amount + Number.EPSILON) * 100) /
+                                      100
+                                    ).toFixed(2)
+                                  )
+                                : "0.00"}
+                            </Text>
+                          );
+                        })()}
+                      </View>
+                    </View>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        marginTop: 10,
+                        justifyContent: "space-between",
+                      }}
+                    >
+                      <Text style={{ fontWeight: "bold" }}>Abono a cuota</Text>
+                      <View>
+                        <Text style={{ fontWeight: "bold" }}>Monto</Text>
+                      </View>
+                    </View>
+
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      <View style={{ flexDirection: "row", flexWrap: "wrap" }}>
+                        {quotas.map((i, index) => {
+                          let paidQ = quotas.filter(
+                            (o) =>
+                              o.statusType == "COMPOST" ||
+                              o.statusType == "DEFEATED"
+                          );
+
+                          if (
+                            i.statusType == "COMPOST" ||
+                            i.statusType == "DEFEATED"
+                          ) {
+                            // let amount = quotas
+                            //   .filter((i) => i.statusType == "COMPOST")
+                            //   .reduce(
+                            //     (acc, i) =>
+                            //       acc + i.totalPaid - i.fixedTotalPaid,
+                            //     0
+                            //   );
+
+                            //if (amount > 0) {
+                            return (
+                              <Text key={index}>
+                                {i.quotaNumber}
+                                {index == paidQ.length - 2 && " y "}
+                                {index != quotas.length - 1 &&
+                                index != paidQ.length - 2
+                                  ? ", "
+                                  : undefined}
+                              </Text>
+                            );
+                            //}
+                          }
+                        })}
+                      </View>
+                      <View>
+                        {(() => {
+                          let amount = quotas
+                            .filter((i) => i.statusType == "COMPOST")
+                            .reduce(
+                              (acc, i) => acc + i.totalPaid - i.fixedTotalPaid,
+                              0
+                            );
+                          return (
+                            <Text>
+                              RD${" "}
+                              {amount > 0
+                                ? significantFigure(
+                                    (
+                                      ((amount + Number.EPSILON) * 100) /
+                                      100
+                                    ).toFixed(2)
+                                  )
+                                : "0.00"}
+                            </Text>
+                          );
+                        })()}
+                      </View>
+                    </View>
+
+                    {/* {quotas?.map((quota, index) => (
                     <View key={index}>
                       <View style={{ flexDirection: "row", marginTop: 10 }}>
                         <View style={{ width: "17%" }}>
@@ -309,12 +462,20 @@ export default function Receipt(props) {
                       </View>
                     </View>
                   ))} */}
-                </ScrollView>
+                  </ScrollView>
+                ) : (
+                  <Text style={{ paddingVertical: 30, textAlign: "center" }}>
+                    -- Saldo de préstamo --{" "}
+                  </Text>
+                )}
                 <View style={{ marginTop: 15 }}>
                   <View style={styles.totalSection}>
-                    <Text style={styles.totalSectionTitle}>Total Mora:</Text>
+                    <Text style={styles.totalSectionTitle}>Mora Pagada:</Text>
                     <Text style={styles.totalSectionBody}>
-                      {significantFigure(receiptDetails.mora?.toFixed(2))}
+                      RD${" "}
+                      {significantFigure(
+                        receiptDetails.totalPaidMora?.toFixed(2)
+                      )}
                     </Text>
                   </View>
                   {/* <View style={styles.totalSection}>
@@ -341,11 +502,34 @@ export default function Receipt(props) {
                       {significantFigure(receiptDetails.discount?.toFixed(2))}
                     </Text>
                   </View> */}
-                  <View style={styles.totalSection}>
+                  {/* <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Total:</Text>
                     <Text style={styles.totalSectionBody}>
                       RD$
                       {significantFigure(receiptDetails.total?.toFixed(2))}
+                    </Text>
+                  </View> */}
+                  <View style={styles.totalSection}>
+                    <Text
+                      style={{
+                        ...styles.totalSectionTitle,
+                        backgroundColor: "black",
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Total Pagado:
+                    </Text>
+                    <Text
+                      style={{
+                        ...styles.totalSectionBody,
+                        backgroundColor: "black",
+                        color: "white",
+                        marginLeft: 0,
+                      }}
+                    >
+                      RD${" "}
+                      {significantFigure(receiptDetails.totalPaid?.toFixed(2))}
                     </Text>
                   </View>
                   <View style={styles.totalSection}>
@@ -359,13 +543,13 @@ export default function Receipt(props) {
                       )}
                     </Text>
                   </View>
-                  <View style={styles.totalSection}>
+                  {/* <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>Total Pagado:</Text>
                     <Text style={styles.totalSectionBody}>
                       RD${" "}
                       {significantFigure(receiptDetails.totalPaid?.toFixed(2))}
                     </Text>
-                  </View>
+                  </View> */}
                   {/* <View style={styles.totalSection}>
                     <Text style={styles.totalSectionTitle}>
                       Saldo Pendiente:
@@ -378,8 +562,24 @@ export default function Receipt(props) {
                     </Text>
                   </View> */}
                   <View style={styles.totalSection}>
-                    <Text style={styles.totalSectionTitle}>Cambio:</Text>
-                    <Text style={styles.totalSectionBody}>
+                    <Text
+                      style={{
+                        ...styles.totalSectionTitle,
+                        backgroundColor: "black",
+                        color: "white",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Devuelta:
+                    </Text>
+                    <Text
+                      style={{
+                        ...styles.totalSectionBody,
+                        backgroundColor: "black",
+                        color: "white",
+                        marginLeft: 0,
+                      }}
+                    >
                       RD${" "}
                       {significantFigure(receiptDetails.cashBack?.toFixed(2))}
                     </Text>
@@ -410,10 +610,12 @@ export default function Receipt(props) {
                     style={{ marginLeft: "auto", right: 0 }}
                     title="Imprimir"
                     onPress={async () => {
+                      setIsPrinting(true);
                       const response = await printByBluetooth(
                         receiptDetails,
                         origin
                       );
+                      setIsPrinting(false);
                       //console.log("Pay", response);
                       if (response == true) {
                         navigation.navigate("Payments", {
@@ -505,7 +707,7 @@ export default function Receipt(props) {
                   Volver a Cobros
                 </Text>
                 <View style={{ width: "50%" }}>
-                  {/* <Button
+                  <Button
                     style={{ marginLeft: "auto", right: 0 }}
                     title="Imprimir"
                     onPress={async () => {
@@ -524,7 +726,7 @@ export default function Receipt(props) {
                         Alert.alert("Error de Impresión", response.message);
                       }
                     }}
-                  /> */}
+                  />
                 </View>
               </View>
             </View>
@@ -544,13 +746,14 @@ const styles = StyleSheet.create({
   totalSectionTitle: {
     fontSize: 14,
     textAlign: "right",
+    paddingHorizontal: 4,
   },
 
   totalSectionBody: {
     fontSize: 16,
     textAlign: "right",
     fontWeight: "bold",
-    marginLeft: 5,
+    paddingHorizontal: 5,
   },
 });
 
