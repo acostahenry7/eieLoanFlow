@@ -40,3 +40,7 @@ export const SCREEN_DIMENSION = {
   width: Dimensions.get("screen").width,
   height: Dimensions.get("screen").height,
 };
+
+export const appInfo = {
+  version: "1.8",
+};

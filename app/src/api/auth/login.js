@@ -2,7 +2,7 @@ import {
   getSavedConnectionUrlApi,
   saveConnectionUrlApi,
 } from "../server/connection";
-import { API_HOST } from "../../utils/constants";
+import { API_HOST, appInfo } from "../../utils/constants";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import BcryptReactNative from "bcrypt-react-native";
 
@@ -11,7 +11,7 @@ export async function loginApi(username, password, deviceInfo, netStatus) {
     username,
     password,
     deviceInfo,
-    version: "1.7",
+    version: appInfo.version,
   };
 
   const options = {

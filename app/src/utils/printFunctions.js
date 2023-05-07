@@ -1,4 +1,5 @@
 import { getTotalDiscount, significantFigure } from "./math";
+import { formatFullName } from "./stringFuctions";
 
 //Section divisor
 export function zSection(title, x, y, p) {
@@ -349,105 +350,23 @@ export function genereateZPLChargesTemplate(object) {
   return zpl;
 }
 
-function buildHeader(arr, x, y) {
-  var header = "";
+export function generateQRLabel(object) {
+  let xPos = 130;
 
-  arr.map((item) => {
-    header += zText(item, x, y);
-    x += 120;
-  });
+  // console.log(
+  //   "FROM QR PRINTING",
+  //   formatFullName(object.first_name, object).split(" ")
+  // );
+  // if (formatFullName(object.first_name, object).split(" ").length > 3) {
+  //   xPos = 85;
+  // }
 
-  return header;
+  let zpl = `
+  ^XA
+  ^LL600
+  ^FO120,140^BQ,2,10^A0N,50,50^FDQA,${JSON.stringify(object.qr)}^FS
+  ${zTitle(formatFullName(object.first_name, object), xPos, 510)}
+  ^XZ`;
+
+  return zpl;
 }
-
-function buildBody(arr, x, y) {
-  var body = "";
-
-  arr.map((item, index) => {
-    body += `${zText(
-      item.loan_number_id +
-        " " +
-        extractSimplifiedName(item.name) +
-        " " +
-        item.receipt_number +
-        " " +
-        item.date +
-        " " +
-        item.pay,
-      x,
-      y
-    )}`;
-    y += 20;
-  });
-
-  return body;
-}
-
-const getSubTotal = (arr) => {
-  var sum = 0;
-
-  arr.map((item) => {
-    //console.log(item);
-    sum += parseFloat(item.amount) + parseFloat(item.fixedMora);
-  });
-
-  //console.log(sum);
-  return sum.toFixed(2);
-};
-
-const getTotal = (arr) => {
-  var sum = 0;
-
-  arr.map((item) => {
-    //console.log(item);
-    sum += parseFloat(item.quota_amount);
-  });
-
-  sum = Math.round((sum + Number.EPSILON) * 100) / 100;
-  return sum.toFixed(2);
-};
-
-const totalPaid = (arr) => {
-  let result = 0;
-  let i = 0;
-
-  for (i of arr) {
-    result += parseInt(i.totalPaid);
-  }
-
-  return result;
-};
-
-const getReceivedAmount = (arr) => {
-  var sum = 0;
-
-  arr.map((item) => {
-    //console.log(item);
-    sum += parseFloat(item.totalPaid);
-    // parseFloat(item.totalPaid) +
-    // parseInt(item.mora) -
-    // parseFloat(item.discountMora) -
-    // parseFloat(item.discountInterest);
-  });
-
-  //console.log(sum);
-  return sum.toString();
-};
-
-function getTotalMora(arr) {
-  var sum = 0;
-
-  arr.map((item) => {
-    sum += parseFloat(item.fixedMora);
-  });
-
-  // console.log("######################################", sum);
-  return sum.toFixed(2);
-}
-
-// ${/*zTitle("Total:", 200, top + 60)*/}
-//               ${/*zTitle(
-//                 "RD$ " + significantFigure(object.total?.toFixed(2)),
-//                 365,
-//                 top + 60
-//               )*/}

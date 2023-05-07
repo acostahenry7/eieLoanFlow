@@ -11,6 +11,7 @@ import { extractIconText } from "../../utils/stringFuctions";
 import {
   genereateZPLTemplate,
   genereateZPLChargesTemplate,
+  generateQRLabel,
 } from "../../utils/printFunctions";
 
 // Bluetooth Printing API
@@ -61,6 +62,9 @@ async function generateReceipt(object, origin) {
       break;
     case "receipt":
       zpl = object.appZPL;
+      break;
+    case "qr":
+      zpl = generateQRLabel(object);
       break;
     default:
       break;
