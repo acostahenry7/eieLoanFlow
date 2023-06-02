@@ -6,6 +6,7 @@ import {
   extractIconText,
   formatFullName,
 } from "../utils/stringFuctions";
+import { printByBluetooth } from "../api/bluetooth/Print";
 import {
   Menu,
   MenuOptions,
@@ -115,9 +116,17 @@ export default function QRCustomerCard(props) {
                   {customer.qr_code == null ? undefined : (
                     <MenuOption
                       style={styles.menuOption}
-                      onSelect={() => {
-                        // setIsOpenedComment(!isOpenedComment)
-                        // setIsCustomer(false)
+                      onSelect={async () => {
+                        console.log("hi");
+                        let data = {
+                          qr: {
+                            id: customer.id,
+                          },
+                          first_name: customer.first_name,
+                          last_name: customer.last_name,
+                          //qr_code: customer.qr_code,
+                        };
+                        let response = await printByBluetooth(data, "qr");
                       }}
                       text="Imprimir QR"
                     />

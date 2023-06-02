@@ -508,20 +508,26 @@ function PaymentCustomerCard(props) {
               >
                 <MenuOption
                   style={styles.menuOption}
-                  onSelect={() =>
-                    goToPage("PaymentsForm", navigation, {
-                      ...customer,
-                      loans,
-                      loan,
-                      charges,
-                      quotas,
-                      register,
-                      globalDiscount,
-                    })
-                  }
+                  onSelect={() => {
+                    //console.log(quotas[loan]);
+                    quotas[loan].length > 0
+                      ? goToPage("PaymentsForm", navigation, {
+                          ...customer,
+                          loans,
+                          loan,
+                          charges,
+                          quotas,
+                          register,
+                          globalDiscount,
+                        })
+                      : Alert.alert(
+                          "Advertencia!",
+                          "Este préstamo ya ha sido saldado!"
+                        );
+                  }}
                   text="Cobrar"
                 />
-                <MenuOption
+                {/* <MenuOption
                   style={styles.menuOption}
                   text="Ver Recibo"
                   onSelect={() =>
@@ -531,7 +537,7 @@ function PaymentCustomerCard(props) {
                       loan,
                     })
                   }
-                />
+                /> */}
                 <MenuOption
                   style={styles.menuOption}
                   onSelect={() => {
@@ -565,10 +571,26 @@ function PaymentCustomerCard(props) {
               <Text style={{ color: "red" }}>Préstamo: {loan}</Text>
               <View style={{ marginTop: 15 }}>
                 <View style={{ flexDirection: "row" }}>
-                  <Text style={styles.cItext}>
-                    Cantidad de cuotas pendientes:
+                  <Text style={styles.cItext}>Pagado hasta cuota</Text>
+                  <Text style={styles.cIValue}>
+                    {" "}
+                    {quotas[loan][0].quota_number - 1}
                   </Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.cItext}>Cuotas pendientes:</Text>
                   <Text style={styles.cIValue}> {quotas[loan]?.length}</Text>
+                </View>
+                <View style={{ flexDirection: "row" }}>
+                  <Text style={styles.cItext}>Cuotas en atraso:</Text>
+                  <Text style={styles.cIValue}>
+                    {" "}
+                    {
+                      quotas[loan].filter(
+                        (item) => item.status_type == "DEFEATED"
+                      ).length
+                    }
+                  </Text>
                 </View>
                 <View style={{ flexDirection: "row" }}>
                   <Text style={styles.cItext}>Monto por cuota:</Text>

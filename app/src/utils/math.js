@@ -140,9 +140,11 @@ export function setPaymentObject(
       //           (amount - change)
       //         ).toFixed(2)
       //       ),
-
-      totalPaid: parseFloat(
-        liquidateLoan == true ? amount - change : amount - change
+      pay: amount - change,
+      totalPaid: paidQuotas.reduce((acc, quota) => acc + quota.totalPaid, 0),
+      fixedTotalPaid: paidQuotas.reduce(
+        (acc, quota) => acc + quota.fixedTotalPaid,
+        0
       ),
       total:
         liquidateLoan == true
@@ -155,6 +157,14 @@ export function setPaymentObject(
               0
             ),
       totalMora: paidQuotas.reduce((acc, quota) => acc + quota.fixedMora, 0),
+      fixedTotalPaidMora: paidQuotas.reduce(
+        (acc, quota) => acc + quota.fixedTotalPaidMora,
+        0
+      ),
+      totalPaidMora: paidQuotas.reduce(
+        (acc, quota) => acc + quota.totalPaidMora,
+        0
+      ),
       change,
     },
     amortization: paidQuotas,
@@ -166,151 +176,151 @@ export function setPaymentObject(
 }
 
 //Determines the paid Quotas by getting info from the form
-function getPaidQuotas(
-  quotaNumber,
-  amount,
-  loanQuotas,
-  payNextQuotas,
-  liquidateLoan,
-  globalDiscount
-) {
-  let paidQuotas = [];
-  let change = 0;
+// function getPaidQuotas(
+//   quotaNumber,
+//   amount,
+//   loanQuotas,
+//   payNextQuotas,
+//   liquidateLoan,
+//   globalDiscount
+// ) {
+//   let paidQuotas = [];
+//   let change = 0;
 
-  if (liquidateLoan == true) {
-    let sumQuotas = parseInt(
-      loanQuotas.reduce((acc, quota) => acc + quota.currentAmount, 0)
-    );
-    // console.log("TOTAL", sumQuotas);
-    if (amount < sumQuotas && liquidateLoan == true) {
-      throw new Error("El monto a pagar debe ser mayor a " + sumQuotas);
-    }
-    // console.log(sumQuotas);
-    quotaNumber = loanQuotas.length;
-  }
+//   if (liquidateLoan == true) {
+//     let sumQuotas = parseInt(
+//       loanQuotas.reduce((acc, quota) => acc + quota.currentAmount, 0)
+//     );
+//     // console.log("TOTAL", sumQuotas);
+//     if (amount < sumQuotas && liquidateLoan == true) {
+//       throw new Error("El monto a pagar debe ser mayor a " + sumQuotas);
+//     }
+//     // console.log(sumQuotas);
+//     quotaNumber = loanQuotas.length;
+//   }
 
-  if (liquidateLoan == true) {
-    amount = amount + globalDiscount;
-  }
+//   if (liquidateLoan == true) {
+//     amount = amount + globalDiscount;
+//   }
 
-  if (amount == 0) {
-    throw new Error("El monto a pagar debe ser superior a 0.");
-  }
+//   if (amount == 0) {
+//     throw new Error("El monto a pagar debe ser superior a 0.");
+//   }
 
-  //Realizando el pago según cantidad de cuotas
-  for (let index = 0; index < quotaNumber; index++) {
-    /*Validar si monto es suficiente para saldar quota,
-      de lo contrario se abona*/
-    //console.log(quotaNumber, index);
+//   //Realizando el pago según cantidad de cuotas
+//   for (let index = 0; index < quotaNumber; index++) {
+//     /*Validar si monto es suficiente para saldar quota,
+//       de lo contrario se abona*/
+//     //console.log(quotaNumber, index);
 
-    if (amount >= loanQuotas[index].currentAmount) {
-      //This is a test note
-      //console.log("camount", loanQuotas[index].currentAmount, "amount", amount);
-      parseFloat(loanQuotas[index].totalPaidMora);
-      loanQuotas[index].totalPaid = parseFloat(
-        loanQuotas[index].currentPaid +
-          loanQuotas[index].amount -
-          loanQuotas[index].discountMora -
-          loanQuotas[index].discountInterest
-      );
-      // parseFloat(loanQuotas[index].totalPaidMora) -
-      // parseFloat(loanQuotas[index].discountMora);
-      loanQuotas[index].executeProcessMora = false;
-      loanQuotas[index].statusType = "PAID";
-      loanQuotas[index].isPaid = true;
-      if (loanQuotas[index].mora != 0) {
-        loanQuotas[index].totalPaidMora =
-          parseFloat(loanQuotas[index].totalPaidMora) +
-          parseFloat(loanQuotas[index].fixedMora);
-        loanQuotas[index].mora = 0;
-      }
-      loanQuotas[index].payMoraOnly = false;
+//     if (amount >= loanQuotas[index].currentAmount) {
+//       //This is a test note
+//       //console.log("camount", loanQuotas[index].currentAmount, "amount", amount);
+//       parseFloat(loanQuotas[index].totalPaidMora);
+//       loanQuotas[index].totalPaid = parseFloat(
+//         loanQuotas[index].currentPaid +
+//           loanQuotas[index].amount -
+//           loanQuotas[index].discountMora -
+//           loanQuotas[index].discountInterest
+//       );
+//       // parseFloat(loanQuotas[index].totalPaidMora) -
+//       // parseFloat(loanQuotas[index].discountMora);
+//       loanQuotas[index].executeProcessMora = false;
+//       loanQuotas[index].statusType = "PAID";
+//       loanQuotas[index].isPaid = true;
+//       if (loanQuotas[index].mora != 0) {
+//         loanQuotas[index].totalPaidMora =
+//           parseFloat(loanQuotas[index].totalPaidMora) +
+//           parseFloat(loanQuotas[index].fixedMora);
+//         loanQuotas[index].mora = 0;
+//       }
+//       loanQuotas[index].payMoraOnly = false;
 
-      paidQuotas.push(loanQuotas[index]);
-      // console.log("hi");
-      amount = amount - loanQuotas[index].currentAmount;
-    } else {
-      if (index == 0) {
-        // console.log("amount", amount, "mora", loanQuotas[index].mora);
-        if (amount <= loanQuotas[index].mora) {
-          if (loanQuotas[index].mora != 0) {
-            loanQuotas[index].mora = parseFloat(
-              (loanQuotas[index].mora - amount).toFixed(2)
-            );
-            loanQuotas[index].totalPaidMora = amount;
-            loanQuotas[index].payMoraOnly = true;
-          } else {
-            loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
-          }
-        } else {
-          if (loanQuotas[index].mora != 0) {
-            // console.log("brakepoint", loanQuotas[index].mora);
-            loanQuotas[index].totalPaidMora = parseFloat(
-              loanQuotas[index].mora
-            );
+//       paidQuotas.push(loanQuotas[index]);
+//       // console.log("hi");
+//       amount = amount - loanQuotas[index].currentAmount;
+//     } else {
+//       if (index == 0) {
+//         // console.log("amount", amount, "mora", loanQuotas[index].mora);
+//         if (amount <= loanQuotas[index].mora) {
+//           if (loanQuotas[index].mora != 0) {
+//             loanQuotas[index].mora = parseFloat(
+//               (loanQuotas[index].mora - amount).toFixed(2)
+//             );
+//             loanQuotas[index].totalPaidMora = amount;
+//             loanQuotas[index].payMoraOnly = true;
+//           } else {
+//             loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
+//           }
+//         } else {
+//           if (loanQuotas[index].mora != 0) {
+//             // console.log("brakepoint", loanQuotas[index].mora);
+//             loanQuotas[index].totalPaidMora = parseFloat(
+//               loanQuotas[index].mora
+//             );
 
-            loanQuotas[index].totalPaid = parseFloat(
-              (amount - loanQuotas[index].totalPaidMora).toFixed(2)
-            );
+//             loanQuotas[index].totalPaid = parseFloat(
+//               (amount - loanQuotas[index].totalPaidMora).toFixed(2)
+//             );
 
-            loanQuotas[index].mora = 0;
-            loanQuotas[index].payMoraOnly = false;
-          } else {
-            loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
-          }
-        }
+//             loanQuotas[index].mora = 0;
+//             loanQuotas[index].payMoraOnly = false;
+//           } else {
+//             loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
+//           }
+//         }
 
-        loanQuotas[index].statusType = "COMPOST";
-        loanQuotas[index].isPaid = false;
-        paidQuotas.push(loanQuotas[index]);
-        amount = 0;
-      } else {
-        if (payNextQuotas == true) {
-          if (amount <= loanQuotas[index].mora) {
-            if (loanQuotas[index].mora != 0) {
-              loanQuotas[index].mora = parseFloat(
-                (loanQuotas[index].mora - amount).toFixed(2)
-              );
-              loanQuotas[index].totalPaidMora = parseFloat(amount.toFixed(2));
-              loanQuotas[index].payMoraOnly = true;
-            }
-          } else {
-            if (loanQuotas[index].mora != 0) {
-              loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
+//         loanQuotas[index].statusType = "COMPOST";
+//         loanQuotas[index].isPaid = false;
+//         paidQuotas.push(loanQuotas[index]);
+//         amount = 0;
+//       } else {
+//         if (payNextQuotas == true) {
+//           if (amount <= loanQuotas[index].mora) {
+//             if (loanQuotas[index].mora != 0) {
+//               loanQuotas[index].mora = parseFloat(
+//                 (loanQuotas[index].mora - amount).toFixed(2)
+//               );
+//               loanQuotas[index].totalPaidMora = parseFloat(amount.toFixed(2));
+//               loanQuotas[index].payMoraOnly = true;
+//             }
+//           } else {
+//             if (loanQuotas[index].mora != 0) {
+//               loanQuotas[index].totalPaidMora = loanQuotas[index].mora;
 
-              loanQuotas[index].totalPaid = parseFloat(
-                (amount - loanQuotas[index].mora).toFixed(2)
-              );
-              loanQuotas[index].payMoraOnly = false;
-              loanQuotas[index].mora = 0;
-            } else {
-              loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
-            }
-          }
+//               loanQuotas[index].totalPaid = parseFloat(
+//                 (amount - loanQuotas[index].mora).toFixed(2)
+//               );
+//               loanQuotas[index].payMoraOnly = false;
+//               loanQuotas[index].mora = 0;
+//             } else {
+//               loanQuotas[index].totalPaid = parseFloat(amount.toFixed(2));
+//             }
+//           }
 
-          loanQuotas[index].statusType = "COMPOST";
-          loanQuotas[index].isPaid = false;
-          paidQuotas.push(loanQuotas[index]);
-          amount = 0;
-        } else {
-          change = parseFloat(amount.toFixed(2));
-          if (index == quotaNumber) {
-            amount = 0;
-          }
-        }
-      }
-    }
-  }
+//           loanQuotas[index].statusType = "COMPOST";
+//           loanQuotas[index].isPaid = false;
+//           paidQuotas.push(loanQuotas[index]);
+//           amount = 0;
+//         } else {
+//           change = parseFloat(amount.toFixed(2));
+//           if (index == quotaNumber) {
+//             amount = 0;
+//           }
+//         }
+//       }
+//     }
+//   }
 
-  if (amount > 0) {
-    change = parseFloat(amount.toFixed(2));
-  }
+//   if (amount > 0) {
+//     change = parseFloat(amount.toFixed(2));
+//   }
 
-  return {
-    paidQuotas,
-    change,
-  };
-}
+//   return {
+//     paidQuotas,
+//     change,
+//   };
+// }
 
 function processPayment(
   amountOfQuotas,
@@ -324,6 +334,26 @@ function processPayment(
   let cb = 0;
   let response = [];
   let quota;
+
+  // let discQuotas = [];
+  // quotas.map((c, i) => i < amountOfQuotas && discQuotas.push(c));
+
+  // let minAmount = discQuotas.filter((c) => c.discount > 0);
+
+  // if (minAmount.length > 1) {
+  //   minAmount = minAmount.reduce((acc, i) => acc + i.quota_amount);
+  // } else {
+  //   minAmount = minAmount.quota_amount;
+  // }
+
+  // console.log("MIN AMOUNT", minAmount);
+
+  // if (amount < minAmount) {
+  //   throw new Error(
+  //     "Una o varias cuotas presentan descuento, el monto debe ser mayor a RD$" +
+  //       significantFigure(minAmount.toString())
+  //   );
+  // }
 
   if (liquidateLoan == true) {
     amount = amount + globalDiscount;
@@ -379,34 +409,56 @@ function processPayment(
 function paymentCurrentQuota(quota, amount) {
   // console.log(quota);
 
+  if (quota.discount > 0 && amount < quota.quota_amount) {
+    throw new Error(
+      "Esta cuota presenta descuento, el monto debe ser mayor a RD$" +
+        significantFigure(quota.quota_amount.toString())
+    );
+  }
   let interestWasPaid = false;
 
   //Quota default status
-  quota.statusType = "COMPOST";
-  quota.paid = false;
+
+  if (quota.fixedStatusType != "DEFEATED") {
+    quota.statusType = "COMPOST";
+    quota.paid = false;
+  }
+
+  if (quota.totalPaidMora < quota.mora && amount >= quota.quota_amount) {
+    quota.mora -= quota.discount;
+    //quota.fixedMora -= quota.discount;
+  }
 
   // Check if mora can be paid
   if (amount <= quota.mora) {
-    if (amount == quota.mora) {
-      quota.payMoraOnly = true;
-    }
+    quota.payMoraOnly = true;
 
     quota.totalPaidMora =
       Math.round((quota.totalPaidMora + amount + Number.EPSILON) * 100) / 100;
     quota.mora = Math.round((quota.mora - amount + Number.EPSILON) * 100) / 100;
     amount = 0;
   } else {
-    quota.totalPaidMora = quota.totalPaidMora + quota.mora;
+    quota.totalPaidMora =
+      Math.round((quota.totalPaidMora + quota.mora + Number.EPSILON) * 100) /
+      100;
     amount = Math.round((amount - quota.mora + Number.EPSILON) * 100) / 100;
     quota.mora = 0;
+
+    console.log("1234", amount);
 
     // Check if interest can be paid
     if (quota.totalPaid < quota.interest) {
       if (amount <= quota.interest - quota.totalPaid) {
+        if (amount > 0) {
+          quota.statusType = "COMPOST";
+          quota.paid = false;
+        }
         quota.totalPaid += amount;
         amount = 0;
       } else {
-        amount -= quota.interest - quota.totalPaid;
+        quota.statusType = "COMPOST";
+        quota.paid = false;
+        amount = amount - (quota.interest - quota.totalPaid);
         quota.totalPaid += quota.interest - quota.totalPaid;
         // console.log("INTEREST", quota.totalPaid);
       }
@@ -414,45 +466,164 @@ function paymentCurrentQuota(quota, amount) {
       interestWasPaid = true;
     }
 
+    console.log("WHAT IS GOIN ON ", {
+      amount,
+      capital: quota.capital - (quota.totalPaid - quota.interest),
+    });
+    quota.capital = quota.amountOfFee - quota.interest;
+
     // Check if capital can be paid
-    if (amount <= quota.capital - (quota.totalPaid - quota.interest)) {
+    if (amount < quota.capital - (quota.totalPaid - quota.interest)) {
       // console.log(
       //   "CAPITAL",
       //   amount + quota.discount,
       //   quota.capital - (quota.totalPaid - quota.interest)
       // );
-      if (
-        amount + quota.discount >=
-        quota.capital - (quota.totalPaid - quota.interest)
-      ) {
-        quota.statusType = "PAID";
-        quota.paid = true;
-        quota.totalPaid += quota.capital - quota.discount;
-        // console.log(amount - quota.capital + quota.discount);
-        amount = amount - quota.capital + quota.discount;
-      } else {
-        quota.totalPaid += amount;
-        amount = 0;
-      }
+      // if (
+      //   amount + quota.discount >=
+      //   quota.capital - (quota.totalPaid - quota.interest)
+      // ) {
+      //   quota.statusType = "PAID";
+      //   quota.paid = true;
+      //   quota.totalPaid += quota.capital - quota.discount;
+      //   // console.log(amount - quota.capital + quota.discount);
+      //   amount = amount - quota.capital + quota.discount;
+      // } else {
+      quota.totalPaid += amount;
+      amount = 0;
+      //}
     } else {
-      quota.statusType = "PAID";
-      quota.paid = true;
       if (interestWasPaid == true) {
         amount -= quota.capital - (quota.totalPaid - quota.interest);
         quota.totalPaid += quota.capital - (quota.totalPaid - quota.interest);
       } else {
         amount -= quota.capital;
+        console.log("BEFORE", quota.totalPaid);
         quota.totalPaid += quota.capital;
+        console.log("AFTER", quota.totalPaid);
       }
-      quota.totalPaid -= quota.discount;
-      amount += quota.discount;
+      // quota.totalPaid -= quota.discount;
+      // amount += quota.discount;
+      quota.statusType = "PAID";
+      quota.paid = true;
     }
   }
 
   quota.totalPaid = Math.round((quota.totalPaid + Number.EPSILON) * 100) / 100;
 
+  // if (quota.totalPaid + quota.totalPaidMora >= quota.quota_amount) {
+  //   quota.statusType = "PAID";
+  //   quota.paid = true;
+  // }
+
   return [amount, quota];
 }
+
+// function paymentCurrentQuota(quota, amount) {
+//   // console.log(quota);
+
+//   if (quota.discount > 0 && amount < quota.quota_amount) {
+//     throw new Error(
+//       "Esta cuota presenta descuento, el monto debe ser mayor a RD$" +
+//         significantFigure(quota.quota_amount.toString())
+//     );
+//   } else {
+//     amount = amount + quota.discount;
+//   }
+
+//   let interestWasPaid = false;
+
+//   //Quota default status
+//   quota.statusType = "COMPOST";
+//   quota.paid = false;
+
+//   // if (quota.totalPaidMora == 0 && amount >= quota.quota_amount) {
+//   //   quota.mora -= quota.discount;
+//   //   quota.fixedMora -= quota.discount;
+//   // }
+
+//   // Check if mora can be paid
+//   if (amount <= quota.mora) {
+//     if (amount == quota.mora) {
+//       quota.payMoraOnly = true;
+//     }
+
+//     quota.totalPaidMora =
+//       Math.round((quota.totalPaidMora + amount + Number.EPSILON) * 100) / 100;
+//     quota.mora = Math.round((quota.mora - amount + Number.EPSILON) * 100) / 100;
+//     amount = 0;
+//   } else {
+//     quota.totalPaidMora =
+//       Math.round((quota.totalPaidMora + quota.mora + Number.EPSILON) * 100) /
+//       100;
+//     amount = Math.round((amount - quota.mora + Number.EPSILON) * 100) / 100;
+//     quota.mora = 0;
+
+//     console.log("1234", amount);
+
+//     // Check if interest can be paid
+//     if (quota.totalPaid < quota.interest) {
+//       if (amount <= quota.interest - quota.totalPaid) {
+//         quota.totalPaid += amount;
+//         amount = 0;
+//       } else {
+//         amount = amount - (quota.interest - quota.totalPaid);
+//         quota.totalPaid += quota.interest - quota.totalPaid;
+//         // console.log("INTEREST", quota.totalPaid);
+//       }
+//     } else {
+//       interestWasPaid = true;
+//     }
+
+//     console.log("WHAT IS GOIN ON ", {
+//       amount,
+//       capital: quota.capital - (quota.totalPaid - quota.interest),
+//     });
+//     // Check if capital can be paid
+
+//     if (amount < quota.capital - (quota.totalPaid - quota.interest)) {
+//       console.log(
+//         "CAPITAL",
+//         amount + quota.discount,
+//         quota.capital - (quota.totalPaid - quota.interest)
+//       );
+//       if (
+//         amount + quota.discount >=
+//         quota.capital - (quota.totalPaid - quota.interest)
+//       ) {
+//         quota.statusType = "PAID";
+//         quota.paid = true;
+//         quota.totalPaid += quota.capital - quota.discount;
+//         // console.log(amount - quota.capital + quota.discount);
+//         amount = amount - quota.capital + quota.discount;
+//       } else {
+//         quota.totalPaid += amount;
+//         amount = 0;
+//       }
+//     } else {
+//       quota.statusType = "PAID";
+//       quota.paid = true;
+//       if (interestWasPaid == true) {
+//         amount -= quota.capital - (quota.totalPaid - quota.interest);
+//         quota.totalPaid += quota.capital - (quota.totalPaid - quota.interest);
+//       } else {
+//         amount -= quota.capital;
+//         quota.totalPaid += quota.capital;
+//       }
+//       quota.totalPaid -= quota.discount;
+//       amount = quota.quotaAmount - quota.totalPaid;
+//     }
+//   }
+
+//   //quota.totalPaid = Math.round((quota.totalPaid + Number.EPSILON) * 100) / 100;
+
+//   if (quota.totalPaid + quota.totalPaidMora == quota.quota_amount) {
+//     quota.statusType = "PAID";
+//     quota.paid = true;
+//   }
+
+//   return [amount, quota];
+// }
 
 function getPaymentMethod(m) {
   let paymentMethod = "";

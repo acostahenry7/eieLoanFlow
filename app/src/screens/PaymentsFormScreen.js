@@ -15,6 +15,7 @@ import CheckBox from "expo-checkbox";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import ModalDropdown from "react-native-modal-dropdown";
 import { useFormik } from "formik";
+import * as Yup from "yup";
 import { isEmpty } from "lodash";
 import useAuth from "../hooks/useAuth";
 import {
@@ -85,6 +86,11 @@ export default function PaymentsFormScreen(props) {
       navigation
     ),
     validateOnChange: false,
+    validationSchema: Yup.object({
+      amount: Yup.number()
+        .required()
+        .moreThan(0, "El monto  debe ser mayor a 0"),
+    }),
     onSubmit: async (values) => {
       var {
         loanNumber,
@@ -111,14 +117,29 @@ export default function PaymentsFormScreen(props) {
           let receiptDetails = {
             outlet: auth.name,
             rnc: auth.rnc,
-            receiptNumber: res.receiptNumber,
+            receiptNumber: res?.receiptNumber,
             loanNumber,
             paymentMethod,
             login: auth.login,
-            date: "",
+            date: (() => {
+              //Date
+              const date = new Date().getDate();
+              const month = new Date().getMonth() + 1;
+              const year = new Date().getFullYear();
+
+              //Time
+              const hour = new Date().getHours();
+              var minute = new Date().getMinutes();
+              minute < 10 ? (minute = "" + minute) : (minute = minute);
+              var dayTime = hour >= 12 ? "PM" : "AM";
+
+              const fullDate = `${date}/${month}/${year}  ${hour}:${minute} ${dayTime}`;
+              return fullDate.toString();
+            })(),
             firstName: params.first_name,
             lastName: params.last_name,
             amount: res?.amount,
+            receivedAmount: amount,
             description: res?.description,
           };
 
@@ -179,11 +200,14 @@ export default function PaymentsFormScreen(props) {
                   quotaNumber: quota.quota_number,
                   capital: parseFloat(quota.capital),
                   interest: parseFloat(quota.interest),
+                  amountOfFee: parseFloat(quota.amount_of_fee),
                   quota_amount: parseFloat(quota.quota_amount),
                   mora: parseFloat(quota.mora),
                   fixedMora: parseFloat(quota.mora),
                   totalPaid: parseFloat(quota.total_paid),
                   totalPaidMora: parseFloat(quota.total_paid_mora),
+                  fixedTotalPaid: parseFloat(quota.total_paid),
+                  fixedTotalPaidMora: parseFloat(quota.total_paid_mora),
                   payMoraOnly: false,
                   discount: parseFloat(quota.discount),
                   statusType: quota.status_type,
@@ -238,6 +262,7 @@ export default function PaymentsFormScreen(props) {
           setReceiptQuotas(data.amortization);
           setIsLoading(true);
           const response = await createPaymentaApi(data);
+          //let response = {};
 
           let testing = {
             loanNumber,
@@ -246,12 +271,20 @@ export default function PaymentsFormScreen(props) {
             rnc: auth.rnc,
             cashBack: data.payment.change,
             total: data.payment.total,
-            totalPaid: data.payment.totalPaid,
+            totalPaid:
+              data.payment.totalPaid -
+              data.payment.fixedTotalPaid +
+              (data.payment.totalPaidMora - data.payment.fixedTotalPaidMora),
+            fixedTotalPaid: data.payment.fixedTotalPaid,
+            totalPaidMora:
+              data.payment.totalPaidMora - data.payment.fixedTotalPaidMora,
+            fixedTotalPaidMora: data.payment.fixedTotalPaidMora,
             pendingAmount: data.payment.pendingAmount,
             totalMora: data.payment.totalMora,
-            //discount: discount || 0,
+            liquidateLoan: data.payment.liquidateLoan,
             mora: data.payment.totalMora,
             section: response.loanDetails?.section,
+            amountOfQuotas: response.loanDetails?.amountOfQuotas,
             receiptNumber: response.receipt?.receipt_number,
             paymentMethod: data.payment.paymentType,
             outletId: auth.outlet_id,
@@ -308,7 +341,7 @@ export default function PaymentsFormScreen(props) {
         } catch (error) {
           Alert.alert("Error", error.message.toString());
         }
-
+        setIsPaymentButtonDisabled(true);
         setIsLoading(false);
       }
     },
@@ -477,6 +510,7 @@ export default function PaymentsFormScreen(props) {
               $RD
             </Text>
           </View>
+          <Text style={{ color: "red" }}>{formik.errors.amount}</Text>
           {currentCharge.length > 0 && (
             <View
               style={{
@@ -552,7 +586,6 @@ export default function PaymentsFormScreen(props) {
             disabled={isPaymentButtonStatus}
             title="Pagar"
             onPress={(e) => {
-              setIsPaymentButtonDisabled(true);
               formik.handleSubmit();
             }}
           />
@@ -656,6 +689,7 @@ function SelectItem(props) {
                 "amount",
                 getAmount(1, formik.values.loanNumber, quotas)
               );
+              setPayLoan(false);
             }
             break;
           default:
@@ -744,7 +778,13 @@ function getAmount(number, loan, quotas) {
   let amount = 0;
 
   while (i < number) {
-    amount += parseFloat(quotas[loan][i].quota_amount);
+    if (quotas[loan][i].status_type == "COMPOST") {
+      amount +=
+        parseFloat(quotas[loan][i].quota_amount) +
+        parseFloat(quotas[loan][i].discount);
+    } else {
+      amount += parseFloat(quotas[loan][i].quota_amount);
+    }
     i++;
   }
 
