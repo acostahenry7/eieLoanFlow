@@ -15,6 +15,7 @@ import CheckBox from "expo-checkbox";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import ModalDropdown from "react-native-modal-dropdown";
 import { useFormik } from "formik";
+import * as Yup from "yup";
 import { isEmpty } from "lodash";
 import useAuth from "../hooks/useAuth";
 import {
@@ -85,6 +86,11 @@ export default function PaymentsFormScreen(props) {
       navigation
     ),
     validateOnChange: false,
+    validationSchema: Yup.object({
+      amount: Yup.number()
+        .required()
+        .moreThan(0, "El monto  debe ser mayor a 0"),
+    }),
     onSubmit: async (values) => {
       var {
         loanNumber,
@@ -335,7 +341,7 @@ export default function PaymentsFormScreen(props) {
         } catch (error) {
           Alert.alert("Error", error.message.toString());
         }
-
+        setIsPaymentButtonDisabled(true);
         setIsLoading(false);
       }
     },
@@ -504,6 +510,7 @@ export default function PaymentsFormScreen(props) {
               $RD
             </Text>
           </View>
+          <Text style={{ color: "red" }}>{formik.errors.amount}</Text>
           {currentCharge.length > 0 && (
             <View
               style={{
@@ -579,7 +586,6 @@ export default function PaymentsFormScreen(props) {
             disabled={isPaymentButtonStatus}
             title="Pagar"
             onPress={(e) => {
-              setIsPaymentButtonDisabled(true);
               formik.handleSubmit();
             }}
           />
