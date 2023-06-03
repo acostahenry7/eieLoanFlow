@@ -3,6 +3,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { API_HOST } from "../utils/constants";
 import { uniqBy } from "lodash";
 import { dbConnect } from "../utils/db/index";
+import {
+  getUserBufferdData,
+  lastSyncTimes,
+  syncLoans,
+  syncAmortization,
+} from "../api/offline/sync";
 
 //const employeeId = 'c2ed74d8-107c-4ef2-a5fb-6d6fadea5d1b'
 
@@ -13,6 +19,7 @@ export async function getCustomerApi(nextUrl, employeeId, netStatus) {
     let loans = [];
     let customers = [];
 
+    console.log("NET STATUS", netStatus);
     if (netStatus === false) {
       let db = await dbConnect();
 
@@ -55,11 +62,15 @@ export async function getCustomerApi(nextUrl, employeeId, netStatus) {
       }
     } else {
       if (!employeeId) employeeId = "0";
+
       const url = `${connectionTarget}/customers/main/${employeeId}?limit=999999&offset=1`;
-      console.log(connectionTarget);
+
       const response = await fetch(nextUrl || url);
 
       result = await response.json();
+
+      // await getUserBufferdData(employeeId, netStatus);
+      // await syncLoans(employeeId);
     }
 
     return result;

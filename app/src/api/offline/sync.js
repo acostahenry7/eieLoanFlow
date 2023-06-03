@@ -33,7 +33,7 @@ export async function getUserBufferdData(employeeId, netStatus) {
 
     let cloudData = await pullUserDataApi(employeeId, netStatus);
 
-    let results = await syncTable("customers", cloudData);
+    let results = await syncTable("customers", cloudData, "loan_number_id");
 
     // if (!cloudData) {
     //   throw new Error("Error retrieving data from ther server");
@@ -92,9 +92,13 @@ export async function syncLoans(employeeId, userId) {
     let loanData = await res.json();
     console.log("FROM SYN LOANS", loanData);
 
-    let loans = await syncTable("loans", loanData);
-    let quotas = await syncTable("quotas", loanData);
-    let globalDiscount = await syncTable("globalDiscount", loanData);
+    let loans = await syncTable("loans", loanData, "loan_number_id");
+    let quotas = await syncTable("quotas", loanData, "amortization_id");
+    let globalDiscount = await syncTable(
+      "globalDiscount",
+      loanData,
+      "loan_number_id"
+    );
 
     // console.log(result);
 

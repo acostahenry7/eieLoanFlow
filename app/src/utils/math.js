@@ -355,6 +355,10 @@ function processPayment(
   //   );
   // }
 
+  if (amount <= 0) {
+    throw new Error("El monto a pagar debe ser superior a 0.");
+  }
+
   if (liquidateLoan == true) {
     amount = amount + globalDiscount;
 
