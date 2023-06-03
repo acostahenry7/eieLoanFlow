@@ -69,8 +69,8 @@ export async function getCustomerApi(nextUrl, employeeId, netStatus) {
 
       result = await response.json();
 
-      await getUserBufferdData(employeeId, netStatus);
-      await syncLoans(employeeId);
+      // await getUserBufferdData(employeeId, netStatus);
+      // await syncLoans(employeeId);
     }
 
     return result;
