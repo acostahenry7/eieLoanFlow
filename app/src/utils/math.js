@@ -355,6 +355,22 @@ function processPayment(
   //   );
   // }
 
+  const quotasWithDiscount = quotas.filter((q) => parseFloat(q.discount) > 0);
+  const minAmount = quotasWithDiscount.reduce(
+    (acc, i) => acc + parseFloat(i.quota_amount),
+    0
+  );
+
+  console.log("PRUEBA DESCUENTO", {
+    quotasWithDiscount,
+    minAmount,
+  });
+
+  if (amount < minAmount)
+    throw new Error(
+      `Una o varias cuotas presentan descuento. El monto mínimo para esta transacción es  $RD ${minAmount.toString()} `
+    );
+
   if (liquidateLoan == true) {
     amount = amount + globalDiscount;
 

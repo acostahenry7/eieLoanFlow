@@ -348,7 +348,11 @@ export default function Receipt(props) {
                       <View>
                         {(() => {
                           let amount = quotas
-                            .filter((i) => i.statusType == "COMPOST")
+                            .filter(
+                              (i) =>
+                                i.statusType == "COMPOST" ||
+                                i.statusType == "DEFEATED"
+                            )
                             .reduce(
                               (acc, i) => acc + i.totalPaid - i.fixedTotalPaid,
                               0

@@ -13,54 +13,51 @@ export async function getCustomerApi(nextUrl, employeeId, netStatus) {
     let loans = [];
     let customers = [];
 
-    if (netStatus === false) {
-      let db = await dbConnect();
+    //if (netStatus === false) {
+    // let db = await dbConnect();
+    // await db.transaction(async (t) => {
+    //   await t.executeSql(
+    //     `SELECT * FROM customers WHERE employee_id = '${employeeId}'`,
+    //     [],
+    //     (t, res) => {
+    //       for (let i = 0; i < res.rows.length; i++) {
+    //         console.log("CUSTOMER RAW", res.rows.item(i));
+    //         customers.push(res.rows.item(i));
+    //       }
+    //     }
+    //   );
+    // });
+    // await db.transaction(async (t) => {
+    //   await t.executeSql(
+    //     `SELECT * FROM loans WHERE employee_id = '${employeeId}'`,
+    //     [],
+    //     (t, res) => {
+    //       for (let i = 0; i < res.rows.length; i++) {
+    //         console.log("LOAN RAW", res.rows.item(i));
+    //         loans.push(res.rows.item(i));
+    //       }
+    //     }
+    //   );
+    // });
+    // if (customers.length > 0) {
+    //   result = {
+    //     employeeId: employeeId,
+    //     customers: uniqBy(customers, "customer_id"),
+    //     loans: loans,
+    //   };
+    // } else {
+    //   throw new Error(
+    //     "No existen registros locales! Porfvor sincronize la data."
+    //   );
+    // }
+    //} else {
+    if (!employeeId) employeeId = "0";
+    const url = `${connectionTarget}/customers/main/${employeeId}?limit=999999&offset=1`;
+    console.log(connectionTarget);
+    const response = await fetch(nextUrl || url);
 
-      await db.transaction(async (t) => {
-        await t.executeSql(
-          `SELECT * FROM customers WHERE employee_id = '${employeeId}'`,
-          [],
-          (t, res) => {
-            for (let i = 0; i < res.rows.length; i++) {
-              console.log("CUSTOMER RAW", res.rows.item(i));
-              customers.push(res.rows.item(i));
-            }
-          }
-        );
-      });
-
-      await db.transaction(async (t) => {
-        await t.executeSql(
-          `SELECT * FROM loans WHERE employee_id = '${employeeId}'`,
-          [],
-          (t, res) => {
-            for (let i = 0; i < res.rows.length; i++) {
-              console.log("LOAN RAW", res.rows.item(i));
-              loans.push(res.rows.item(i));
-            }
-          }
-        );
-      });
-
-      if (customers.length > 0) {
-        result = {
-          employeeId: employeeId,
-          customers: uniqBy(customers, "customer_id"),
-          loans: loans,
-        };
-      } else {
-        throw new Error(
-          "No existen registros locales! Porfvor sincronize la data."
-        );
-      }
-    } else {
-      if (!employeeId) employeeId = "0";
-      const url = `${connectionTarget}/customers/main/${employeeId}?limit=999999&offset=1`;
-      console.log(connectionTarget);
-      const response = await fetch(nextUrl || url);
-
-      result = await response.json();
-    }
+    result = await response.json();
+    //}
 
     return result;
   } catch (error) {
@@ -78,39 +75,39 @@ export async function getCustomerInfo(data, netStatus) {
 
   let result = {};
 
-  console.log("NETWORK STATUS FROM CUSTOMER INFO", netStatus);
+  //console.log("NETWORK STATUS FROM CUSTOMER INFO", netStatus);
 
   try {
     let db = await dbConnect();
-    if (netStatus == false) {
-      await db.transaction(async (t) => {
-        await t.executeSql(
-          `SELECT * FROM customers WHERE customer_id = '${data.id}'`,
-          [],
-          (t, res) => {
-            for (let i = 0; i < res.rows.length; i++) {
-              result.customerInfo = res.rows.item(0);
-            }
-          }
-        );
-      });
-      result.customerLoans = [];
-      await db.transaction(async (t) => {
-        await t.executeSql(
-          `SELECT * FROM loans where customer_id = '${data.id}'`,
-          [],
-          (t, res) => {
-            for (let i = 0; i < res.rows.length; i++) {
-              result.customerLoans.push(res.rows.item(i));
-            }
-          }
-        );
-      });
-    } else {
-      const url = `${await getSavedConnectionUrlApi()}/customers/each`;
-      const response = await fetch(url, options);
-      result = await response.json();
-    }
+    //if (netStatus == false) {
+    // await db.transaction(async (t) => {
+    //   await t.executeSql(
+    //     `SELECT * FROM customers WHERE customer_id = '${data.id}'`,
+    //     [],
+    //     (t, res) => {
+    //       for (let i = 0; i < res.rows.length; i++) {
+    //         result.customerInfo = res.rows.item(0);
+    //       }
+    //     }
+    //   );
+    // });
+    // result.customerLoans = [];
+    // await db.transaction(async (t) => {
+    //   await t.executeSql(
+    //     `SELECT * FROM loans where customer_id = '${data.id}'`,
+    //     [],
+    //     (t, res) => {
+    //       for (let i = 0; i < res.rows.length; i++) {
+    //         result.customerLoans.push(res.rows.item(i));
+    //       }
+    //     }
+    //   );
+    // });
+    //} else {
+    const url = `${await getSavedConnectionUrlApi()}/customers/each`;
+    const response = await fetch(url, options);
+    result = await response.json();
+    //}
 
     return result;
   } catch (error) {

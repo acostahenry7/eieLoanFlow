@@ -103,6 +103,7 @@ export default function PaymentsFormScreen(props) {
         comment,
       } = values;
 
+      setIsPaymentButtonDisabled(true);
       if (isACharge == true) {
         let data = {
           loanChargeId,
@@ -341,7 +342,7 @@ export default function PaymentsFormScreen(props) {
         } catch (error) {
           Alert.alert("Error", error.message.toString());
         }
-        setIsPaymentButtonDisabled(true);
+
         setIsLoading(false);
       }
     },

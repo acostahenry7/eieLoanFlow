@@ -7,6 +7,7 @@ import CustomerSearch from "../components/CustomerSearch";
 import useAuth from "../hooks/useAuth";
 import Loading from "../components/Loading";
 import { useNetInfo } from "@react-native-community/netinfo";
+import { OfflineBanner } from "../components/Network/OfflineBanner";
 
 export default function CustomerScreen(props) {
   const {
@@ -39,7 +40,7 @@ export default function CustomerScreen(props) {
         console.log(error);
       }
     })();
-  }, [auth, netInfo]);
+  }, [auth, netInfo.isConnected]);
 
   //console.log('searchStatus', searchStatus);
   let searchedCustomers = [];
@@ -106,21 +107,25 @@ export default function CustomerScreen(props) {
     }
   };
 
-  return (
-    <SafeAreaView style={{ paddingBottom: 0 }}>
-      <CustomerSearch
-        searchStatus={searchStatus}
-        setSearchValue={searchValue}
-      />
-      {!isLoading ? (
-        <CustomerList
-          customers={searchedCustomers}
-          loadCustomers={loadCustomers}
-          isNext={nextUrl}
+  if (netInfo.isConnected) {
+    return (
+      <SafeAreaView style={{ paddingBottom: 0 }}>
+        <CustomerSearch
+          searchStatus={searchStatus}
+          setSearchValue={searchValue}
         />
-      ) : (
-        <Loading text="" />
-      )}
-    </SafeAreaView>
-  );
+        {!isLoading ? (
+          <CustomerList
+            customers={searchedCustomers}
+            loadCustomers={loadCustomers}
+            isNext={nextUrl}
+          />
+        ) : (
+          <Loading text="" />
+        )}
+      </SafeAreaView>
+    );
+  } else {
+    return <OfflineBanner />;
+  }
 }
