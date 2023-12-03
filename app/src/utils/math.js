@@ -60,6 +60,7 @@ export function setPaymentObject(
   liquidateLoan == "si" ? (liquidateLoan = true) : (liquidateLoan = false);
 
   //Validación para abonar restante
+  payNextQuotas = true;
   if (payNextQuotas == false) {
     //Si no se desea abonar el resto
     let quotas = processPayment(
@@ -450,16 +451,29 @@ function paymentCurrentQuota(quota, amount) {
     quota.payMoraOnly = true;
 
     quota.totalPaidMora =
-      Math.round((quota.totalPaidMora + amount + Number.EPSILON) * 100) / 100;
-    quota.mora = Math.round((quota.mora - amount + Number.EPSILON) * 100) / 100;
+      Math.round((quota.totalPaidMora + amount * 0.8 + Number.EPSILON) * 100) /
+      100;
+    quota.mora =
+      Math.round((quota.mora - amount * 0.8 + Number.EPSILON) * 100) / 100;
+    amount = amount - amount * 0.8;
+    quota.totalPaid = quota.totalPaid + amount;
     amount = 0;
   } else {
-    quota.totalPaidMora =
-      Math.round((quota.totalPaidMora + quota.mora + Number.EPSILON) * 100) /
-      100;
-    amount = Math.round((amount - quota.mora + Number.EPSILON) * 100) / 100;
-    quota.mora = 0;
-
+    if (amount < quota.quota_amount) {
+      quota.totalPaidMora =
+        Math.round(
+          (quota.totalPaidMora + quota.mora * 0.8 + Number.EPSILON) * 100
+        ) / 100;
+      amount =
+        Math.round((amount - quota.mora * 0.8 + Number.EPSILON) * 100) / 100;
+      quota.mora = quota.mora - quota.mora * 0.8;
+    } else {
+      quota.totalPaidMora =
+        Math.round((quota.totalPaidMora + quota.mora + Number.EPSILON) * 100) /
+        100;
+      amount = Math.round((amount - quota.mora + Number.EPSILON) * 100) / 100;
+      quota.mora = 0;
+    }
     console.log("1234", amount);
 
     // Check if interest can be paid
@@ -534,112 +548,6 @@ function paymentCurrentQuota(quota, amount) {
 
   return [amount, quota];
 }
-
-// function paymentCurrentQuota(quota, amount) {
-//   // console.log(quota);
-
-//   if (quota.discount > 0 && amount < quota.quota_amount) {
-//     throw new Error(
-//       "Esta cuota presenta descuento, el monto debe ser mayor a RD$" +
-//         significantFigure(quota.quota_amount.toString())
-//     );
-//   } else {
-//     amount = amount + quota.discount;
-//   }
-
-//   let interestWasPaid = false;
-
-//   //Quota default status
-//   quota.statusType = "COMPOST";
-//   quota.paid = false;
-
-//   // if (quota.totalPaidMora == 0 && amount >= quota.quota_amount) {
-//   //   quota.mora -= quota.discount;
-//   //   quota.fixedMora -= quota.discount;
-//   // }
-
-//   // Check if mora can be paid
-//   if (amount <= quota.mora) {
-//     if (amount == quota.mora) {
-//       quota.payMoraOnly = true;
-//     }
-
-//     quota.totalPaidMora =
-//       Math.round((quota.totalPaidMora + amount + Number.EPSILON) * 100) / 100;
-//     quota.mora = Math.round((quota.mora - amount + Number.EPSILON) * 100) / 100;
-//     amount = 0;
-//   } else {
-//     quota.totalPaidMora =
-//       Math.round((quota.totalPaidMora + quota.mora + Number.EPSILON) * 100) /
-//       100;
-//     amount = Math.round((amount - quota.mora + Number.EPSILON) * 100) / 100;
-//     quota.mora = 0;
-
-//     console.log("1234", amount);
-
-//     // Check if interest can be paid
-//     if (quota.totalPaid < quota.interest) {
-//       if (amount <= quota.interest - quota.totalPaid) {
-//         quota.totalPaid += amount;
-//         amount = 0;
-//       } else {
-//         amount = amount - (quota.interest - quota.totalPaid);
-//         quota.totalPaid += quota.interest - quota.totalPaid;
-//         // console.log("INTEREST", quota.totalPaid);
-//       }
-//     } else {
-//       interestWasPaid = true;
-//     }
-
-//     console.log("WHAT IS GOIN ON ", {
-//       amount,
-//       capital: quota.capital - (quota.totalPaid - quota.interest),
-//     });
-//     // Check if capital can be paid
-
-//     if (amount < quota.capital - (quota.totalPaid - quota.interest)) {
-//       console.log(
-//         "CAPITAL",
-//         amount + quota.discount,
-//         quota.capital - (quota.totalPaid - quota.interest)
-//       );
-//       if (
-//         amount + quota.discount >=
-//         quota.capital - (quota.totalPaid - quota.interest)
-//       ) {
-//         quota.statusType = "PAID";
-//         quota.paid = true;
-//         quota.totalPaid += quota.capital - quota.discount;
-//         // console.log(amount - quota.capital + quota.discount);
-//         amount = amount - quota.capital + quota.discount;
-//       } else {
-//         quota.totalPaid += amount;
-//         amount = 0;
-//       }
-//     } else {
-//       quota.statusType = "PAID";
-//       quota.paid = true;
-//       if (interestWasPaid == true) {
-//         amount -= quota.capital - (quota.totalPaid - quota.interest);
-//         quota.totalPaid += quota.capital - (quota.totalPaid - quota.interest);
-//       } else {
-//         amount -= quota.capital;
-//         quota.totalPaid += quota.capital;
-//       }
-//       quota.totalPaid -= quota.discount;
-//       amount = quota.quotaAmount - quota.totalPaid;
-//     }
-//   }
-
-//   //quota.totalPaid = Math.round((quota.totalPaid + Number.EPSILON) * 100) / 100;
-
-//   if (quota.totalPaid + quota.totalPaidMora == quota.quota_amount) {
-//     quota.statusType = "PAID";
-//     quota.paid = true;
-//   }
-
-//   return [amount, quota];
-// }
 
 function getPaymentMethod(m) {
   let paymentMethod = "";

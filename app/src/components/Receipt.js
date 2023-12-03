@@ -565,7 +565,8 @@ export default function Receipt(props) {
                       )}
                     </Text>
                   </View> */}
-                  <View style={styles.totalSection}>
+                  {/* AQUI ESTA LA DEVUELTA - CAMBIO PROCESO DE PAGO*/}
+                  {/* <View style={styles.totalSection}>
                     <Text
                       style={{
                         ...styles.totalSectionTitle,
@@ -587,7 +588,7 @@ export default function Receipt(props) {
                       RD${" "}
                       {significantFigure(receiptDetails.cashBack?.toFixed(2))}
                     </Text>
-                  </View>
+                  </View> */}
                 </View>
               </View>
               <View style={{ marginTop: 15, flexDirection: "row", bottom: 0 }}>

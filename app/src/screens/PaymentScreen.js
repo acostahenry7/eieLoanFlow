@@ -272,7 +272,7 @@ export default function PaymentScreen(props) {
   };
 
   return (
-    <View>
+    <View style={{ backgroundColor: "white", minHeight: "100%" }}>
       {isLoading ? (
         <Loading />
       ) : (
@@ -289,7 +289,7 @@ export default function PaymentScreen(props) {
                     >
                       <TextInput
                         style={{ ...styles.searchInput, marginRight: 10 }}
-                        placeholder="#préstamo"
+                        placeholder="Buscar por no. préstamo"
                         value={formik.values.searchKey}
                         onChangeText={(text) =>
                           formik.setFieldValue("searchKey", text)
@@ -471,9 +471,9 @@ function PaymentCustomerCard(props) {
     .toFixed(2);
 
   return !isCustomer ? (
-    <View>
+    <View style={{}}>
       <TouchableWithoutFeedback>
-        <Card>
+        <View>
           <View style={styles.infoContent}>
             <View style={{ ...styles.row, ...styles.icon }}>
               <Text style={styles.iconText}>
@@ -549,7 +549,7 @@ function PaymentCustomerCard(props) {
               </MenuOptions>
             </Menu>
           </View>
-        </Card>
+        </View>
       </TouchableWithoutFeedback>
       <View
         style={{
@@ -557,9 +557,9 @@ function PaymentCustomerCard(props) {
           marginVertical: 15,
           padding: 15,
           borderRadius: 10,
-          borderColor: "rgba(0,0,0,0.3)",
-          borderWidth: 0.5,
-          backgroundColor: "rgba(255,255,255,0.7)",
+          // borderColor: "rgba(0,0,0,0.3)",
+          // borderWidth: 0.5,
+          backgroundColor: "transparent",
         }}
       >
         <View>
@@ -712,20 +712,21 @@ const styles = StyleSheet.create({
   searchInput: {
     width: "79%",
     height: 40,
-    backgroundColor: "#D3DBE1",
+    backgroundColor: "whitesmoke",
     paddingHorizontal: 15,
-    borderRadius: 10,
+    borderRadius: 50,
   },
 
   infoContent: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
   },
 
   icon: {
     backgroundColor: "skyblue",
-    width: 70,
-    height: 70,
+    width: 55,
+    height: 55,
     borderRadius: 50,
   },
 

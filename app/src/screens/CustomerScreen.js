@@ -109,7 +109,13 @@ export default function CustomerScreen(props) {
 
   if (netInfo.isConnected) {
     return (
-      <SafeAreaView style={{ paddingBottom: 0 }}>
+      <SafeAreaView
+        style={{
+          paddingBottom: 0,
+          backgroundColor: "white",
+          minHeight: "100%",
+        }}
+      >
         <CustomerSearch
           searchStatus={searchStatus}
           setSearchValue={searchValue}

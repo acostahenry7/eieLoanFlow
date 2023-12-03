@@ -5,6 +5,7 @@ import {
   Text,
   Image,
   TouchableWithoutFeedback,
+  TouchableNativeFeedback,
 } from "react-native";
 import { Picker } from "@react-native-picker/picker";
 import { Card } from "react-native-elements";
@@ -46,22 +47,24 @@ export default function CustomerCard(props) {
   }
 
   return (
-    <TouchableWithoutFeedback>
-      <Card containerStyle={{ padding: 0 }}>
+    <TouchableNativeFeedback onPress={goToCustomer}>
+      <View containerStyle={{ padding: 0 }}>
         <View style={{ flexDirection: "column" }}>
           <View
             title="card"
             style={{
               //backgroundColor: 'green',
-              flex: 1,
+              display: "flex",
               width: "100%",
               flexDirection: "row",
-              flexWrap: "wrap",
-              paddingVertical: 5,
-              marginTop: 15,
-              paddingLeft: 15,
-              paddingTop: 15,
-              paddingBottom: 10,
+              alignItems: "center",
+              paddingHorizontal: 8,
+              paddingVertical: 6,
+              // flexWrap: "wrap",
+              // marginTop: 15,
+              // paddingLeft: 15,
+              // paddingTop: 15,
+              // paddingBottom: 10,
             }}
           >
             {/* <View
@@ -84,55 +87,51 @@ export default function CustomerCard(props) {
                             </Text>    
                             
                     </View>*/}
-            <View style={{ marginTop: -10 }}>
-              <CustomerIcon size={75} imageSize={74} data={customer} />
+            <View style={{}}>
+              <CustomerIcon size={60} data={customer} />
             </View>
             <View
               style={{
                 paddingVertical: 1,
                 paddingLeft: 15,
-                width: WINDOW_DIMENSION.width <= 360 ? 180 : 200,
+                // width: WINDOW_DIMENSION.width <= 360 ? 180 : 200,
                 //backgroundColor: 'green'
               }}
             >
               <Text
-                onPress={goToCustomer}
                 style={{
                   fontWeight: "bold",
                   fontSize: 15,
-                  width:
-                    WINDOW_DIMENSION.width <= 360
-                      ? 180
-                      : WINDOW_DIMENSION.width * 0.4,
-                  //backgroundColor : 'green'
+                  // width:
+                  //   WINDOW_DIMENSION.width <= 360
+                  //     ? 180
+                  //     : WINDOW_DIMENSION.width * 0.4,
+                  // //backgroundColor : 'green'
                 }}
               >
                 {formatFullName(customer.first_name, customer)}
               </Text>
-              <Text onPress={goToCustomer} style={{ fontSize: 11 }}>
-                {customer.identification}
-              </Text>
-              <Text onPress={goToCustomer} style={{ fontSize: 11 }}>
+              <Text style={{ fontSize: 11 }}>{customer.identification}</Text>
+              <Text style={{ fontSize: 11 }}>
                 {capitalize(customer.address)}
               </Text>
-              <Text
-                onPress={goToCustomer}
-                style={{ fontSize: 11, fontWeight: "bold" }}
-              >
+              <Text style={{ fontSize: 11, fontWeight: "bold" }}>
                 {capitalize(customer.business)}
               </Text>
             </View>
 
-            <View style={{}}>
+            <View style={{ position: "absolute", top: 12, right: 6 }}>
               <Text
                 style={{
                   color: "white",
                   fontSize: 12,
-                  paddingHorizontal: 5,
+                  paddingHorizontal: 4,
                   borderRadius: 15,
-                  width: "auto",
-                  fontWeight: "bold",
-                  marginLeft: "auto",
+                  display: "flex",
+                  alignItems: "center",
+                  // width: "auto",
+                  // fontWeight: "bold",
+
                   backgroundColor: statusColor,
                 }}
               >
@@ -149,8 +148,8 @@ export default function CustomerCard(props) {
             ></View>
           </View>
         </View>
-      </Card>
-    </TouchableWithoutFeedback>
+      </View>
+    </TouchableNativeFeedback>
   );
 }
 

@@ -355,7 +355,7 @@ export default function PaymentsFormScreen(props) {
         <View style={styles.modalView}>
           <View
             style={{
-              padding: 20,
+              padding: 10,
               backgroundColor: "rgba(255,255,255,0.9)",
               borderRadius: 4,
               borderColor: "#bf514c",
@@ -576,12 +576,13 @@ export default function PaymentsFormScreen(props) {
             />
           </View>
         </View>
-        <View style={{ ...styles.formGroup, flexDirection: "row" }}>
+        {/*CHECKBOX DE APLICAR MONTO RESTANTE - CAMBIO PROCESO DE PAGO */}
+        {/* <View style={{ ...styles.formGroup, flexDirection: "row" }}>
           <CheckBox value={isChecked} onValueChange={setIsChecked} />
           <Text style={{ fontSize: 12, marginLeft: 10 }}>
             Aplicar monto restante a la siguiente cuota
           </Text>
-        </View>
+        </View> */}
         <View style={styles.formGroup}>
           <Button
             disabled={isPaymentButtonStatus}
@@ -803,7 +804,7 @@ const styles = StyleSheet.create({
   },
 
   selectItemContainer: {
-    paddingHorizontal: 40,
+    paddingHorizontal: 20,
     backgroundColor: "white",
     paddingVertical: 40,
     height: 600,
