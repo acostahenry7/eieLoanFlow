@@ -38,7 +38,6 @@ import { useNetInfo } from "@react-native-community/netinfo";
 
 export default function PaymentScreen(props) {
   const isFocused = useIsFocused();
-  const netInfo = useNetInfo();
 
   var {
     route: { params },
@@ -89,10 +88,7 @@ export default function PaymentScreen(props) {
   useEffect(() => {
     (async () => {
       try {
-        const response = await getRegisterStatusApi(
-          auth?.user_id,
-          netInfo?.isConnected
-        );
+        const response = await getRegisterStatusApi(auth?.user_id);
         if (response?.status == false) {
           setIsRegisterOpened(false);
         } else {
@@ -116,10 +112,7 @@ export default function PaymentScreen(props) {
       setOpenCashier(!openCashier);
 
       try {
-        const response = await getRegisterStatusApi(
-          auth?.user_id,
-          netInfo?.isConnected
-        );
+        const response = await getRegisterStatusApi(auth?.user_id);
         if (response?.status == false) {
           setIsRegisterOpened(false);
         }
@@ -176,10 +169,7 @@ export default function PaymentScreen(props) {
   useEffect(() => {
     (async () => {
       try {
-        const response = await getRegisterStatusApi(
-          auth?.user_id,
-          netInfo?.isConnected
-        );
+        const response = await getRegisterStatusApi(auth?.user_id);
         if (response?.status == false) {
           //const register = await createRegisterApi(data)
           const register = true;
@@ -218,7 +208,6 @@ export default function PaymentScreen(props) {
       const response = await getClientByloan({
         searchKey: key,
         employeeId: auth.employee_id,
-        netStatus: netInfo?.isConnected,
       });
 
       if (!isEmpty(response)) {

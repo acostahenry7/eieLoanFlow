@@ -107,31 +107,27 @@ export default function CustomerScreen(props) {
     }
   };
 
-  if (netInfo.isConnected) {
-    return (
-      <SafeAreaView
-        style={{
-          paddingBottom: 0,
-          backgroundColor: "white",
-          minHeight: "100%",
-        }}
-      >
-        <CustomerSearch
-          searchStatus={searchStatus}
-          setSearchValue={searchValue}
+  return (
+    <SafeAreaView
+      style={{
+        paddingBottom: 0,
+        backgroundColor: "white",
+        minHeight: "100%",
+      }}
+    >
+      <CustomerSearch
+        searchStatus={searchStatus}
+        setSearchValue={searchValue}
+      />
+      {!isLoading ? (
+        <CustomerList
+          customers={searchedCustomers}
+          loadCustomers={loadCustomers}
+          isNext={nextUrl}
         />
-        {!isLoading ? (
-          <CustomerList
-            customers={searchedCustomers}
-            loadCustomers={loadCustomers}
-            isNext={nextUrl}
-          />
-        ) : (
-          <Loading text="" />
-        )}
-      </SafeAreaView>
-    );
-  } else {
-    return <OfflineBanner />;
-  }
+      ) : (
+        <Loading text="" />
+      )}
+    </SafeAreaView>
+  );
 }
