@@ -56,7 +56,11 @@ export default function PaymentsFormScreen(props) {
   const [isPaymentButtonStatus, setIsPaymentButtonDisabled] = useState(false);
   //const [pendingAmount, setPendingAmount] = useState("");
 
-  // console.log("#############################", params);
+  console.log(
+    "#############################",
+    loans,
+    loans.filter(({ number }) => number == loan)[0].outletId
+  );
 
   const [currentCharge, setCurrentCharge] = useState(charges);
 
@@ -247,7 +251,7 @@ export default function PaymentsFormScreen(props) {
             createdBy: auth.login,
             lastModifiedBy: auth.login,
             employeeId: auth.employee_id,
-            outletId: auth.outlet_id,
+            outletId: loans.filter(({ number }) => number == loan)[0].outletId,
             customerId: params.customer_id,
             totalMora: 0,
             registerId: register.register_id,

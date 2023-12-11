@@ -236,6 +236,7 @@ export default function PaymentScreen(props) {
             balance: l.balance,
             quotasNum: l.quota_amount,
             quotaAmount: parseInt(l.balance) / parseInt(l.quota_amount),
+            outletId: l.outlet_id,
           });
         }
       } else {
