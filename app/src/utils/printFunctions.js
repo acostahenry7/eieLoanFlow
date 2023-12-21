@@ -277,7 +277,7 @@ export function genereateZPLTemplate(object) {
               ^LRY
               ^FO200,${top + 245}^CFG
               ${zTitle(
-                "Nota: Este recibo no es valido sin la fimra y sello del cajero",
+                "Nota: No somos responsables de dinero entregado sin recibo",
                 30,
                 top + 340,
                 18,

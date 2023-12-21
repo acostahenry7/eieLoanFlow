@@ -28,7 +28,7 @@ export default function CustomerCard(props) {
 
   const goToCustomer = () => {
     //console.log(customer);
-    navigation.navigate("Customer", { id: customer.id });
+    navigation.navigate("Customer", { ...customer });
   };
 
   //console.log(customer);
@@ -111,9 +111,9 @@ export default function CustomerCard(props) {
               >
                 {formatFullName(customer.first_name, customer)}
               </Text>
-              <Text style={{ fontSize: 11 }}>{customer.identification}</Text>
+              {/* <Text style={{ fontSize: 11 }}>{customer.identification}</Text> */}
               <Text style={{ fontSize: 11 }}>
-                {capitalize(customer.address)}
+                {capitalize(customer.street)}
               </Text>
               <Text style={{ fontSize: 11, fontWeight: "bold" }}>
                 {capitalize(customer.business)}

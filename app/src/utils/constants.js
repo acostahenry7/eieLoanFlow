@@ -42,5 +42,5 @@ export const SCREEN_DIMENSION = {
 };
 
 export const appInfo = {
-  version: "1.17",
+  version: "1.20",
 };

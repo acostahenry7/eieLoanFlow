@@ -65,7 +65,7 @@ export async function getCustomerApi(nextUrl, employeeId, netStatus) {
   }
 }
 
-export async function getCustomerInfo(data, netStatus) {
+export async function getCustomerInfo(data) {
   console.log("hi");
   const options = {
     method: "POST",

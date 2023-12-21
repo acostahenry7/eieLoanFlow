@@ -30,7 +30,7 @@ export default function CustomerInfoScreen(props) {
   const { auth } = useAuth();
   const netInfo = useNetInfo();
 
-  console.log(params);
+  console.log("$$$$$$$$$$", params);
   const [customer, setCustomer] = useState(null);
   const [loans, setLoans] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -44,23 +44,23 @@ export default function CustomerInfoScreen(props) {
           //setIsLoading(true);
 
           try {
-            if (netInfo.isConnected != null) {
-              console.log("user info is connected");
-              const response = await getCustomerInfo(
-                {
-                  id: params.id,
-                  employeeId: auth.employee_id,
-                },
-                netInfo.isConnected
-              );
-              setIsLoading(false);
-              const { customerInfo, customerLoans } = response;
-              console.log(response);
+            console.log("user info is connected");
+            console.log("CUSTOMER ID", params);
+            const response = await getCustomerInfo({
+              id: params.customer_id || params.id,
+              employeeId: auth.employee_id,
+            });
+            setIsLoading(false);
+            const { customerInfo, customerLoans } = response;
+            console.log("********** ", response, params);
+            if (Object.entries(params).length <= 1) {
               setCustomer(customerInfo);
-              setLoans([...customerLoans]);
+              setLoans(customerLoans);
             } else {
-              console.log("user info");
+              setCustomer(params);
+              setLoans(customerLoans);
             }
+            //console.log("@@@@@", customerLoans);
           } catch (error) {
             console.log(error);
             navigation.goBack();
@@ -96,7 +96,7 @@ export default function CustomerInfoScreen(props) {
   }
 
   const fields = [
-    "Cédula",
+    // "Cédula",
     "RNC",
     "Fecha Nacimiento",
     "Email",
@@ -212,9 +212,9 @@ export default function CustomerInfoScreen(props) {
                   ))}
                 </View>
                 <View style={styles.customerInfoRightSection}>
-                  <Text style={styles.customerInfoRightSection_item}>
+                  {/* <Text style={styles.customerInfoRightSection_item}>
                     {customer.identification}
-                  </Text>
+                  </Text> */}
                   <Text style={styles.customerInfoRightSection_item}>
                     {customer.rnc || "No RNC"}
                   </Text>
@@ -225,19 +225,29 @@ export default function CustomerInfoScreen(props) {
                     {customer.email || "No email"}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
-                    {customer.province}
+                    {customer.payment_address_type == "BUSINESS"
+                      ? customer.province
+                      : customer.province}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
-                    {capitalize(customer.municipality)}
+                    {customer.payment_address_type == "BUSINESS"
+                      ? capitalize(customer.municipality)
+                      : capitalize(customer.municipality)}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
-                    {capitalize(customer.section)}
+                    {customer.payment_address_type == "BUSINESS"
+                      ? capitalize(customer.section)
+                      : capitalize(customer.section)}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
-                    {capitalize(customer.street)}
+                    {customer.payment_address_type == "BUSINESS"
+                      ? capitalize(customer.street)
+                      : capitalize(customer.street)}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
-                    {capitalize(customer.street2)}
+                    {customer.payment_address_type == "BUSINESS"
+                      ? capitalize(customer.street2)
+                      : capitalize(customer.street2)}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
                     {capitalize(customer.phone)}

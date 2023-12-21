@@ -74,19 +74,10 @@ export default function CustomerScreen(props) {
         netStatus
       );
       setNextUrl(response.next);
-      //console.log(response.results);
+      console.log("######", response);
       for (var customer of response.customers) {
         customersInfo.customersArray.push({
-          id: customer.customer_id,
-          image_url: customer.image_url,
-          identification: customer.identification,
-          first_name: customer.first_name,
-          last_name: customer.last_name,
-          address: customer.street,
-          business: customer.business,
-          atrasos: 0,
-          cuotas: 10,
-          cuota: "$RD 1200",
+          ...customer,
           loan_status:
             (() => {
               var result;
