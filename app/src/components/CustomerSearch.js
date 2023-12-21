@@ -11,9 +11,10 @@ export default function CustomerSearch({ searchStatus, setSearchValue }) {
     <View style={styles.inputContainer}>
       <TextInput
         style={styles.inputItem}
-        placeholder="Nombre, Cédula, Negocio..."
+        placeholder="Buscar por nombre, cédula o negocio..."
         onChangeText={(text) => setSearchValue(text)}
         value={searchStatus}
+        keyboardType="web-search"
       />
     </View>
   );
@@ -21,15 +22,17 @@ export default function CustomerSearch({ searchStatus, setSearchValue }) {
 
 const styles = StyleSheet.create({
   inputContainer: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 10,
     paddingTop: 15,
-    paddingBottom: 15,
+    paddingBottom: 30,
   },
 
   inputItem: {
     height: 40,
-    backgroundColor: "#D3DBE1",
+    backgroundColor: "whitesmoke",
+    borderWidth: 1,
+    borderColor: "rgba(0,0,0,0.1)",
     paddingHorizontal: 15,
-    borderRadius: 10,
+    borderRadius: 50,
   },
 });

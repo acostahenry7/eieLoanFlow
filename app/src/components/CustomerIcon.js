@@ -5,7 +5,7 @@ import { getCustomerImgApi } from "../api/camera";
 import EIECamera from "../components/Camera";
 
 export default function CustomerIcon(props) {
-  const { size, imageSize, data, trigger } = props;
+  const { size, data, trigger } = props;
   var [uri, setUri] = useState(data?.image_url);
 
   useEffect(() => {
@@ -18,14 +18,14 @@ export default function CustomerIcon(props) {
     <View style={{ ...styles.customIcon, width: size, height: size }}>
       {data?.image_url ? (
         <Image
-          style={{ width: imageSize, height: imageSize, borderRadius: 100 }}
+          style={{ width: size, height: size, borderRadius: 100 }}
           source={{
             uri: uri,
           }}
         />
       ) : (
         <Image
-          style={{ width: imageSize, height: imageSize, borderRadius: 100 }}
+          style={{ width: size, height: size, borderRadius: 100 }}
           source={{
             uri: "https://tanzolymp.com/images/default-non-user-no-photo-1.jpg",
           }}
@@ -39,7 +39,7 @@ export default function CustomerIcon(props) {
 const styles = StyleSheet.create({
   customIcon: {
     backgroundColor: "#dee2e6",
-    marginTop: 10,
+    // marginTop: 10,
     //marginLeft: "auto",
     //marginRight: "auto",
     //marginTop: 15,

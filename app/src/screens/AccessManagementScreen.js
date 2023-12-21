@@ -7,7 +7,7 @@ import {
   ScrollView,
 } from "react-native";
 import React, { useEffect, useState } from "react";
-
+import { Tab, TabView } from "@rneui/themed";
 import {
   listLockedUsersApi,
   unlockUserApi,
@@ -36,7 +36,8 @@ export default function AccessManagement() {
 
   const listDevices = async () => {
     let deviceList = await listDevicesApi();
-    await setDevices(deviceList);
+    // console.log(deviceList);
+    setDevices(deviceList);
   };
 
   const unlock = async (username) => {
@@ -48,6 +49,8 @@ export default function AccessManagement() {
     setIsLoading(false);
   };
 
+  console.log(data);
+
   const unlockUser = async (username) => {
     setIsLoading(true);
     let res = await unlockUserApi(username);
@@ -57,160 +60,237 @@ export default function AccessManagement() {
     setIsLoading(false);
   };
 
+  const [index, setIndex] = React.useState(0);
+
   return (
-    <View
-      style={{
-        backgroundColor: "white",
-        minHeight: "100%",
-        maxHeight: "100%",
-        paddingBottom: 20,
-      }}
-    >
-      {isDevFormVisible && (
-        <LockDevicesForm
-          visible={isDevFormVisible}
-          setFormVisible={setIsDevFormVisible}
-          device={device}
+    <>
+      <Tab
+        value={index}
+        onChange={(e) => setIndex(e)}
+        indicatorStyle={{
+          backgroundColor: "white",
+          height: 3,
+        }}
+        variant="primary"
+      >
+        <Tab.Item
+          title="Usuarios"
+          titleStyle={{ fontSize: 12 }}
+          icon={{ name: "user", type: "antdesign", color: "white" }}
         />
-      )}
-      {isLoading && <Loading />}
-      {isMacFormLoading && <Loading />}
-      <View>
-        <View style={{ ...styles.section, marginBottom: 30 }}>
-          <Text style={styles.sectionTitle}>Usuarios bloqueados</Text>
-        </View>
 
-        {data.map((item, index) => (
-          <View
-            key={index}
-            style={{
-              marginVertical: 10,
-              backgroundColor: "white",
-              paddingVertical: 10,
-              paddingHorizontal: 5,
-              flexDirection: "row",
-              justifyContent: "space-around",
-            }}
-          >
-            <Text>
-              Username: <Text style={{ fontWeight: "bold" }}>{item}</Text>
-            </Text>
-            <Text onPress={async () => await unlockUser(item)}>
-              Desbloquear
-            </Text>
-          </View>
-        ))}
-      </View>
-      <View>
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Devices</Text>
-        </View>
-        <ScrollView
-          contentContainerStyle={{ paddingBottom: 35 }}
-          style={{
-            paddingHorizontal: 15,
-            paddingVertical: 15,
-            height: "88%",
-          }}
-        >
-          {devices.map((device, index) => (
-            <View key={index}>
-              <Entypo
-                name="circle-with-cross"
-                size={30}
-                color={"darkred"}
-                style={{
-                  textAlign: "right",
-                  width: "100%",
-                  elevation: 5,
-                }}
-                onPress={async () => {
-                  try {
-                    let res = await unregisterDeviceApi(
-                      device.app_access_control_id
-                    );
-                    await listDevices();
-                    Alert.alert("Listo", res?.message);
-                  } catch (error) {
-                    Alert.alert("Error", error);
-                  }
-                }}
-              />
+        <Tab.Item
+          title="Dispositivos"
+          titleStyle={{ fontSize: 12 }}
+          icon={{ name: "devices", type: "materialicons", color: "white" }}
+        />
+      </Tab>
 
-              <View
+      <TabView value={index} onChange={setIndex} animationType="spring">
+        <TabView.Item style={{ width: "100%" }}>
+          {/* {isDevFormVisible && (
+            <LockDevicesForm
+              visible={isDevFormVisible}
+              setFormVisible={setIsDevFormVisible}
+              device={device}
+            />
+          )} */}
+          <View>
+            {isLoading && <Loading />}
+            {isMacFormLoading && <Loading />}
+            <View>
+              <ScrollView
+                contentContainerStyle={{ paddingBottom: 35 }}
                 style={{
-                  zIndex: 1,
-                  marginTop: -15,
-                  backgroundColor: "whitesmoke",
-                  marginVertical: 10,
-                  padding: 10,
-                  borderColor: "rgba(0,0,0,0.3)",
-                  borderWidth: 0.5,
-                  borderRadius: 5,
-                  elevation: 4,
-                  flexDirection: "row",
-                  justifyContent: "space-around",
-                  alignItems: "center",
+                  paddingHorizontal: 15,
+                  paddingVertical: 15,
+                  height: "100%",
                 }}
               >
-                <View status={{ flexDirection: "column" }}>
-                  <Text style={{ width: 200 }}>
-                    <Text style={{ fontWeight: "bold" }}>Dispostivo: </Text>
-                    {device.description}
-                  </Text>
-                  <Text>
-                    <Text style={{ fontWeight: "bold" }}>Mac: </Text>
-                    {device.mac_address}
-                  </Text>
-
-                  <Text>
-                    <Text style={{ fontWeight: "bold" }}>Estado Acceso: </Text>
-                    {device.status_type == "ALLOWED" ? "Permitido" : "Denegado"}
-                  </Text>
-                </View>
-                <View>
-                  <View style={{ flexDirection: "row" }}>
-                    <Entypo
-                      name="block"
-                      style={styles.devicesIcons}
-                      size={25}
-                      color="red"
-                      onPress={async () => {
-                        let res = await changeDeviceStatusApi({
-                          id: device.app_access_control_id,
-                          status: "BLOCKED",
-                        });
+                {data.map((item, index) => (
+                  <View
+                    key={index}
+                    style={{
+                      marginVertical: 10,
+                      backgroundColor: "white",
+                      paddingVertical: 10,
+                      paddingHorizontal: 5,
+                      flexDirection: "row",
+                      justifyContent: "space-around",
+                    }}
+                  >
+                    <Text>
+                      Username:{" "}
+                      <Text style={{ fontWeight: "bold" }}>{item}</Text>
+                    </Text>
+                    <Text onPress={async () => await unlockUser(item)}>
+                      Desbloquear
+                    </Text>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          </View>
+        </TabView.Item>
+        <TabView.Item style={{ width: "100%" }}>
+          <View>
+            <ScrollView
+              contentContainerStyle={{ paddingBottom: 35 }}
+              style={{
+                paddingHorizontal: 15,
+                paddingVertical: 15,
+                height: "100%",
+              }}
+            >
+              {devices.map((device, index) => (
+                <View key={index}>
+                  <Entypo
+                    name="circle-with-cross"
+                    size={30}
+                    color={"darkred"}
+                    style={{
+                      textAlign: "right",
+                      width: "100%",
+                      elevation: 5,
+                    }}
+                    onPress={async () => {
+                      try {
+                        let res = await unregisterDeviceApi(
+                          device.app_access_control_id
+                        );
                         await listDevices();
-                        Alert.alert("Listo", res?.message + "bloqueado.");
-                      }}
-                    />
-                    <Entypo
-                      name="check"
-                      style={{ ...styles.devicesIcons, marginLeft: 5 }}
-                      size={25}
-                      color="green"
-                      onPress={async () => {
-                        let res = await changeDeviceStatusApi({
-                          id: device.app_access_control_id,
-                          status: "ALLOWED",
-                        });
-                        //setDevice(device);
-                        setIsMacFormLoading(true);
-                        await listDevices();
-                        setIsMacFormLoading(false);
+                        Alert.alert("Listo", res?.message);
+                      } catch (error) {
+                        Alert.alert("Error", error);
+                      }
+                    }}
+                  />
 
-                        Alert.alert("Listo", res?.message + "permitido.");
-                      }}
-                    />
+                  <View
+                    style={{
+                      zIndex: 1,
+                      marginTop: -15,
+                      backgroundColor: "whitesmoke",
+                      marginVertical: 10,
+                      padding: 10,
+                      borderColor: "rgba(0,0,0,0.3)",
+                      borderWidth: 0.5,
+                      borderRadius: 5,
+                      elevation: 4,
+                      flexDirection: "row",
+                      justifyContent: "space-around",
+                      alignItems: "center",
+                    }}
+                  >
+                    <View status={{ flexDirection: "column" }}>
+                      <Text style={{ width: 200 }}>
+                        <Text style={{ fontWeight: "bold" }}>Dispostivo: </Text>
+                        {device.description}
+                      </Text>
+                      <Text>
+                        <Text style={{ fontWeight: "bold" }}>Mac: </Text>
+                        {device.mac_address}
+                      </Text>
+
+                      <Text>
+                        <Text style={{ fontWeight: "bold" }}>
+                          Estado Acceso:{" "}
+                        </Text>
+                        {device.status_type == "ALLOWED"
+                          ? "Permitido"
+                          : "Denegado"}
+                      </Text>
+                    </View>
+                    <View>
+                      <View style={{ flexDirection: "row" }}>
+                        <Entypo
+                          name="block"
+                          style={styles.devicesIcons}
+                          size={25}
+                          color="red"
+                          onPress={async () => {
+                            let res = await changeDeviceStatusApi({
+                              id: device.app_access_control_id,
+                              status: "BLOCKED",
+                            });
+                            await listDevices();
+                            Alert.alert("Listo", res?.message + "bloqueado.");
+                          }}
+                        />
+                        <Entypo
+                          name="check"
+                          style={{ ...styles.devicesIcons, marginLeft: 5 }}
+                          size={25}
+                          color="green"
+                          onPress={async () => {
+                            let res = await changeDeviceStatusApi({
+                              id: device.app_access_control_id,
+                              status: "ALLOWED",
+                            });
+                            //setDevice(device);
+                            setIsMacFormLoading(true);
+                            await listDevices();
+                            setIsMacFormLoading(false);
+
+                            Alert.alert("Listo", res?.message + "permitido.");
+                          }}
+                        />
+                      </View>
+                    </View>
                   </View>
                 </View>
-              </View>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-      <View></View>
-    </View>
+              ))}
+            </ScrollView>
+          </View>
+        </TabView.Item>
+      </TabView>
+    </>
+    // <View
+    //   style={{
+    //     backgroundColor: "white",
+    //     minHeight: "100%",
+    //     maxHeight: "100%",
+    //     paddingBottom: 20,
+    //   }}
+    // >
+    //   {isDevFormVisible && (
+    //     <LockDevicesForm
+    //       visible={isDevFormVisible}
+    //       setFormVisible={setIsDevFormVisible}
+    //       device={device}
+    //     />
+    //   )}
+    //   {isLoading && <Loading />}
+    //   {isMacFormLoading && <Loading />}
+    //   <View>
+    //     <View style={{ ...styles.section, marginBottom: 30 }}>
+    //       <Text style={styles.sectionTitle}>Usuarios bloqueados</Text>
+    //     </View>
+
+    //     {data.map((item, index) => (
+    //       <View
+    //         key={index}
+    //         style={{
+    //           marginVertical: 10,
+    //           backgroundColor: "white",
+    //           paddingVertical: 10,
+    //           paddingHorizontal: 5,
+    //           flexDirection: "row",
+    //           justifyContent: "space-around",
+    //         }}
+    //       >
+    //         <Text>
+    //           Username: <Text style={{ fontWeight: "bold" }}>{item}</Text>
+    //         </Text>
+    //         <Text onPress={async () => await unlockUser(item)}>
+    //           Desbloquear
+    //         </Text>
+    //       </View>
+    //     ))}
+    //   </View>
+
+    //   <View></View>
+    // </View>
   );
 }
 

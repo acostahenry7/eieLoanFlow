@@ -20,39 +20,29 @@ export async function getClientByloan(data) {
     body: JSON.stringify(data),
   };
 
-  if (data.netStatus == false) {
-    //CODIGO PARA OFFFLINE
-    return new Error("try");
-  } else {
-    try {
-      const url = `${await getSavedConnectionUrlApi()}/payment`;
-      const response = await fetch(url, options);
-      const result = await response.json();
+  try {
+    const url = `${await getSavedConnectionUrlApi()}/payment`;
+    const response = await fetch(url, options);
+    const result = await response.json();
 
-      // console.log("PREPARING ONLINE DATA", result);
-      return result;
-    } catch (error) {
-      console.log(error);
-      throw error;
-    }
+    // console.log("PREPARING ONLINE DATA", result);
+    return result;
+  } catch (error) {
+    console.log(error);
+    throw error;
   }
+
   //}
 }
 
-export async function getRegisterStatusApi(userId, netStatus) {
-  console.log("NETWOL", netStatus);
-  if (netStatus == false) {
-    //CODIGO PARA OFFLINE
-    throw new Error("try hard");
-  } else {
-    try {
-      const url = `${await getSavedConnectionUrlApi()}/register/${userId}`;
-      const response = await fetch(url);
-      const result = await response.json();
-      return result;
-    } catch (error) {
-      throw error;
-    }
+export async function getRegisterStatusApi(userId) {
+  try {
+    const url = `${await getSavedConnectionUrlApi()}/register/${userId}`;
+    const response = await fetch(url);
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    throw error;
   }
 }
 

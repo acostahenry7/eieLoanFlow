@@ -131,7 +131,8 @@ export default function LoginForm(props) {
               alignItems: "center",
               paddingTop: 120,
             }}
-          >
+          ></View>
+          <View style={{ ...styles.modalBody, backgroundColor: "transparent" }}>
             <Icon
               name="attach-money"
               style={{
@@ -143,15 +144,7 @@ export default function LoginForm(props) {
             <Text style={{ color: "white", fontWeight: "bold", fontSize: 17 }}>
               EIE Loanflow
             </Text>
-          </View>
-          <View style={styles.modalBody}>
-            <View style={styles.formGroup}>
-              <Text
-                style={{ fontWeight: "bold", marginBottom: 20, fontSize: 18 }}
-              >
-                Login
-              </Text>
-            </View>
+            <View style={styles.formGroup}></View>
             <View style={styles.formGroup}>
               <TextInput
                 value={formik.values.username}
@@ -186,7 +179,7 @@ export default function LoginForm(props) {
             <Text style={styles.error}>{error}</Text>
             <View style={styles.formGroup}>
               <Button
-                style={{ width: "100%" }}
+                style={{ width: "200px" }}
                 title="Ingresar"
                 onPress={formik.handleSubmit}
               />
@@ -334,8 +327,9 @@ const styles = StyleSheet.create({
     paddingBottom: 15,
     backgroundColor: "white",
     marginHorizontal: 15,
-    marginBottom: "auto",
-    marginTop: "auto",
+    // marginBottom: "auto",
+    // marginTop: "auto",
+    marginTop: "40%",
     alignItems: "center",
     paddingHorizontal: 15,
     shadowColor: "#000",
@@ -345,10 +339,13 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5,
+    // elevation: 5,
   },
   formGroup: {
     paddingVertical: 10,
+    width: "100%",
+    display: "flex",
+    // alignItems: "center",
   },
 
   textInput: {
@@ -356,7 +353,7 @@ const styles = StyleSheet.create({
     height: 20,
     borderWidth: 1,
     borderColor: "#D1D7DB",
-    width: 330,
+    width: "100%",
     height: 40,
     paddingHorizontal: 10,
     borderRadius: 3,
@@ -366,7 +363,7 @@ const styles = StyleSheet.create({
   },
 
   error: {
-    color: "red",
+    color: "white",
     fontSize: 12,
   },
 

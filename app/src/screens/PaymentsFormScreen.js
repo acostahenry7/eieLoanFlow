@@ -56,7 +56,11 @@ export default function PaymentsFormScreen(props) {
   const [isPaymentButtonStatus, setIsPaymentButtonDisabled] = useState(false);
   //const [pendingAmount, setPendingAmount] = useState("");
 
-  // console.log("#############################", params);
+  console.log(
+    "#############################",
+    loans,
+    loans.filter(({ number }) => number == loan)[0].outletId
+  );
 
   const [currentCharge, setCurrentCharge] = useState(charges);
 
@@ -103,6 +107,7 @@ export default function PaymentsFormScreen(props) {
         comment,
       } = values;
 
+      setIsPaymentButtonDisabled(true);
       if (isACharge == true) {
         let data = {
           loanChargeId,
@@ -246,7 +251,7 @@ export default function PaymentsFormScreen(props) {
             createdBy: auth.login,
             lastModifiedBy: auth.login,
             employeeId: auth.employee_id,
-            outletId: auth.outlet_id,
+            outletId: loans.filter(({ number }) => number == loan)[0].outletId,
             customerId: params.customer_id,
             totalMora: 0,
             registerId: register.register_id,
@@ -341,7 +346,7 @@ export default function PaymentsFormScreen(props) {
         } catch (error) {
           Alert.alert("Error", error.message.toString());
         }
-        setIsPaymentButtonDisabled(true);
+
         setIsLoading(false);
       }
     },
@@ -354,7 +359,7 @@ export default function PaymentsFormScreen(props) {
         <View style={styles.modalView}>
           <View
             style={{
-              padding: 20,
+              padding: 10,
               backgroundColor: "rgba(255,255,255,0.9)",
               borderRadius: 4,
               borderColor: "#bf514c",
@@ -575,12 +580,13 @@ export default function PaymentsFormScreen(props) {
             />
           </View>
         </View>
-        <View style={{ ...styles.formGroup, flexDirection: "row" }}>
+        {/*CHECKBOX DE APLICAR MONTO RESTANTE - CAMBIO PROCESO DE PAGO */}
+        {/* <View style={{ ...styles.formGroup, flexDirection: "row" }}>
           <CheckBox value={isChecked} onValueChange={setIsChecked} />
           <Text style={{ fontSize: 12, marginLeft: 10 }}>
             Aplicar monto restante a la siguiente cuota
           </Text>
-        </View>
+        </View> */}
         <View style={styles.formGroup}>
           <Button
             disabled={isPaymentButtonStatus}
@@ -802,7 +808,7 @@ const styles = StyleSheet.create({
   },
 
   selectItemContainer: {
-    paddingHorizontal: 40,
+    paddingHorizontal: 20,
     backgroundColor: "white",
     paddingVertical: 40,
     height: 600,

@@ -1,4 +1,10 @@
-import { View, Text, StyleSheet, TouchableWithoutFeedback } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  TouchableNativeFeedback,
+} from "react-native";
 import {
   Menu,
   MenuOptions,
@@ -52,100 +58,103 @@ export default function CardTemplate(props) {
     <View>
       {screen != "Recibo" ? (
         <View style={styles.cardContainer}>
-          <View style={styles.cardRow}>
-            <View
-              style={{
-                marginRight: 10,
-                justifyContent: "center",
-              }}
-            >
-              <CustomerIcon size={80} imageSize={80} data={data} />
-            </View>
+          <TouchableNativeFeedback
+            onPress={() => {
+              navigation.navigate("Customers", {
+                screen: "Customer",
+                params: { id: uid },
+              });
+            }}
+          >
+            <View style={styles.cardRow}>
+              <View style={{ marginRight: 12 }}>
+                <CustomerIcon size={55} data={data} />
+              </View>
 
-            <View>
               <View
-                style={{
-                  ...styles.section,
-                  marginLeft: 0,
-                  justifyContent: "flex-start",
-                  paddingTop: 12,
-                  width: "100%",
-                }}
+              // style={{
+              //   ...styles.section,
+              //   height: 40,
+              //   width: "100%",
+              // }}
               >
-                <Text style={styles.title}>{mainTitle}</Text>
-                <Text style={styles.mainText}>{formatText(mainText)}</Text>
+                <View>
+                  {/* <Text style={styles.title}>{mainTitle}</Text> */}
+                  <Text style={styles.mainText}>{formatText(mainText)}</Text>
+                </View>
+                <View style={{}}>
+                  {/* <Text style={styles.title}>{secondaryTitle}</Text> */}
+                  <Text style={styles.secondaryText}>
+                    {capitalize(secondaryText)}
+                  </Text>
+                </View>
               </View>
-              <View style={{ marginTop: 7 }}>
-                <Text style={styles.title}>{secondaryTitle}</Text>
-                <Text style={styles.secondaryText}>
-                  {capitalize(secondaryText)}
-                </Text>
-              </View>
-            </View>
-            <View style={{}}>
-              {admin == true && (
-                <Menu>
-                  <MenuTrigger>
-                    <IonIcon
-                      name={"menu"}
-                      size={25}
-                      style={{
-                        zIndex: 99,
-                      }}
-                    />
-                  </MenuTrigger>
-                  <MenuOptions
-                    customStyles={{ optionText: { fontSize: 15 } }}
-                    optionsContainerStyle={{ marginLeft: 6 }}
-                  >
-                    {menuOptions?.map((option, index) => (
-                      <MenuOption
-                        key={index}
-                        text={option.name}
-                        style={styles.menuOption}
-                        onSelect={async () => {
-                          //console.log(option);
-                          option.action(actionParam);
+              <View style={{}}>
+                {admin == true && (
+                  <Menu>
+                    <MenuTrigger>
+                      <IonIcon
+                        name={"menu"}
+                        size={25}
+                        style={{
+                          zIndex: 99,
                         }}
                       />
-                    ))}
-                  </MenuOptions>
-                </Menu>
-              )}
+                    </MenuTrigger>
+                    <MenuOptions
+                      customStyles={{ optionText: { fontSize: 15 } }}
+                      optionsContainerStyle={{ marginLeft: 6 }}
+                    >
+                      {menuOptions?.map((option, index) => (
+                        <MenuOption
+                          key={index}
+                          text={option.name}
+                          style={styles.menuOption}
+                          onSelect={async () => {
+                            //console.log(option);
+                            option.action(actionParam);
+                          }}
+                        />
+                      ))}
+                    </MenuOptions>
+                  </Menu>
+                )}
+              </View>
             </View>
-          </View>
-          {screen != "collectors" && (
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                paddingTop: 12,
-                justifyContent: "space-around",
-              }}
-            >
-              <Icon
-                name="location"
-                size={20}
-                color={"crimson"}
-                onPress={() => {
-                  navigation.navigate("GpsRoot", { screen: "Gps" });
-                }}
-              />
+          </TouchableNativeFeedback>
+          {
+            screen != "collectors" && undefined
+            // <View
+            //   style={{
+            //     flexDirection: "row",
+            //     alignItems: "center",
+            //     paddingTop: 12,
+            //     justifyContent: "space-around",
+            //   }}
+            // >
+            //   <Icon
+            //     name="location"
+            //     size={16}
+            //     color={"crimson"}
+            //     onPress={() => {
+            //       navigation.navigate("GpsRoot", { screen: "Gps" });
+            //     }}
+            //   />
 
-              <Icon
-                name="user"
-                size={20}
-                color={"#5f9ea0"}
-                onPress={() => {
-                  navigation.navigate("Customers", {
-                    screen: "Customer",
-                    params: { id: uid },
-                  });
-                }}
-              />
-              <IonIcon name="qr-code" size={18} />
-            </View>
-          )}
+            //   <Icon
+            //     name="user"
+            //     size={16}
+            //     color={"#5f9ea0"}
+            //     onPress={() => {
+            //       navigation.navigate("Customers", {
+            //         screen: "Customer",
+            //         params: { id: uid },
+            //       });
+            //     }}
+            //   />
+            //   <IonIcon name="qr-code" size={16} />
+            // </View>
+          }
         </View>
       ) : (
         <TouchableWithoutFeedback>
@@ -206,16 +215,19 @@ export default function CardTemplate(props) {
 
 const styles = StyleSheet.create({
   cardContainer: {
-    elevation: 3,
+    // elevation: 1,
     //marginTop: 10,
-    backgroundColor: "white",
+    // backgroundColor: "white",
     paddingHorizontal: 10,
-    paddingVertical: 15,
-    borderRadius: 10,
-    borderLeftColor: "#4682b4",
-    borderLeftWidth: 7,
-    marginHorizontal: 1,
-    marginBottom: 10,
+    paddingVertical: 6,
+    // paddingTop: 0,
+    // paddingBottom: 12,
+    borderRadius: 6,
+    borderWidth: 0,
+    // borderBottomColor: "rgba(0,0,0,0.1)",
+    // borderBottomWidth: 1,
+    // marginHorizontal: 1,
+    // marginBottom: 10,
   },
 
   rCardContainer: {
@@ -234,25 +246,32 @@ const styles = StyleSheet.create({
   section: {},
 
   cardRow: {
-    paddingBottom: 10,
+    // paddingBottom: 0,
+    display: "flex",
+    height: 60,
     flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     borderBottomColor: "rgba(95,158,160,0.3)",
     borderBottomWidth: 0.2,
   },
 
   title: {
-    fontSize: 13,
+    fontSize: 12,
+    color: "rgba(0,0,0,0.3)",
     minWidth: windowsDimenssion.width - 180,
   },
 
   mainText: {
     fontWeight: "bold",
-    fontSize: 14,
+    color: "rgba(0,0,0,1)",
+    fontSize: 15,
   },
 
   secondaryText: {
-    fontWeight: "bold",
-    fontSize: 14,
+    fontWeight: "normal",
+    color: "rgba(0,0,0,0.5)",
+    fontSize: 13,
     width: 250,
   },
 

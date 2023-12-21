@@ -327,7 +327,7 @@ export default function HomeScreen(props) {
           animationType={"fade"}
           transparent={true}
         >
-          <View style={{ height: "100%", backgroundColor: "rgba(0,0,0,0.3)" }}>
+          <View style={{ height: "100%", backgroundColor: "rgba(0,0,0,1)" }}>
             <View
               style={{
                 ...styles.modalContainer,
@@ -745,8 +745,8 @@ export default function HomeScreen(props) {
               height: 150,
               paddingHorizontal: 6,
               paddingVertical: 10,
-              backgroundColor: "rgba(153,190,226, 0.2)",
-              backgroundColor: "whitesmoke",
+              // backgroundColor: "rgba(153,190,226, 0.2)",
+              backgroundColor: "white",
             }}
           >
             <View
@@ -778,11 +778,8 @@ export default function HomeScreen(props) {
           <ScrollView
             showsVerticalScrollIndicator={false}
             style={{
-              height:
-                windowDimensions.height > 805
-                  ? windowDimensions.height * 0.67 //0.6
-                  : windowDimensions.height * 0.624,
-              backgroundColor: "whitesmoke",
+              height: "69%",
+              backgroundColor: "white",
               //paddingTop: 10,
               paddingHorizontal: 3,
               //paddingBottom: 10,
@@ -797,6 +794,7 @@ export default function HomeScreen(props) {
                     style={{ ...styles.selectItem }}
                     dropdownStyle={{
                       ...styles.selectItemOptions,
+                      backgroundColor: "whitesmoke",
                       width: "100%",
                     }}
                     dropdownTextStyle={styles.selectItemOptionsText}
@@ -807,10 +805,6 @@ export default function HomeScreen(props) {
                     options={["Todos", ...Object.keys(routes)]}
                     defaultValue="Todos"
                     textStyle={styles.selectItemText}
-                    dropdownTextHighlightStyle={{
-                      backgroundColor: "grey",
-                      color: "white",
-                    }}
                   />
                 </View>
                 {Object.keys(routes).map(function (key, item) {

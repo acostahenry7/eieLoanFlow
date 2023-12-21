@@ -231,7 +231,11 @@ export function genereateZPLTemplate(object) {
                     significantFigure(
                       (() => {
                         let amount = receiptAmortization
-                          .filter((i) => i.statusType == "COMPOST")
+                          .filter(
+                            (i) =>
+                              i.statusType == "COMPOST" ||
+                              i.statusType == "DEFEATED"
+                          )
                           .reduce(
                             (acc, i) => acc + i.totalPaid - i.fixedTotalPaid,
                             0
@@ -272,14 +276,6 @@ export function genereateZPLTemplate(object) {
               )}
               ^LRY
               ^FO200,${top + 245}^CFG
-            ^GB300,30,30^FS
-              ${zTitle("Devuelta:", 200, top + 250)}
-              ${zTitle(
-                "RD$ " + significantFigure(object.cashBack),
-                365,
-                top + 250
-              )}
-              ^LRN
               ${zTitle(
                 "Nota: No somos responsables de dinero entregado sin recibo",
                 30,
