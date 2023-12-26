@@ -48,6 +48,7 @@ export function setPaymentObject(
     customer,
     isACharge,
     chargeId,
+    loanType = requiredField("loanType"),
     quotaAmount,
     registerId = requiredField("registerId"),
   } = requiredInfo()
@@ -122,6 +123,7 @@ export function setPaymentObject(
       lastModifiedBy,
       employeeId,
       outletId,
+      loanType,
       customerId,
       customer,
       registerId,

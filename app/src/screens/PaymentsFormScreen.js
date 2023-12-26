@@ -57,9 +57,8 @@ export default function PaymentsFormScreen(props) {
   //const [pendingAmount, setPendingAmount] = useState("");
 
   console.log(
-    "#############################",
-    loans,
-    loans.filter(({ number }) => number == loan)[0].outletId
+    "###############AAAA",
+    loans.filter(({ number }) => number == loan)[0].loanType
   );
 
   const [currentCharge, setCurrentCharge] = useState(charges);
@@ -188,6 +187,50 @@ export default function PaymentsFormScreen(props) {
           quotas
         );
 
+        ////console.log("HEY I AM YOUR REGISTER", register);
+        // data.payment = {
+        //   loanId: loans.filter((loan) => loan.number == loanNumber)[0].loanId,
+
+        //   ncf: "",
+        //   customerId: params.customer_id,
+        //   paymentMethod,
+
+        //   totalMora: parseFloat(
+        //     amortization.reduce((acc, quota) => acc + parseFloat(quota.mora), 0)
+        //   ),
+
+        //   pendingAmount: currentPendingAmount,
+        //   paymentType: (function () {
+        //     switch (paymentMethod) {
+        //       case "Efectivo":
+        //         paymentMethod = "CASH";
+        //         break;
+        //       case "Transferencia":
+        //         paymentMethod = "TRANSFER";
+        //         break;
+        //       case "Cheque":
+        //         paymentMethod = "CHECK";
+        //         break;
+        //       default:
+        //         break;
+        //     }
+
+        //     return paymentMethod;
+        //   })(),
+        //   createdBy: auth.login,
+        //   receivedAmount,
+        //   cashBack: (() => {
+        //     return Math.round(cashBack);
+        //   })(),
+        //   lastModifiedBy: auth.login,
+        //   employeeId: auth.employee_id,
+        //   customer,
+        //   outletId: auth.outlet_id,
+        //   comment: comment,
+        //   registerId: register.register_id,
+        //   payOfLoan: payLoan == "si" ? true : false,
+        // };
+
         let data;
         try {
           data = setPaymentObject({
@@ -252,6 +295,7 @@ export default function PaymentsFormScreen(props) {
             lastModifiedBy: auth.login,
             employeeId: auth.employee_id,
             outletId: loans.filter(({ number }) => number == loan)[0].outletId,
+            loanType: loans.filter(({ number }) => number == loan)[0].loanType,
             customerId: params.customer_id,
             totalMora: 0,
             registerId: register.register_id,

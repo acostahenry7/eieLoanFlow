@@ -102,9 +102,11 @@ export default function CustomerInfoScreen(props) {
     "Email",
     "Provincia",
     "Municipio",
-    "Distrito",
     "Calle/No.",
     "Sector",
+    "Municipio (cliente)",
+    "Calle/No. (cliente)",
+    "Sector (cliente)",
     "Teléfono",
     "Celular",
   ];
@@ -205,8 +207,13 @@ export default function CustomerInfoScreen(props) {
               <Text style={styles.sectionTitle}>Datos Generales</Text>
               <View style={styles.customerInfoContainer}>
                 <View style={styles.customerInfoLeftSection}>
-                  {fields.map((field) => (
-                    <Text key={i++} style={styles.customerInfoLeftSection_item}>
+                  {fields.map((field, index) => (
+                    <Text
+                      key={i++}
+                      style={{
+                        ...styles.customerInfoLeftSection_item,
+                      }}
+                    >
                       {field}:
                     </Text>
                   ))}
@@ -214,7 +221,8 @@ export default function CustomerInfoScreen(props) {
                 <View style={styles.customerInfoRightSection}>
                   {/* <Text style={styles.customerInfoRightSection_item}>
                     {customer.identification}
-                  </Text> */}
+                  </Text>{" "}
+                  */}
                   <Text style={styles.customerInfoRightSection_item}>
                     {customer.rnc || "No RNC"}
                   </Text>
@@ -231,26 +239,46 @@ export default function CustomerInfoScreen(props) {
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
                     {customer.payment_address_type == "BUSINESS"
-                      ? capitalize(customer.municipality)
-                      : capitalize(customer.municipality)}
+                      ? capitalize(customer.municipality).substring(0, 13)
+                      : "*Configurar dir. negocio*"}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
                     {customer.payment_address_type == "BUSINESS"
-                      ? capitalize(customer.section)
-                      : capitalize(customer.section)}
+                      ? capitalize(customer.street).substring(0, 22)
+                      : "*Configurar dir. negocio*"}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
                     {customer.payment_address_type == "BUSINESS"
-                      ? capitalize(customer.street)
-                      : capitalize(customer.street)}
+                      ? capitalize(customer.section).substring(0, 10)
+                      : "*Configurar dir. negocio*"}
                   </Text>
-                  <Text style={styles.customerInfoRightSection_item}>
+                  {/* <Text style={styles.customerInfoRightSection_item}>
                     {customer.payment_address_type == "BUSINESS"
                       ? capitalize(customer.street2)
                       : capitalize(customer.street2)}
+                  </Text> */}
+                  <Text style={styles.customerInfoRightSection_item}>
+                    {customer.payment_address_type == "CUSTOMER"
+                      ? capitalize(customer.municipality).substring(0, 13)
+                      : capitalize(customer.municipality)}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
-                    {capitalize(customer.phone)}
+                    {customer.payment_address_type == "CUSTOMER"
+                      ? capitalize(customer.street).substring(0, 22)
+                      : capitalize(customer.street)}
+                  </Text>
+                  <Text style={styles.customerInfoRightSection_item}>
+                    {customer.payment_address_type == "CUSTOMER"
+                      ? capitalize(customer.section).substring(0, 10)
+                      : capitalize(customer.section)}
+                  </Text>
+                  {/* <Text style={styles.customerInfoRightSection_item}>
+                    {customer.payment_address_type == "CUSTOMER"
+                      ? capitalize(customer.street2)
+                      : capitalize(customer.street2)}
+                  </Text> */}
+                  <Text style={styles.customerInfoRightSection_item}>
+                    {capitalize(customer.phone || "No phone")}
                   </Text>
                   <Text style={styles.customerInfoRightSection_item}>
                     {capitalize(customer.mobile || "No celular")}
@@ -312,8 +340,9 @@ export default function CustomerInfoScreen(props) {
 
 const styles = StyleSheet.create({
   customCardContainer: {
-    height: 330,
+    // height: 400,
     marginTop: 35,
+    marginBottom: 50,
   },
 
   column: {
