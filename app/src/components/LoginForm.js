@@ -20,7 +20,11 @@ import {
 
 import { loginApi } from "../api/auth/login";
 import useAuth from "../hooks/useAuth";
-import { getDeviceName, getMacAddress } from "react-native-device-info";
+import {
+  getDeviceName,
+  getMacAddress,
+  getUniqueId,
+} from "react-native-device-info";
 import { PermissionsAndroid } from "react-native";
 import { useNetInfo } from "@react-native-community/netinfo";
 
@@ -33,7 +37,6 @@ export default function LoginForm(props) {
   const [visible, setVisible] = useState(true);
   const [configMenuVisible, setConfigMenuVisible] = useState(false);
   const [configForm, setConfigForm] = useState(false);
-  const netInfo = useNetInfo();
 
   useEffect(() => {
     (async () => {
@@ -52,58 +55,51 @@ export default function LoginForm(props) {
       setIsLoading(true);
       const { username, password } = values;
 
-      let devMac = await getMacAddress();
       let devName = await getDeviceName();
+      let devUniqueId = await getMacAddress();
+
+      if (!devUniqueId) {
+        devUniqueId = await getUniqueId();
+      }
 
       let deviceInfo = {
         description: devName,
-        mac: devMac,
+        mac: devUniqueId,
         status_type: "BLOCKED",
       };
 
-      const response = await loginApi(
-        username,
-        password,
-        deviceInfo,
-        netInfo.isConnected
-      );
+      const response = await loginApi(username, password, deviceInfo);
       setIsLoading(false);
 
       formik.setFieldValue("username", "");
       formik.setFieldValue("password", "");
 
-      if (netInfo.isConnected == false) {
-        if (response.error) {
-          setError(response.error);
+      console.log(response);
+
+      if (response.error) {
+        if (response.errorCode == 1) {
+          Alert.alert("Error de Conexión", response.error);
         } else {
-          login(response);
+          if (response.error == "MMVERSION") {
+            setError(
+              "Esta utilizando una versión desactualizada de al app. Favor acturalizar a la version más reciente."
+            );
+          } else {
+            setError(response.error);
+          }
         }
       } else {
-        if (response.error) {
-          if (response.errorCode == 1) {
-            Alert.alert("Error de Conexión", response.error);
-          } else {
-            if (response.error == "MMVERSION") {
-              setError(
-                "Esta utilizando una versión desactualizada de al app. Favor acturalizar a la version más reciente."
-              );
-            } else {
-              setError(response.error);
-            }
-          }
+        if (response.successfullLogin == true) {
+          console.log("Mi user logged", response);
+          login(response.userData);
+          navigation.navigate("Home");
         } else {
-          if (response.successfullLogin == true) {
-            console.log("Mi user logged", response);
-            login(response.userData);
-            navigation.navigate("Home");
+          if (response.error == "MMVERSION") {
+            setError(
+              "Esta utilizando una versión desactualizada de al app. Favor acturalizar a la version más reciente."
+            );
           } else {
-            if (response.error == "MMVERSION") {
-              setError(
-                "Esta utilizando una versión desactualizada de al app. Favor acturalizar a la version más reciente."
-              );
-            } else {
-              setError("El usuario o la contraseña son incorrectos!");
-            }
+            setError("El usuario o la contraseña son incorrectos!");
           }
         }
       }
@@ -128,7 +124,7 @@ export default function LoginForm(props) {
             style={{
               position: "absolute",
               width: "100%",
-              alignItems: "center",
+              // alignItems: "center",
               paddingTop: 120,
             }}
           ></View>
@@ -309,7 +305,6 @@ const styles = StyleSheet.create({
   },
   modalView: {
     backgroundColor: "#4682b4",
-
     height: "100%",
 
     // shadowColor: "#000",

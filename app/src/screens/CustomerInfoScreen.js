@@ -53,13 +53,13 @@ export default function CustomerInfoScreen(props) {
             setIsLoading(false);
             const { customerInfo, customerLoans } = response;
             console.log("********** ", response, params);
-            if (Object.entries(params).length <= 1) {
-              setCustomer(customerInfo);
-              setLoans(customerLoans);
-            } else {
-              setCustomer(params);
-              setLoans(customerLoans);
-            }
+            //if (Object.entries(params).length <= 1) {
+            setCustomer(customerInfo);
+            setLoans(customerLoans);
+            //} else {
+            // setCustomer(params);
+            // setLoans(customerLoans);
+            //}
             //console.log("@@@@@", customerLoans);
           } catch (error) {
             console.log(error);
@@ -95,20 +95,57 @@ export default function CustomerInfoScreen(props) {
     });
   }
 
+  let sumaryCustomer = {
+    // rnc: customer.rnc,
+    // birthDate: customer
+  };
+
   const fields = [
     // "Cédula",
-    "RNC",
-    "Fecha Nacimiento",
-    "Email",
-    "Provincia",
-    "Municipio",
-    "Calle/No.",
-    "Sector",
-    "Municipio (cliente)",
-    "Calle/No. (cliente)",
-    "Sector (cliente)",
-    "Teléfono",
-    "Celular",
+    {
+      field: "Fecha Nacimiento",
+      value: customer.birth_date || "",
+    },
+    {
+      field: "Teléfono",
+      value: customer.phone || "",
+    },
+    {
+      field: "Email",
+      value: capitalize(customer.email) || "*No email*",
+    },
+    {
+      field: "Provincia",
+      value: capitalize(customer.province),
+    },
+    {
+      field: "Municipio",
+      value: capitalize(customer.municipality),
+    },
+    {
+      field: "Calle/No.",
+      value: capitalize(customer.street),
+    },
+    {
+      field: "Sector",
+      value: capitalize(customer.section),
+    },
+    {
+      field: "Municipio (cliente)",
+      value: capitalize(customer.municipality) || "",
+    },
+    {
+      field: "Calle/No. (cliente)",
+      value: capitalize(customer.street) || "",
+    },
+    {
+      field: "Sector",
+      value: capitalize(customer.section) || "",
+    },
+    {
+      field: "Celular",
+      value: customer.mobile || "*No celular*",
+    },
   ];
 
   const loanTable = {
@@ -208,82 +245,24 @@ export default function CustomerInfoScreen(props) {
               <View style={styles.customerInfoContainer}>
                 <View style={styles.customerInfoLeftSection}>
                   {fields.map((field, index) => (
-                    <Text
-                      key={i++}
-                      style={{
-                        ...styles.customerInfoLeftSection_item,
-                      }}
+                    <View
+                      style={
+                        {
+                          // marginTop: 8,
+                          // display: "flex",
+                          // flexDirection: "row",
+                          // justifyContent: "space-between",
+                        }
+                      }
                     >
-                      {field}:
-                    </Text>
+                      <Text style={{ textAlign: "center", fontWeight: "bold" }}>
+                        {field.field}:
+                      </Text>
+                      <Text style={{ textAlign: "center" }}>{field.value}</Text>
+                    </View>
                   ))}
                 </View>
-                <View style={styles.customerInfoRightSection}>
-                  {/* <Text style={styles.customerInfoRightSection_item}>
-                    {customer.identification}
-                  </Text>{" "}
-                  */}
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {customer.rnc || "No RNC"}
-                  </Text>
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {customer.birth_date}
-                  </Text>
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {customer.email || "No email"}
-                  </Text>
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {customer.payment_address_type == "BUSINESS"
-                      ? customer.province
-                      : customer.province}
-                  </Text>
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {customer.payment_address_type == "BUSINESS"
-                      ? capitalize(customer.municipality).substring(0, 13)
-                      : "*Configurar dir. negocio*"}
-                  </Text>
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {customer.payment_address_type == "BUSINESS"
-                      ? capitalize(customer.street).substring(0, 22)
-                      : "*Configurar dir. negocio*"}
-                  </Text>
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {customer.payment_address_type == "BUSINESS"
-                      ? capitalize(customer.section).substring(0, 10)
-                      : "*Configurar dir. negocio*"}
-                  </Text>
-                  {/* <Text style={styles.customerInfoRightSection_item}>
-                    {customer.payment_address_type == "BUSINESS"
-                      ? capitalize(customer.street2)
-                      : capitalize(customer.street2)}
-                  </Text> */}
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {customer.payment_address_type == "CUSTOMER"
-                      ? capitalize(customer.municipality).substring(0, 13)
-                      : capitalize(customer.municipality)}
-                  </Text>
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {customer.payment_address_type == "CUSTOMER"
-                      ? capitalize(customer.street).substring(0, 22)
-                      : capitalize(customer.street)}
-                  </Text>
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {customer.payment_address_type == "CUSTOMER"
-                      ? capitalize(customer.section).substring(0, 10)
-                      : capitalize(customer.section)}
-                  </Text>
-                  {/* <Text style={styles.customerInfoRightSection_item}>
-                    {customer.payment_address_type == "CUSTOMER"
-                      ? capitalize(customer.street2)
-                      : capitalize(customer.street2)}
-                  </Text> */}
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {capitalize(customer.phone || "No phone")}
-                  </Text>
-                  <Text style={styles.customerInfoRightSection_item}>
-                    {capitalize(customer.mobile || "No celular")}
-                  </Text>
-                </View>
+                {/* Va aqui */}
               </View>
             </View>
             <View style={{ height: "auto" }}>
@@ -412,12 +391,12 @@ const styles = StyleSheet.create({
   },
 
   customerInfoLeftSection_item: {
-    textAlign: "right",
+    textAlign: "center",
     fontWeight: "bold",
   },
 
   customerInfoLeftSection: {
-    width: "50%",
+    width: "100%",
     paddingRight: 5,
   },
 

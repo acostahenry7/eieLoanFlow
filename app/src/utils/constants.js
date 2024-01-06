@@ -9,17 +9,17 @@ import {
 //export const  API_HOST = "http://10.1.102.106:3000"
 //export const  API_HOST = "http://172.16.0.16:3000"
 
-export const API_HOST = (async () => {
+export const API_HOST = async () => {
   const response = await getSavedConnectionUrlApi();
-  return response || "";
-})();
+  console.log(response);
+  return {
+    connectionTarget: response,
+  };
+};
 
 export const PRINTER_STORAGE = "printers";
 
 export const WINDOW_DIMENSION = {
-  width: Dimensions.get("window").width,
-  height: Dimensions.get("window").height,
-};
   width: Dimensions.get("window").width,
   height: Dimensions.get("window").height,
 };
@@ -30,5 +30,5 @@ export const SCREEN_DIMENSION = {
 };
 
 export const appInfo = {
-  version: "1.21",
+  version: "1.23",
 };
