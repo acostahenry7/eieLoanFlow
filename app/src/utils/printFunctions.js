@@ -366,3 +366,15 @@ export function generateQRLabel(object) {
 
   return zpl;
 }
+
+export function generateTestPage() {
+  let zpl = `^XA
+  ^LL600
+  ^FO35,60^IME:BANNER.PCX^FS
+  ${zTitle("Pagina de prueba completada! ", 40, 350, 40, 40)}
+  ${zTitle("La impresora esta lista para imprimir", 90, 400, 25, 25)}
+  ${zTitle("(Recuerde revisar la cantidad de papel)", 85, 440, 25, 25)}
+  ^XZ`;
+
+  return zpl;
+}

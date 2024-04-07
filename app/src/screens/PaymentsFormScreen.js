@@ -53,7 +53,7 @@ export default function PaymentsFormScreen(props) {
   const [receiptQuotas, setReceiptQuotas] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [payLoan, setPayLoan] = useState(false);
-  const [isPaymentButtonStatus, setIsPaymentButtonDisabled] = useState(false);
+  const [isPaymentButtonDisabled, setIsPaymentButtonDisabled] = useState(false);
   //const [pendingAmount, setPendingAmount] = useState("");
 
   console.log(
@@ -544,7 +544,10 @@ export default function PaymentsFormScreen(props) {
               style={styles.textInput}
               placeholder="RD$"
               value={formik.values.amount}
-              onChangeText={(text) => formik.setFieldValue("amount", text)}
+              onChangeText={(text) => {
+                formik.setFieldValue("amount", text);
+                setIsPaymentButtonDisabled(false);
+              }}
               fieldKey="amount"
               keyboardType="decimal-pad"
             />
@@ -560,7 +563,7 @@ export default function PaymentsFormScreen(props) {
             </Text>
           </View>
           <Text style={{ color: "red" }}>{formik.errors.amount}</Text>
-          {currentCharge.length > 0 && (
+          {currentCharge?.find((item) => item.loan_number == loan) > 0 && (
             <View
               style={{
                 backgroundColor: "lemonchiffon",
@@ -633,7 +636,7 @@ export default function PaymentsFormScreen(props) {
         </View> */}
         <View style={styles.formGroup}>
           <Button
-            disabled={isPaymentButtonStatus}
+            disabled={isPaymentButtonDisabled}
             title="Pagar"
             onPress={(e) => {
               formik.handleSubmit();
@@ -776,7 +779,7 @@ const initialValues = (loan, loans, quotas, charges = [], navigation) => {
   let loanChargeId = "";
   if (charges?.length > 0) {
     let result = charges?.find((item) => item.loan_number == loan);
-    console.log("FROM PAYMENT FORM", result);
+    console.log("FROM PAYMENT FORM", result, loan);
     if (result) {
       isACharge = true;
       loanChargeId = result?.charge_id;

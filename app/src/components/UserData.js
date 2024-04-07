@@ -7,6 +7,7 @@ import {
   StyleSheet,
   Alert,
   TouchableOpacity,
+  TouchableNativeFeedback,
 } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
@@ -84,7 +85,7 @@ export default function UserData(props) {
           nextScreen={"Reports"}
           icon={"money"}
         />
-        <UserDataMenuItem
+        {/* <UserDataMenuItem
           field={"Prestamos Nuevos"}
           navigation={navigation}
           nextScreen={"Reports"}
@@ -94,7 +95,7 @@ export default function UserData(props) {
             bodyKey: "",
           }}
           icon={"update"}
-        />
+        /> */}
         <UserDataMenuItem
           field={"Visitas"}
           navigation={navigation}
@@ -141,24 +142,25 @@ export default function UserData(props) {
           icon={"cloud-upload"}
         />
       </View>
-      <Text
-        style={{
-          color: "red",
-          textAlign: "center",
-          marginTop: 20,
-          marginBottom: 100,
-        }}
-        onPress={logout}
-      >
-        Cerrar Sesión
-      </Text>
+      <TouchableOpacity onPress={logout}>
+        <Text
+          style={{
+            color: "red",
+            textAlign: "center",
+            marginTop: 20,
+            marginBottom: 100,
+          }}
+        >
+          Cerrar Sesión
+        </Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
 
 function UserDataMenuItem({ icon, field, nextScreen, navigation, options }) {
   return (
-    <TouchableOpacity
+    <TouchableNativeFeedback
       onPress={() => {
         icon != "lock"
           ? navigation.navigate(nextScreen, { params: options })
@@ -171,12 +173,13 @@ function UserDataMenuItem({ icon, field, nextScreen, navigation, options }) {
       <View style={styles.menuDivision}>
         <Icon
           name={icon}
-          size={30}
+          size={20}
+          color={"rgba(	70, 130, 180, 0.7)"}
           style={{ marginRight: 10, marginTop: -4 }}
         />
-        <Text style={{ width: "100%" }}>{field}</Text>
+        <Text style={{ width: "100%", color: "rgba(0,0,0,0.7)" }}>{field}</Text>
       </View>
-    </TouchableOpacity>
+    </TouchableNativeFeedback>
   );
 }
 
@@ -221,9 +224,13 @@ function AdminManagement({ navigation }) {
 
 const styles = StyleSheet.create({
   menuDivisionTitle: {
-    color: "white",
-    fontWeight: "900",
-    backgroundColor: "#4682b4",
+    color: "rgba(0,0,0,0.4)",
+    fontWeight: "100",
+    textTransform: "capitalize",
+    //backgroundColor: "#4682b4",
+    backgroundColor: "transparent",
+    borderBottomColor: "rgba(	70, 130, 180, 0.1)",
+    // borderBottomWidth: 2,
     borderRadius: 15,
     marginHorizontal: 5,
     paddingHorizontal: 15,
@@ -238,6 +245,7 @@ const styles = StyleSheet.create({
     //borderBottomWidth: 1,
     borderColor: "#80808020",
     flexDirection: "row",
+    alignItems: "center",
   },
 
   menuDivisionText: {

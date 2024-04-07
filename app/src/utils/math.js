@@ -128,6 +128,7 @@ export function setPaymentObject(
       customer,
       registerId,
       quotaAmount,
+      globalDiscount,
       // pendingAmount:
       //   liquidateLoan == true
       //     ? parseFloat(
@@ -338,6 +339,8 @@ function processPayment(
   let response = [];
   let quota;
 
+  // console.log("CUOTAS TO PAY ??????????/", quotas);
+
   // let discQuotas = [];
   // quotas.map((c, i) => i < amountOfQuotas && discQuotas.push(c));
 
@@ -358,16 +361,18 @@ function processPayment(
   //   );
   // }
 
-  const quotasWithDiscount = quotas.filter((q) => parseFloat(q.discount) > 0);
+  const quotasWithDiscount = quotas
+    .filter((item, index) => index + 1 == amountOfQuotas)
+    .filter((q) => parseFloat(q.discount) > 0);
   const minAmount = quotasWithDiscount.reduce(
     (acc, i) => acc + parseFloat(i.quota_amount),
     0
   );
 
-  console.log("PRUEBA DESCUENTO", {
-    quotasWithDiscount,
-    minAmount,
-  });
+  // console.log("PRUEBA DESCUENTO", {
+  //   quotasWithDiscount,
+  //   minAmount,
+  // });
 
   if (amount < minAmount)
     throw new Error(
@@ -382,13 +387,19 @@ function processPayment(
       0
     );
 
-    console.log(
-      "########################################################################",
-      amount,
-      sumQuotas
-    );
-    if (amount < sumQuotas) {
-      throw new Error("El monto debe ser al menos " + sumQuotas);
+    // console.log(
+    //   "########################################################################",
+    //   amount,
+    //   sumQuotas
+    // );
+
+    if (amount < Math.round(sumQuotas + Number.EPSILON)) {
+      throw new Error(
+        "El monto debe ser al menos " +
+          Math.round(sumQuotas + Number.EPSILON) +
+          "y es " +
+          amount
+      );
     } else {
       amountOfQuotas = quotas.length;
     }
@@ -427,10 +438,11 @@ function processPayment(
 
 function paymentCurrentQuota(quota, amount) {
   // console.log(quota);
-
+  console.log("AMOUNT", amount, "VS", "CUOTA AMOUNT", quota.quota_amount);
+  console.log("MISTER QUOTA", quota);
   if (quota.discount > 0 && amount < quota.quota_amount) {
     throw new Error(
-      "Esta cuota presenta descuento, el monto debe ser mayor a RD$" +
+      `La cuota ${quota.quotaNumber} presenta descuento, el monto debe ser mayor a RD$` +
         significantFigure(quota.quota_amount.toString())
     );
   }
@@ -443,9 +455,13 @@ function paymentCurrentQuota(quota, amount) {
     quota.paid = false;
   }
 
-  if (quota.totalPaidMora < quota.mora && amount >= quota.quota_amount) {
+  // if (quota.totalPaidMora < quota.mora && amount >= quota.quota_amount) {
+  //   quota.mora -= quota.discount;
+  //   //quota.fixedMora -= quota.discount;
+  // }
+
+  if (quota.mora > 0 && quota.discount <= quota.mora) {
     quota.mora -= quota.discount;
-    //quota.fixedMora -= quota.discount;
   }
 
   // Check if mora can be paid
@@ -498,10 +514,6 @@ function paymentCurrentQuota(quota, amount) {
       interestWasPaid = true;
     }
 
-    console.log("WHAT IS GOIN ON ", {
-      amount,
-      capital: quota.capital - (quota.totalPaid - quota.interest),
-    });
     quota.capital = quota.amountOfFee - quota.interest;
 
     // Check if capital can be paid
@@ -530,9 +542,8 @@ function paymentCurrentQuota(quota, amount) {
         quota.totalPaid += quota.capital - (quota.totalPaid - quota.interest);
       } else {
         amount -= quota.capital;
-        console.log("BEFORE", quota.totalPaid);
+
         quota.totalPaid += quota.capital;
-        console.log("AFTER", quota.totalPaid);
       }
       // quota.totalPaid -= quota.discount;
       // amount += quota.discount;

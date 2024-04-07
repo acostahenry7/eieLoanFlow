@@ -12,6 +12,7 @@ import {
   genereateZPLTemplate,
   genereateZPLChargesTemplate,
   generateQRLabel,
+  generateTestPage,
 } from "../../utils/printFunctions";
 
 // Bluetooth Printing API
@@ -65,6 +66,9 @@ async function generateReceipt(object, origin) {
       break;
     case "qr":
       zpl = generateQRLabel(object);
+      break;
+    case "test":
+      zpl = generateTestPage();
       break;
     default:
       break;
