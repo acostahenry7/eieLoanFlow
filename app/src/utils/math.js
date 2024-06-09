@@ -514,7 +514,9 @@ function paymentCurrentQuota(quota, amount) {
       interestWasPaid = true;
     }
 
-    quota.capital = quota.amountOfFee - quota.interest;
+    quota.capital =
+      Math.round((quota.amountOfFee - quota.interest + Number.EPSILON) * 100) /
+      100;
 
     // Check if capital can be paid
     if (amount < quota.capital - (quota.totalPaid - quota.interest)) {
